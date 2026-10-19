@@ -1,7 +1,7 @@
 # Zero — roadmap
-- [ ] Onboarding completo com medidas opcionais e consentimento de saúde
-- [ ] Atividades por texto e chat com estimativa por IA
-- [ ] Isolamento de contas e controles de privacidade
+- [x] Onboarding completo com medidas opcionais e consentimento de saúde
+- [x] Atividades por texto e chat com estimativa por IA
+- [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)
 - [ ] Push no celular com app fechado — configurar serviço de envio e credenciais de Android/iOS
 - [ ] Versão nativa — depende de projeto nativo e contas das lojas; o atual é web
 - [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
@@ -18,7 +18,7 @@
 - [x] Trocar "Jarvis" por "assistente pessoal"
 - [x] Voz ElevenLabs
 - [x] IA mais interativa (sugestões rápidas, proatividade)
-- [x] Notificações: no app, push do navegador, e-mail
+- [x] Notificações no app e no navegador aberto; envio com app fechado e e-mail continuam pendentes abaixo
 - [x] Sistema de admin
 - [x] Planos via Paddle (grátis + 3 planos, mensal/semestral/anual, teste grátis, ancoragem)
 - [x] Página de apresentação mais bem planejada
