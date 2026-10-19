@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check } from "lucide-react";
@@ -10,10 +11,10 @@ import { LegalLinks } from "@/components/LegalLinks";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Zero — assistente pessoal de tempo, dinheiro e corpo" },
-      { name: "description", content: "Fale com o Zero e pare de desperdiçar tempo, dinheiro e energia. Assistente pessoal por voz que organiza agenda, finanças e dieta. 1 mês grátis." },
-      { property: "og:title", content: "Zero — seu assistente pessoal por voz" },
-      { property: "og:description", content: "Zero desperdício. Tempo, dinheiro, energia e corpo no máximo. 1 mês grátis." },
+      { title: i18n.t("landing.title") },
+      { name: "description", content: i18n.t("landing.description") },
+      { property: "og:title", content: i18n.t("landing.socialTitle") },
+      { property: "og:description", content: i18n.t("landing.socialDescription") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -21,22 +22,22 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+function Landing() {
+  const { t } = useTranslation();
 const DEMO = [
-  { who: "you", text: "Gastei 48 no almoço e tenho dentista amanhã às 15h." },
-  { who: "zero", text: "Anotado: R$ 48 em alimentação — você já usou 72% do orçamento do mês. Dentista marcado amanhã às 15h, te aviso 10 minutos antes." },
-  { who: "you", text: "Comi 200g de frango com arroz." },
-  { who: "zero", text: "≈ 520 kcal e 46 g de proteína. Faltam 60 g pra sua meta de hoje — que tal um iogurte no lanche?" },
+  { who: "you", text: t("landing.demo1") },
+  { who: "zero", text: t("landing.demo2") },
+  { who: "you", text: t("landing.demo3") },
+  { who: "zero", text: t("landing.demo4") },
 ];
 
 const FAQ: [string, string][] = [
-  ["Preciso digitar tudo?", "Não. O Zero abre direto no modo voz: você fala e ele entende, anota e responde falando."],
-  ["Como funciona o teste grátis?", "Você tem 1 mês grátis em qualquer plano pago. Cancele antes do fim do teste e não paga nada."],
-  ["Meus dados ficam seguros?", "Sim. Cada conta só enxerga os próprios dados, e nada é vendido ou compartilhado para publicidade."],
-  ["Funciona no celular?", "Sim, direto no navegador do celular ou computador, com notificações para lembrar do que importa."],
+  [t("landing.q1"), t("landing.a1")],
+  [t("landing.q2"), t("landing.a2")],
+  [t("landing.q3"), t("landing.a3")],
+  [t("landing.q4"), t("landing.a4")],
 ];
 
-function Landing() {
-  const { t } = useTranslation();
   const pillars = [
     { icon: Clock, title: t("pillarTime"), d: t("pillarTimeD"), tone: "text-time", k: "01" },
     { icon: Wallet, title: t("pillarMoney"), d: t("pillarMoneyD"), tone: "text-money", k: "02" },
@@ -48,14 +49,14 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Logo />
           <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-            <a href="#como-funciona" className="hover:text-foreground">Como funciona</a>
-            <Link to="/planos" className="hover:text-foreground">Planos</Link>
-            <a href="#faq" className="hover:text-foreground">Dúvidas</a>
+            <a href="#como-funciona" className="hover:text-foreground">{t("landing.how")}</a>
+            <Link to="/planos" className="hover:text-foreground">{t("landing.plans")}</Link>
+            <a href="#faq" className="hover:text-foreground">{t("landing.faq")}</a>
           </nav>
           <div className="flex items-center gap-2">
             <Prefs />
             <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link to="/auth">{t("signIn")}</Link></Button>
-            <Button asChild className="rounded-full"><Link to="/auth">Testar grátis</Link></Button>
+            <Button asChild className="rounded-full"><Link to="/auth">{t("landing.trial")}</Link></Button>
           </div>
         </div>
       </header>
@@ -69,18 +70,18 @@ function Landing() {
               <span className="size-1.5 rounded-full bg-signal" /> {t("slogan")}
             </p>
             <h1 className="mt-6 text-5xl font-semibold leading-[1.02] md:text-7xl">
-              Fale. <span className="text-gradient-signal">O Zero resolve.</span>
+              {t("landing.speak")} <span className="text-gradient-signal">{t("landing.solve")}</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              Seu assistente pessoal por voz para dominar o tempo, o dinheiro e o corpo. Ele anota, calcula, lembra e cobra — você só vive.
+              {t("landing.hero")}
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Button asChild size="lg" className="h-12 gap-2 rounded-full px-7 text-base">
-                <Link to="/auth">Começar 1 mês grátis <ArrowRight className="size-4" /></Link>
+                <Link to="/auth">{t("landing.start")} <ArrowRight className="size-4" /></Link>
               </Button>
-              <Link to="/planos" className="text-sm text-muted-foreground underline-offset-4 hover:underline">Ver planos a partir de R$ 9,90</Link>
+              <Link to="/planos" className="text-sm text-muted-foreground underline-offset-4 hover:underline">{t("landing.from")}</Link>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">Sem compromisso · cancele quando quiser</p>
+            <p className="mt-4 text-xs text-muted-foreground">{t("landing.cancel")}</p>
           </div>
 
           <div className="relative mx-auto w-full max-w-md">
@@ -117,17 +118,17 @@ function Landing() {
 
       {/* How it works */}
       <section id="como-funciona" className="mx-auto max-w-6xl px-6 py-24">
-        <p className="font-display text-xs uppercase tracking-[0.3em] text-muted-foreground">Como funciona</p>
-        <h2 className="mt-4 max-w-2xl text-4xl font-semibold md:text-5xl">Três segundos para registrar. Zero esforço para lembrar.</h2>
+        <p className="font-display text-xs uppercase tracking-[0.3em] text-muted-foreground">{t("landing.how")}</p>
+        <h2 className="mt-4 max-w-2xl text-4xl font-semibold md:text-5xl">{t("landing.seconds")}</h2>
         <div className="mt-14 grid gap-4 md:grid-cols-3">
           {[
-            { icon: Mic, t: "Abra e fale", d: "O app já abre ouvindo. Conte o que gastou, o que comeu ou o que precisa fazer." },
-            { icon: Sparkles, t: "O Zero organiza", d: "Ele classifica gastos, calcula calorias e macros, monta sua agenda e guarda o que importa sobre você." },
-            { icon: Bell, t: "Você é lembrado", d: "Notificações na hora certa, alertas de orçamento e um empurrão quando você sai do plano." },
+            { icon: Mic, t: t("landing.open"), d: t("landing.openD") },
+            { icon: Sparkles, t: t("landing.organize"), d: t("landing.organizeD") },
+            { icon: Bell, t: t("landing.remind"), d: t("landing.remindD") },
           ].map((s, i) => (
             <div key={s.t} className="rounded-3xl border bg-card p-7">
               <span className="grid size-10 place-items-center rounded-full bg-signal text-signal-foreground"><s.icon className="size-4" /></span>
-              <p className="mt-6 font-display text-xs text-muted-foreground">Passo {i + 1}</p>
+              <p className="mt-6 font-display text-xs text-muted-foreground">{t("landing.step", { value: i + 1 })}</p>
               <h3 className="mt-1 text-xl font-semibold">{s.t}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
             </div>
@@ -140,20 +141,20 @@ function Landing() {
         <div className="mx-auto max-w-6xl rounded-[2rem] bg-ink p-10 text-background md:p-16 dark:bg-card dark:text-foreground">
           <div className="grid items-center gap-10 md:grid-cols-2">
             <div>
-              <h2 className="text-4xl font-semibold md:text-5xl">Quanto custa desperdiçar?</h2>
-              <p className="mt-4 opacity-70">Um único gasto esquecido já paga o ano todo do Zero. Comece com 1 mês grátis.</p>
+              <h2 className="text-4xl font-semibold md:text-5xl">{t("landing.cost")}</h2>
+              <p className="mt-4 opacity-70">{t("landing.costD")}</p>
               <Button asChild size="lg" className="mt-8 h-12 rounded-full bg-signal px-7 text-signal-foreground hover:bg-signal/90">
-                <Link to="/planos">Ver planos</Link>
+                <Link to="/planos">{t("chat2.plans")}</Link>
               </Button>
             </div>
             <ul className="space-y-3">
-              {([["Essencial", "R$ 9,90"], ["Pro · mais escolhido", "R$ 21,90"], ["Max", "R$ 37,90"]] as [string, string][]).map(([n, p]) => (
+              {([[t("landing.essential"), "R$ 9,90"], [t("landing.pro"), "R$ 21,90"], ["Max", "R$ 37,90"]] as [string, string][]).map(([n, p]) => (
                 <li key={n} className="flex items-center justify-between border-b border-current/15 pb-3">
                   <span className="flex items-center gap-2"><Check className="size-4 text-signal" /> {n}</span>
-                  <span className="font-display">{p}<span className="text-xs opacity-60">/mês</span></span>
+                  <span className="font-display">{p}<span className="text-xs opacity-60">{t("landing.month")}</span></span>
                 </li>
               ))}
-              <li className="pt-1 text-xs opacity-60">Até 25% de desconto nos planos semestral e anual.</li>
+              <li className="pt-1 text-xs opacity-60">{t("landing.discount")}</li>
             </ul>
           </div>
         </div>
@@ -161,7 +162,7 @@ function Landing() {
 
       {/* FAQ */}
       <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
-        <h2 className="text-center text-4xl font-semibold">Dúvidas</h2>
+        <h2 className="text-center text-4xl font-semibold">{t("landing.faq")}</h2>
         <Accordion type="single" collapsible className="mt-10">
           {FAQ.map(([q, a]) => (
             <AccordionItem key={q} value={q}>

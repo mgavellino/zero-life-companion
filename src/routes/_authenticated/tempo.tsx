@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +16,7 @@ import { DailyHabits } from "@/components/DailyHabits";
 import { TimeClock } from "@/components/TimeClock";
 
 export const Route = createFileRoute("/_authenticated/tempo")({
-  head: () => ({ meta: [{ title: "Tempo — Zero" }, { name: "description", content: "Suas tarefas e hábitos diários, sem tarefas pré-cadastradas." }, { property: "og:title", content: "Tempo — Zero" }, { property: "og:description", content: "Suas tarefas e hábitos diários." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: i18n.t("time2.title") }, { name: "description", content: i18n.t("time2.description") }, { property: "og:title", content: i18n.t("time2.title") }, { property: "og:description", content: i18n.t("time2.socialDescription") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: TimePage,
 });
 
@@ -80,17 +81,17 @@ function TimePage() {
       </Card>
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2">
-          <Input className="h-8 max-w-[180px]" placeholder="Buscar…" value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
-          {([["pending", t("pending")], ["done", t("done")], ["all", "Todas"]] as const).map(([v, l]) => (
+          <Input className="h-8 max-w-[180px]" placeholder={t("shell.search")} value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
+          {([["pending", t("pending")], ["done", t("done")], ["all", t("time2.all")]] as const).map(([v, l]) => (
             <Button key={v} size="sm" variant={fl.status === v ? "default" : "ghost"} onClick={() => setFl({ ...fl, status: v })}>{l}</Button>
           ))}
           <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.when} onChange={(e) => setFl({ ...fl, when: e.target.value })}>
-            <option value="all">Qualquer data</option><option value="today">Hoje</option><option value="week">Próximos 7 dias</option><option value="late">Atrasadas</option><option value="nodate">Sem data</option>
+            <option value="all">{t("time2.anyDate")}</option><option value="today">{t("today")}</option><option value="week">{t("time2.week")}</option><option value="late">{t("time2.late")}</option><option value="nodate">{t("time2.noDate")}</option>
           </select>
           <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.pri} onChange={(e) => setFl({ ...fl, pri: e.target.value })}>
-            <option value="all">Toda prioridade</option><option value="alta">{t("high")}</option><option value="media">{t("medium")}</option><option value="baixa">{t("low")}</option>
+            <option value="all">{t("time2.priority")}</option><option value="alta">{t("high")}</option><option value="media">{t("medium")}</option><option value="baixa">{t("low")}</option>
           </select>
-          <span className="ml-auto pr-2 text-sm text-muted-foreground">{shown.length} itens</span>
+          <span className="ml-auto pr-2 text-sm text-muted-foreground">{t("shell.items", { count: shown.length })}</span>
         </div>
         {shown.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
         {shown.map((x) => (
@@ -100,7 +101,7 @@ function TimePage() {
             <span className={`min-w-0 flex-1 break-words ${x.done ? "text-muted-foreground line-through" : ""}`}>{x.title}</span>
             {x.minutes && <span className="text-xs text-muted-foreground">{x.minutes} min</span>}
             {x.due_at && <span className="text-xs text-muted-foreground">{new Date(x.due_at).toLocaleString(i18n.language, { dateStyle: "short", timeStyle: "short" })}</span>}
-            {x.due_at && <Button variant="ghost" size="icon" aria-label="Enviar ao Google Agenda" title="Enviar ao Google Agenda" onClick={async()=>{try{await sendCalendar({data:{id:x.id}});toast.success("Compromisso salvo no Google Agenda");}catch{toast.error("Conecte sua agenda e tente novamente.");}}}><CalendarPlus className="size-4" /></Button>}
+            {x.due_at && <Button variant="ghost" size="icon" aria-label={t("time2.calendar")} title={t("time2.calendar")} onClick={async()=>{try{await sendCalendar({data:{id:x.id}});toast.success(t("time2.saved"));}catch{toast.error(t("time2.error"));}}}><CalendarPlus className="size-4" /></Button>}
             <button aria-label={t("delete")} onClick={() => m.remove.mutate(x.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4" /></button>
           </div>
         ))}

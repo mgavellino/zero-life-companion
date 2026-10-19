@@ -26,6 +26,7 @@ export function usePrefsBootstrap() {
 
 export function ThemeToggle() {
   const { t } = useTranslation();
+  const { t } = useTranslation();
   const [dark, setDark] = useState(false);
   useEffect(() => setDark(document.documentElement.classList.contains("dark")), []);
   return (

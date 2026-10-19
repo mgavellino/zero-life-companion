@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,10 +13,10 @@ import { Input } from "@/components/ui/input";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Zero" },
-      { name: "description", content: "Entre ou crie sua conta no Zero." },
-      { property: "og:title", content: "Entrar — Zero" },
-      { property: "og:description", content: "Entre ou crie sua conta no Zero." },
+      { title: i18n.t("shell.authTitle") },
+      { name: "description", content: i18n.t("shell.authDescription") },
+      { property: "og:title", content: i18n.t("shell.authTitle") },
+      { property: "og:description", content: i18n.t("shell.authDescription") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

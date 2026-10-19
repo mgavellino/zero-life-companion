@@ -26,10 +26,10 @@ const chatQuery = {
   queryKey: ["chat"],
   queryFn: async (): Promise<{ threadId: string; messages: UIMessage[] }> => {
     const { data: auth, error: authError } = await supabase.auth.getUser();
-    if (authError || !auth.user) throw new Error("Não consegui abrir sua conversa. Entre novamente.");
+    if (authError || !auth.user) throw new Error(i18n.t("chat2.authError"));
     const userId = auth.user.id;
     const { data: th, error: threadError } = await supabase.from("threads").select("id").eq("user_id", userId).order("created_at").limit(1);
-    if (threadError) throw new Error("Não consegui carregar sua conversa. Tente novamente.");
+    if (threadError) throw new Error(i18n.t("chat2.loadError"));
     let threadId = th?.[0]?.id;
     if (!threadId) {
       const { data, error } = await supabase.from("threads").insert({ title: "Zero", user_id: userId }).select("id").single();
@@ -38,7 +38,7 @@ const chatQuery = {
     }
     const messages = await readChatHistory(async (from, to) => {
       const { data, error } = await supabase.from("messages").select("id,role,parts").eq("user_id", userId).eq("thread_id", threadId).order("created_at").order("id").range(from, to);
-      if (error) throw new Error("Não consegui carregar suas mensagens. Tente novamente.");
+      if (error) throw new Error(i18n.t("chat2.messagesError"));
       return data;
     });
     return { threadId, messages };
@@ -50,10 +50,10 @@ const chatQuery = {
 export const Route = createFileRoute("/_authenticated/chat")({
   head: () => ({
     meta: [
-      { title: "Chat de voz — Zero" },
-      { name: "description", content: "Fale com o Zero, seu assistente pessoal, por voz ou texto." },
-      { property: "og:title", content: "Chat de voz — Zero" },
-      { property: "og:description", content: "Fale com o Zero, seu assistente pessoal, por voz ou texto." },
+      { title: i18n.t("chat2.title") },
+      { name: "description", content: i18n.t("chat2.description") },
+      { property: "og:title", content: i18n.t("chat2.title") },
+      { property: "og:description", content: i18n.t("chat2.description") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -135,8 +135,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     onError: (e) => {
       const m = e.message || "";
       setVoice("idle");
-      if (m.includes("LIMIT")) toast.error("Você atingiu o limite diário de mensagens do seu plano.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } });
-      else toast.error(m.includes("429") ? "Muitas solicitações, tente já já." : "Não consegui responder agora. Tente novamente em instantes.");
+      if (m.includes("LIMIT")) toast.error(t("chat2.limit"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } });
+      else toast.error(m.includes("429") ? t("chat2.rateError") : t("chat2.replyError"));
     },
     onFinish: async ({ message, messages: completedMessages }) => {
       qc.setQueryData(chatQuery.queryKey, { threadId, messages: completedMessages });
@@ -170,7 +170,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
     if (!Ctor) {
-      toast.error("Seu navegador não suporta voz. Use o Chrome, Edge ou Safari.");
+      toast.error(t("chat2.browserError"));
       setMode("text");
       return;
     }
@@ -192,8 +192,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       setInterim(finalText + tmp);
     };
     rec.onerror = (e) => {
-      if (e.error === "not-allowed") toast.error("Permita o microfone para falar com o Zero.");
-      else if (e.error !== "no-speech" && e.error !== "aborted") toast.error("Não consegui ouvir. Tente novamente.");
+      if (e.error === "not-allowed") toast.error(t("chat2.micError"));
+      else if (e.error !== "no-speech" && e.error !== "aborted") toast.error(t("chat2.hearingError"));
     };
     rec.onend = () => {
       recRef.current = null;
@@ -209,7 +209,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     recRef.current = rec;
     setVoice("listening");
     rec.start();
-  }, [send]);
+  }, [send, t]);
   listenRef.current = listen;
 
   function toggleVoice() {
@@ -232,18 +232,18 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const suggestions = t("suggestions", { returnObjects: true }) as string[];
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
   const voiceLabel: Record<VoiceState, string> = {
-    idle: "Toque para falar",
-    listening: "Ouvindo…",
-    thinking: "Pensando…",
-    speaking: "Falando… toque para interromper",
+    idle: t("chat2.idle"),
+    listening: t("listening"),
+    thinking: t("thinking"),
+    speaking: t("chat2.speaking"),
   };
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-end gap-1 border-b px-4 py-2">
         <div className="inline-flex rounded-full border bg-card p-0.5 text-xs">
-          <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? setMode("voice") : toast("Chat de voz a partir do plano Essencial.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
-            <AudioLines className="size-3.5" /> Voz
+          <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? setMode("voice") : toast(t("chat2.voicePlan"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
+            <AudioLines className="size-3.5" /> {t("chat2.voice")}
           </Button>
           <Button variant="ghost" size="sm"
             onClick={() => {
@@ -253,7 +253,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
             }}
             className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
           >
-            <Keyboard className="size-3.5" /> Texto
+            <Keyboard className="size-3.5" /> {t("chat2.text")}
           </Button>
         </div>
       </div>
@@ -261,7 +261,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       {mode === "voice" && (
         <div className="flex shrink-0 items-center justify-center gap-4 border-b bg-card/50 px-4 py-3">
           <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} className={cn("voice-orb relative grid size-16 shrink-0 place-items-center rounded-full p-0", `is-${voice}`)}><ZeroRing className="size-7" /></Button>
-          <div className="min-w-0"><p className="text-sm font-medium">{voiceLabel[voice]}</p><p className="mt-1 max-w-lg break-words text-xs text-muted-foreground">{voice === "listening" ? interim || "…" : "Zero · assistente pessoal"}</p>{handsFree && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => {setHandsFree(false); recRef.current?.stop();}}>Pausar conversa contínua</Button>}</div>
+          <div className="min-w-0"><p className="text-sm font-medium">{voiceLabel[voice]}</p><p className="mt-1 max-w-lg break-words text-xs text-muted-foreground">{voice === "listening" ? interim || "…" : t("chat2.assistant")}</p>{handsFree && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => {setHandsFree(false); recRef.current?.stop();}}>{t("chat2.pause")}</Button>}</div>
         </div>
       )}
       <>
