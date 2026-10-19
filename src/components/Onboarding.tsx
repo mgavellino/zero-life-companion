@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { Component, useEffect, useState, type ReactNode } from "react";
+import { RefreshCw } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, Check, Clock, Wallet, Salad, ShieldCheck } from "lucide-react";
@@ -27,11 +28,61 @@ export const preferencesQuery = {
 };
 const focus = [{ id: "time", label: "onboarding.time", icon: Clock }, { id: "money", label: "onboarding.money", icon: Wallet }, { id: "body", label: "onboarding.body", icon: Salad }] as const;
 
+// English last-resort copy, used only when the translation files themselves failed to load.
+const RECOVERY_FALLBACK = { recoveryTitle: "Something didn't load", recoveryBody: "We couldn't open this step right now. Your data is safe.", recoveryRetry: "Try again", recoveryReload: "Reload page" } as const;
+function recoveryText(key: keyof typeof RECOVERY_FALLBACK) {
+  try { const v = i18n.t(`onboarding.${key}`); return v && v !== `onboarding.${key}` ? v : RECOVERY_FALLBACK[key]; } catch { return RECOVERY_FALLBACK[key]; }
+}
+
+/** Full-screen recovery shown instead of a blank app when onboarding fails to load or render. */
+export function OnboardingRecovery({ onRetry }: { onRetry: () => void }) {
+  return (
+    <main role="alert" className="grid h-dvh place-items-center overflow-y-auto p-6">
+      <section className="w-full max-w-sm text-center">
+        <div className="flex justify-center"><Logo /></div>
+        <h1 className="mt-8 text-2xl font-bold">{recoveryText("recoveryTitle")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{recoveryText("recoveryBody")}</p>
+        <div className="mt-6 grid gap-2">
+          <Button onClick={onRetry}><RefreshCw className="size-4" />{recoveryText("recoveryRetry")}</Button>
+          <Button variant="outline" onClick={() => window.location.reload()}>{recoveryText("recoveryReload")}</Button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+class OnboardingBoundary extends Component<{ children: ReactNode; onReset: () => void }, { failed: boolean }> {
+  override state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  override componentDidCatch(error: unknown) { console.error("Onboarding failed to render", error); }
+  override render() {
+    if (this.state.failed) return <OnboardingRecovery onRetry={() => { this.setState({ failed: false }); this.props.onReset(); }} />;
+    return this.props.children;
+  }
+}
+
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const qc = useQueryClient();
+  const [attempt, setAttempt] = useState(0);
+  const retry = () => {
+    void i18n.reloadResources?.().catch(() => {});
+    void qc.invalidateQueries({ queryKey: preferencesQuery.queryKey });
+    setAttempt((n) => n + 1);
+  };
+  return <OnboardingBoundary key={attempt} onReset={retry}><GateContent onRetry={retry}>{children}</GateContent></OnboardingBoundary>;
+}
+
+function GateContent({ children, onRetry }: { children: React.ReactNode; onRetry: () => void }) {
   const { t } = useTranslation();
-  const query = useQuery(preferencesQuery);
-  if (query.isPending) return <div className="p-10 text-muted-foreground">{t("onboarding.preparing")}</div>;
-  if (query.isError) return <div className="p-10"><p>{query.error.message}</p><Button className="mt-4" onClick={() => query.refetch()}>{t("shell.retry")}</Button></div>;
+  const query = useQuery({ ...preferencesQuery, retry: 2 });
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!query.isPending) { setSlow(false); return; }
+    const id = setTimeout(() => setSlow(true), 15_000);
+    return () => clearTimeout(id);
+  }, [query.isPending]);
+  if (query.isError || (query.isPending && slow)) return <OnboardingRecovery onRetry={() => { setSlow(false); onRetry(); void query.refetch(); }} />;
+  if (query.isPending) return <div className="grid h-dvh place-items-center p-10 text-muted-foreground">{t("onboarding.preparing")}</div>;
   // Mandatory: no app navigation is rendered until onboarding is saved.
   if (!query.data?.onboarding_completed_at) return <div className="h-dvh overflow-y-auto"><Onboarding /></div>;
   return children;
