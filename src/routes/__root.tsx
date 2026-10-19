@@ -69,7 +69,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Zero — seu assistente pessoal" },
-      { name: "description", content: "Zero desperdício, de tempo, dinheiro, energia e corpo." },
+      { name: "description", content: "Zero desperdício. Tempo, dinheiro, energia e corpo no máximo." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
