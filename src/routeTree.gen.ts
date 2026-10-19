@@ -19,6 +19,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDietaRouteImport } from './routes/_authenticated/dieta'
@@ -80,6 +81,12 @@ const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
   id: '/conta',
   path: '/conta',
@@ -149,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/chat': typeof AuthenticatedChatRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/conta': typeof AuthenticatedContaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/dieta': typeof AuthenticatedDietaRoute
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/chat': typeof AuthenticatedChatRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/conta': typeof AuthenticatedContaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/dieta': typeof AuthenticatedDietaRoute
@@ -195,6 +204,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/chat': typeof AuthenticatedChatRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/dieta': typeof AuthenticatedDietaRoute
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/chat'
+    | '/configuracoes'
     | '/conta'
     | '/dashboard'
     | '/dieta'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/chat'
+    | '/configuracoes'
     | '/conta'
     | '/dashboard'
     | '/dieta'
@@ -264,6 +276,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/chat'
+    | '/_authenticated/configuracoes'
     | '/_authenticated/conta'
     | '/_authenticated/dashboard'
     | '/_authenticated/dieta'
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/conta': {
       id: '/_authenticated/conta'
       path: '/conta'
@@ -448,6 +468,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedChatRoute: typeof AuthenticatedChatRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDietaRoute: typeof AuthenticatedDietaRoute
@@ -459,6 +480,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedChatRoute: AuthenticatedChatRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDietaRoute: AuthenticatedDietaRoute,

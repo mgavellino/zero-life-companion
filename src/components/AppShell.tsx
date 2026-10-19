@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield, Menu } from "lucide-react";
+import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield, Menu, Settings } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "./ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,7 @@ export function AppShell() {
     { to: "/dieta", icon: Salad, label: t("nav.diet") },
     { to: "/relatorios", icon: BarChart3, label: "Relatórios" },
     { to: "/conta", icon: Sparkles, label: "Plano" },
+    { to: "/configuracoes", icon: Settings, label: "Configurações" },
   ] as const;
 
   async function signOut() {
