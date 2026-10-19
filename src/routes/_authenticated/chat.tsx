@@ -323,7 +323,7 @@ function ChatPage() {
                 <div className="flex items-center gap-1">
                   {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => (voice === "listening" ? recRef.current?.stop() : listen())}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
-                  </Button>
+                  </Button>}
                   <Button
                     type="button"
                     size="icon-sm"
