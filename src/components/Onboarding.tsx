@@ -38,6 +38,7 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
 
 export function Onboarding({ onDone }: { onDone?: () => void }) {
   const { t } = useTranslation();
+  const units = useUnits();
   const qc = useQueryClient(), save = useServerFn(savePreferences);
   const { data: previous } = useQuery(preferencesQuery);
   const [step, setStep] = useState(0), [busy, setBusy] = useState(false);
@@ -46,19 +47,24 @@ export function Onboarding({ onDone }: { onDone?: () => void }) {
   const [language, setLanguage] = useState(previous?.language ?? i18n.language.slice(0, 2));
   const [currency, setCurrency] = useState(previous?.currency ?? "BRL");
   const [health, setHealth] = useState(Boolean(previous?.health_consent_at));
-  const [measurements, setMeasurements] = useState({ weight: previous?.weight_kg?.toString() ?? "", height: previous?.height_cm?.toString() ?? "", age: previous?.age?.toString() ?? "", sex: previous?.sex ?? "" });
+  const [measurements, setMeasurements] = useState(() => ({
+    weight: previous?.weight_kg ? weightValue(Number(previous.weight_kg), units).toFixed(1).replace(/\.0$/, "") : "",
+    height: previous?.height_cm ? (units.height === "ft" ? (Number(previous.height_cm) / 30.48).toFixed(2).replace(/0$/, "").replace(/\.$/, "") : String(Math.round(Number(previous.height_cm)))) : "",
+    age: previous?.age?.toString() ?? "",
+    sex: previous?.sex ?? "",
+  }));
   const [notice, setNotice] = useState(false);
   const titles = [t("onboarding.title1"), t("onboarding.title2"), t("onboarding.title3"), t("onboarding.title4")];
   async function finish() {
     const values = { display_name: name, goals, language, currency, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, health_consent: health,
-      weight_kg: health && measurements.weight ? Number(measurements.weight) : null,
-      height_cm: health && measurements.height ? Number(measurements.height) : null,
+      weight_kg: health && measurements.weight ? Math.round(weightToKg(Number(measurements.weight), units) * 10) / 10 : null,
+      height_cm: health && measurements.height ? Math.round(heightToCm(Number(measurements.height), units)) : null,
       age: health && measurements.age ? Number(measurements.age) : null,
       sex: health && measurements.sex ? measurements.sex : null };
     const parsed = preferencesSchema.safeParse(values);
     if (!parsed.success) { toast.error(t("onboarding.validation")); setStep(2); return; }
     setBusy(true);
-    try { await save({ data: parsed.data }); await i18n.changeLanguage(language); localStorage.setItem("zero-lang", language); await qc.invalidateQueries({ queryKey: preferencesQuery.queryKey }); onDone?.(); }
+    try { await save({ data: parsed.data }); setUnits({ currency: parsed.data.currency as CurrencyCode }); await i18n.changeLanguage(language); localStorage.setItem("zero-lang", language); await qc.invalidateQueries({ queryKey: preferencesQuery.queryKey }); onDone?.(); }
     catch { toast.error(t("onboarding.saveError")); }
     finally { setBusy(false); }
   }
