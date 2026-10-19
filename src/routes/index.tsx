@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Zero — assistente pessoal de tempo, dinheiro e corpo" },
-      { name: "description", content: "Zero desperdício. Tempo, dinheiro, energia e corpo no máximo. Um Jarvis pessoal com chat, finanças, agenda, dieta e treino." },
+      { name: "description", content: "Zero desperdício. Tempo, dinheiro, energia e corpo no máximo. Seu assistente pessoal com chat, finanças, agenda e dieta." },
       { property: "og:title", content: "Zero — assistente pessoal" },
       { property: "og:description", content: "Zero desperdício. Tempo, dinheiro, energia e corpo no máximo." },
       { property: "og:type", content: "website" },

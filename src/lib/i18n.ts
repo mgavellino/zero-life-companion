@@ -12,7 +12,7 @@ export const LANGS = [
 
 const pt = {
   slogan: "Zero desperdício. Tempo, dinheiro, energia e corpo no máximo.",
-  heroTitle: "Seu Jarvis pessoal para tempo, dinheiro e corpo.",
+  heroTitle: "Seu assistente pessoal para tempo, dinheiro e corpo.",
   heroSub: "Converse com o Zero. Ele organiza sua agenda, controla seus gastos, calcula sua dieta — e lembra de tudo.",
   start: "Começar agora", signIn: "Entrar", signUp: "Criar conta", signOut: "Sair",
   pillarTime: "Tempo", pillarTimeD: "Prioridades claras, blocos de foco e nada esquecido.",
@@ -36,7 +36,7 @@ type Dict = typeof pt;
 
 const en: Dict = {
   slogan: "Zero waste. Time, money, energy and body at their best.",
-  heroTitle: "Your personal Jarvis for time, money and body.",
+  heroTitle: "Your personal assistant for time, money and body.",
   heroSub: "Talk to Zero. It plans your schedule, tracks your spending, calculates your diet — and remembers everything.",
   start: "Get started", signIn: "Sign in", signUp: "Create account", signOut: "Sign out",
   pillarTime: "Time", pillarTimeD: "Clear priorities, focus blocks and nothing forgotten.",
@@ -59,7 +59,7 @@ const en: Dict = {
 const es: Dict = {
   ...en,
   slogan: "Cero desperdicio. Tiempo, dinero, energía y cuerpo al máximo.",
-  heroTitle: "Tu Jarvis personal para tiempo, dinero y cuerpo.",
+  heroTitle: "Tu asistente personal para tiempo, dinero y cuerpo.",
   heroSub: "Habla con Zero. Organiza tu agenda, controla tus gastos, calcula tu dieta — y lo recuerda todo.",
   start: "Empezar", signIn: "Entrar", signUp: "Crear cuenta", signOut: "Salir",
   pillarTime: "Tiempo", pillarTimeD: "Prioridades claras, bloques de foco y nada olvidado.",
@@ -82,7 +82,7 @@ const es: Dict = {
 const fr: Dict = {
   ...en,
   slogan: "Zéro gaspillage. Temps, argent, énergie et corps au maximum.",
-  heroTitle: "Votre Jarvis personnel pour le temps, l'argent et le corps.",
+  heroTitle: "Votre assistant personnel pour le temps, l'argent et le corps.",
   heroSub: "Parlez à Zero. Il organise votre agenda, suit vos dépenses, construit votre diète et vous entraîne.",
   start: "Commencer", signIn: "Se connecter", signUp: "Créer un compte", signOut: "Déconnexion",
   pillarTime: "Temps", pillarMoney: "Argent", pillarBody: "Corps",
@@ -95,7 +95,7 @@ const fr: Dict = {
 const de: Dict = {
   ...en,
   slogan: "Null Verschwendung. Zeit, Geld, Energie und Körper auf Maximum.",
-  heroTitle: "Dein persönlicher Jarvis für Zeit, Geld und Körper.",
+  heroTitle: "Dein persönlicher Assistent für Zeit, Geld und Körper.",
   heroSub: "Sprich mit Zero. Er plant deinen Tag, verfolgt Ausgaben, erstellt deine Ernährung und trainiert dich.",
   start: "Loslegen", signIn: "Anmelden", signUp: "Konto erstellen", signOut: "Abmelden",
   pillarTime: "Zeit", pillarMoney: "Geld", pillarBody: "Körper",
@@ -108,7 +108,7 @@ const de: Dict = {
 const it: Dict = {
   ...en,
   slogan: "Zero sprechi. Tempo, denaro, energia e corpo al massimo.",
-  heroTitle: "Il tuo Jarvis personale per tempo, denaro e corpo.",
+  heroTitle: "Il tuo assistente personale per tempo, denaro e corpo.",
   heroSub: "Parla con Zero. Organizza l'agenda, controlla le spese, crea la dieta e ti allena.",
   start: "Inizia ora", signIn: "Accedi", signUp: "Crea account", signOut: "Esci",
   pillarTime: "Tempo", pillarMoney: "Denaro", pillarBody: "Corpo",
