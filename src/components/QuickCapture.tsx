@@ -39,7 +39,10 @@ export function QuickCapture({ className }: { className?: string }) {
 
   async function undo(it: CaptureItem) {
     const { error } = await supabase.from(it.type === "task" ? "tasks" : "transactions").delete().eq("id", it.id);
-    if (error) return toast.error("Não consegui desfazer o registro. Tente novamente.");
+    if (error) {
+      toast.error("Não consegui desfazer o registro. Tente novamente.");
+      return;
+    }
     setItems((p) => p.filter((x) => x.id !== it.id));
     qc.invalidateQueries();
   }
