@@ -32,3 +32,4 @@
 - [ ] Tempo vazio por padrão e hábitos diários
 - [ ] Gasto calórico e balanço energético
 - [ ] Metas e projeções financeiras
+- [ ] Conexão bancária gratuita via Open Finance (verificar disponibilidade real)
