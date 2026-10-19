@@ -1,8 +1,9 @@
 export function customerText(text: string): string {
   return text
+    .replace(/(?:suggest_replies|remember|add_task|add_transaction|set_budget|add_meal|notify)\s*(?:<[^>]*>)?\s*(?:\{|\[|\(|\|)[\s\S]*$/gi, "")
     .replace(/```[^\n]*\n[\s\S]*?(?:```|$)/g, "")
     .split("\n")
-    .filter(line => !/(?:<\/?(?:script|div|span|button)|\b(?:const|let|var|import|export)\s|\b(?:JSON\.stringify|process\.env|supabase\.|tool_call|GROQ_API_KEY)\b|^\s*\{\s*"|^\s*at\s+.*:\d+:\d+)/i.test(line))
+    .filter(line => !/(?:<\/?(?:script|div|span|button)|\b(?:const|let|var|import|export)\s|\b(?:JSON\.stringify|process\.env|supabase\.|tool_call|GROQ_API_KEY|suggest_replies|add_transaction|add_task|set_budget|add_meal)\b|^\s*\{\s*"|^\s*at\s+.*:\d+:\d+)/i.test(line))
     .join("\n").trim();
 }
 const ACTIONS: Record<string, string> = {
