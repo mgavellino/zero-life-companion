@@ -16,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "description", content: "Painel administrativo do Zero." },
       { property: "og:title", content: "Admin — Zero" },
       { property: "og:description", content: "Painel administrativo do Zero." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
