@@ -1,13 +1,17 @@
 import i18n from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check } from "lucide-react";
+import { Download, Monitor, Apple, Smartphone, Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check } from "lucide-react";
 import { Logo, ZeroRing } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LegalLinks } from "@/components/LegalLinks";
 import ogCover from "@/assets/og-cover.png.asset.json";
+import winExe from "@/assets/downloads/ZeroSetup.exe.asset.json";
+import macArm from "@/assets/downloads/Zero-mac-arm64.dmg.asset.json";
+import macIntel from "@/assets/downloads/Zero-mac-x64.dmg.asset.json";
+import { InstallZero } from "@/components/InstallZero";
 
 const OG_IMAGE = `https://assistentezero.lovable.app${ogCover.url}`;
 
@@ -168,6 +172,21 @@ const FAQ: [string, string][] = [
       </section>
 
       {/* FAQ */}
+      <section id="baixar" className="mx-auto max-w-6xl px-6 pt-24">
+        <h2 className="text-center text-4xl font-semibold">{t("landing.dlTitle")}</h2>
+        <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">{t("landing.dlSub")}</p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-2xl border bg-card p-6"><Monitor className="size-6" /><p className="mt-3 font-semibold">Windows</p>
+            <Button asChild className="mt-4 w-full"><a href={winExe.url} download="ZeroSetup.exe"><Download className="size-4" />{t("landing.dlExe")}</a></Button></div>
+          <div className="rounded-2xl border bg-card p-6"><Apple className="size-6" /><p className="mt-3 font-semibold">Mac</p>
+            <div className="mt-4 grid gap-2">
+              <Button asChild className="w-full"><a href={macArm.url} download="Zero-mac-arm64.dmg"><Download className="size-4" />{t("landing.dlMacArm")}</a></Button>
+              <Button asChild variant="outline" className="w-full"><a href={macIntel.url} download="Zero-mac-x64.dmg"><Download className="size-4" />{t("landing.dlMacIntel")}</a></Button>
+            </div></div>
+          <div className="rounded-2xl border bg-card p-6"><Smartphone className="size-6" /><p className="mt-3 font-semibold">Android · iPhone</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("landing.dlMobile")}</p><div className="mt-3"><InstallZero /></div></div>
+        </div>
+      </section>
       <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
         <h2 className="text-center text-4xl font-semibold">{t("landing.faq")}</h2>
         <Accordion type="single" collapsible className="mt-10">
