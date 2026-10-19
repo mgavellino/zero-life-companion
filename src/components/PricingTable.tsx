@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const PLANS: { id: Exclude<PlanId, "free">; name: string; tag: string; features: string[]; featured?: boolean }[] = [
-  { id: "essencial", name: "Essencial", tag: "Para organizar a vida", features: ["Chat ilimitado com o assistente", "Tempo, dinheiro e dieta automáticos", "Lembretes e notificações", "Voz do navegador"] },
-  { id: "pro", name: "Pro", tag: "O mais escolhido", featured: true, features: ["Tudo do Essencial", "Voz premium ultra-realista", "Conversa por voz contínua", "Resumos e alertas proativos"] },
-  { id: "max", name: "Max", tag: "Para quem quer o máximo", features: ["Tudo do Pro", "Relatórios avançados de dinheiro e tempo", "Prioridade nas respostas", "Suporte prioritário"] },
+  { id: "essencial", name: "Essencial", tag: "Para começar a se organizar", features: ["40 mensagens por dia", "Chat de voz com voz do navegador", "Tempo e dinheiro organizados", "Dieta automática: 5 refeições/dia", "Lembretes de tarefas"] },
+  { id: "pro", name: "Pro", tag: "O mais escolhido", featured: true, features: ["200 mensagens por dia (5x mais)", "Voz premium ultra-realista", "Conversa por voz contínua, sem as mãos", "Dieta automática ilimitada", "Alertas proativos de gastos e prazos", "Memória do assistente sobre você"] },
+  { id: "max", name: "Max", tag: "Tudo liberado, sem limites", features: ["Tudo do Pro, sem nenhum limite", "Mensagens ilimitadas", "Relatórios avançados de dinheiro e tempo", "Planejamento semanal feito pelo assistente", "Respostas prioritárias", "Novidades antes de todo mundo", "Suporte prioritário"] },
 ];
 
 const CYCLES: { id: Cycle; label: string }[] = [
@@ -64,7 +64,7 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
           <p className="mt-6 font-display text-4xl font-semibold">R$ 0</p>
           <p className="text-xs text-muted-foreground">para sempre</p>
           <ul className="mt-6 flex-1 space-y-2 text-sm">
-            {[`${FREE_DAILY_MESSAGES} mensagens por dia`, "Tempo, dinheiro e dieta", "Voz do navegador"].map((f) => (
+            {[`Só ${FREE_DAILY_MESSAGES} mensagens por dia`, "Somente chat por texto", "2 refeições por dia", "Sem lembretes nem alertas"].map((f) => (
               <li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-muted-foreground" />{f}</li>
             ))}
           </ul>

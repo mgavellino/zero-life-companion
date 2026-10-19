@@ -4,7 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { serverPaddleEnv } from "@/lib/paddle.server";
-import { FREE_DAILY_MESSAGES } from "@/lib/plans";
+import { LIMITS } from "@/lib/plans";
+import { getUserPlan } from "@/lib/plan.server";
 
 const MODEL = "openai/gpt-oss-120b";
 
@@ -35,13 +36,13 @@ export async function handleChat(request: Request) {
   if (ue || !u.user) return new Response("Unauthorized", { status: 401 });
   const userId = u.user.id;
 
-  // Free plan: daily message cap (paid/trial users are unlimited)
-  const env = serverPaddleEnv();
-  const { data: paid } = await sb.rpc("has_active_subscription", { user_uuid: userId, check_env: env });
-  if (!paid) {
+  // Daily message cap per plan
+  const plan = await getUserPlan(sb as never, userId);
+  const cap = LIMITS[plan].messagesPerDay;
+  if (cap !== null) {
     const start = new Date(); start.setUTCHours(0, 0, 0, 0);
     const { count } = await sb.from("messages").select("id", { count: "exact", head: true }).eq("role", "user").gte("created_at", start.toISOString());
-    if ((count ?? 0) >= FREE_DAILY_MESSAGES) return new Response("LIMIT", { status: 402 });
+    if ((count ?? 0) >= cap) return new Response("LIMIT", { status: 402 });
   }
 
   const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string };

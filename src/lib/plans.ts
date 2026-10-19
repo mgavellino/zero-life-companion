@@ -2,7 +2,14 @@ export type Cycle = "monthly" | "semiannual" | "yearly";
 export type PlanId = "free" | "essencial" | "pro" | "max";
 
 export const TRIAL_DAYS = 30;
-export const FREE_DAILY_MESSAGES = 20;
+/** Per-plan limits. null = unlimited. */
+export const LIMITS: Record<PlanId, { messagesPerDay: number | null; mealsPerDay: number | null; voiceChat: boolean; premiumVoice: boolean; proactive: boolean; reports: boolean }> = {
+  free: { messagesPerDay: 5, mealsPerDay: 2, voiceChat: false, premiumVoice: false, proactive: false, reports: false },
+  essencial: { messagesPerDay: 40, mealsPerDay: 5, voiceChat: true, premiumVoice: false, proactive: false, reports: false },
+  pro: { messagesPerDay: 200, mealsPerDay: null, voiceChat: true, premiumVoice: true, proactive: true, reports: false },
+  max: { messagesPerDay: null, mealsPerDay: null, voiceChat: true, premiumVoice: true, proactive: true, reports: true },
+};
+export const FREE_DAILY_MESSAGES = LIMITS.free.messagesPerDay as number;
 
 export const CYCLE_MONTHS: Record<Cycle, number> = { monthly: 1, semiannual: 6, yearly: 12 };
 
@@ -40,9 +47,13 @@ export const brl = (cents: number) => (cents / 100).toLocaleString("pt-BR", { st
 
 /** Premium ElevenLabs voice is a Pro/Max feature. */
 export function hasPremiumVoice(plan: PlanId) {
-  return plan === "pro" || plan === "max";
+  return LIMITS[plan].premiumVoice;
 }
 
 export function hasUnlimitedChat(plan: PlanId) {
-  return plan !== "free";
+  return LIMITS[plan].messagesPerDay === null;
+}
+
+export function hasVoiceChat(plan: PlanId) {
+  return LIMITS[plan].voiceChat;
 }

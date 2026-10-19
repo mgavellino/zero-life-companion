@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { LIMITS } from "@/lib/plans";
+import { getUserPlan } from "@/lib/plan.server";
 
 type Est = { name: string; calories: number; protein: number; carbs: number; fat: number };
 
@@ -13,6 +15,12 @@ export const logMealAuto = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const key = process.env["GROQ_API_KEY"];
     if (!key) throw new Error("GROQ_API_KEY ausente");
+    const cap = LIMITS[await getUserPlan(context.supabase as never, context.userId)].mealsPerDay;
+    if (cap !== null) {
+      const start = new Date(); start.setUTCHours(0, 0, 0, 0);
+      const { count } = await context.supabase.from("meals").select("id", { count: "exact", head: true }).gte("created_at", start.toISOString());
+      if ((count ?? 0) >= cap) throw new Error(`LIMIT: seu plano permite ${cap} refeições por dia. Faça upgrade para registrar mais.`);
+    }
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
