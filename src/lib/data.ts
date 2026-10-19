@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getUnits } from "@/lib/units";
 
 type Table = "tasks" | "transactions" | "budgets" | "meals" | "workouts" | "memories" | "habits" | "habit_checks" | "energy_profiles" | "energy_activities" | "financial_goals";
 
