@@ -41,6 +41,6 @@ export const exportPersonalData = createServerFn({ method: "POST" })
     }
     const { data, error } = await context.supabase.from("profiles").select("*").eq("id", context.userId);
     if (error) throw new Error("Não foi possível exportar seu perfil.");
-    result.profile = data;
-    return result;
+    result["profile"] = data;
+    return JSON.stringify(result, null, 2);
   });

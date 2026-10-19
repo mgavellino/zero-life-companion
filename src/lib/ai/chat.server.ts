@@ -119,7 +119,7 @@ ${JSON.stringify(meals.data ?? [])}`;
   const tools = {
     log_activity: tool({
       description: "Estimate and save a completed physical activity from the user's exact natural-language description. Weight and height are optional.",
-      inputSchema: z.object({ text: z.string().min(3).max(500), occurred_on: z.iso.date().nullable() }),
+      inputSchema: z.object({ text: z.string().min(3).max(500), occurred_on: z.string().date().nullable() }),
       execute: async ({ text, occurred_on }) => {
         try { return { ok: true, ...await estimateAndLogActivity(sb, userId, text, occurred_on ?? today) }; }
         catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Não foi possível registrar a atividade." }; }
