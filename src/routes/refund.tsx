@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import i18n from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 import { LegalPage } from "@/components/LegalPage";
 export const Route = createFileRoute("/refund")({
-  head: () => ({ meta: [{ title: "Política de reembolso — Zero" }, { name: "description", content: "Como solicitar reembolso de compras do Zero e cancelar sua assinatura." }, { property: "og:title", content: "Política de reembolso — Zero" }, { property: "og:description", content: "Consulte as condições da Paddle e os canais para solicitar reembolso." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: i18n.t("refund.text1") }, { name: "description", content: i18n.t("refund.text2") }, { property: "og:title", content: i18n.t("refund.text3") }, { property: "og:description", content: i18n.t("refund.text4") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Refund,
 });
 function Refund() {
-  return <LegalPage title="Política de reembolso">
-    <section><h2>Política aplicável</h2><p>As compras do Zero, oferecido por Miguel Augusto Silva Avelino, são processadas pela Paddle, nossa revendedora e Merchant of Record. Adotamos a <a href="https://www.paddle.com/legal/refund-policy" target="_blank" rel="noopener noreferrer">Política de Reembolso da Paddle</a>, incluindo seus prazos, regras e direitos aplicáveis à compra. Consulte essa política para o prazo de arrependimento e as condições da sua transação. Seus direitos obrigatórios previstos na legislação local permanecem preservados.</p></section>
-    <section><h2>Como solicitar</h2><p>Solicite o reembolso em <a href="https://paddle.net" target="_blank" rel="noopener noreferrer">paddle.net</a> ou pelo canal de atendimento indicado no recibo da Paddle. Tenha o e-mail usado na compra e o identificador do pedido. A Paddle analisa e processa a solicitação de acordo com sua política e a legislação aplicável; o prazo para o crédito aparecer depende do meio de pagamento. Se não conseguir resolver pelo canal da Paddle, escreva ao vendedor pelo e-mail <a href="mailto:miguels.avelin@gmail.com">miguels.avelin@gmail.com</a>.</p></section>
-    <section><h2>Cancelar uma assinatura</h2><p>Você pode gerenciar e cancelar a renovação na página <Link to="/conta">Conta</Link> ou pelo atendimento da Paddle. Cancelar a renovação e pedir reembolso são ações diferentes. O acesso após o cancelamento segue o período indicado na sua assinatura e as condições da compra.</p><p>O teste grátis, quando disponível, dura 30 dias e não é uma cobrança. Para evitar a primeira cobrança, cancele antes do fim do teste. Se uma cobrança já ocorreu, use o procedimento de reembolso acima.</p></section>
+  const { t } = useTranslation();
+  return <LegalPage title={t("refund.title")}>
+    <section><h2>{t("refund.text5")}</h2><p>{t("refund.text6")}<a href="https://www.paddle.com/legal/refund-policy" target="_blank" rel="noopener noreferrer">{t("refund.text7")}</a>{t("refund.text8")}</p></section>
+    <section><h2>{t("refund.text9")}</h2><p>{t("refund.text10")}<a href="https://paddle.net" target="_blank" rel="noopener noreferrer">{t("refund.text11")}</a>{t("refund.text12")}<a href="mailto:miguels.avelin@gmail.com">{t("refund.text13")}</a>{t("refund.text14")}</p></section>
+    <section><h2>{t("refund.text15")}</h2><p>{t("refund.text16")}<Link to="/conta">{t("refund.text17")}</Link>{t("refund.text18")}</p><p>{t("refund.text19")}</p></section>
   </LegalPage>;
 }
