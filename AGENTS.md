@@ -10,6 +10,8 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Habits use stable definitions plus date-scoped completion rows, never generated daily tasks; this preserves an empty initial agenda and completion history.
+- Energy estimates and financial projections use tested pure functions in `src/lib/planning.ts`; persistent inputs stay in owner-scoped tables so results follow saved user data.
 - AI chat runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` using the user's own free Groq key (GROQ_API_KEY); never route AI through the Lovable AI Gateway (owner requirement).
 - Chat is ONE continuous conversation per user (single `threads` row) at `/chat`; the prompt injects `memories` plus tasks/money/meals.
 - Voice: premium TTS via ElevenLabs at `/api/tts` (Pro/Max/trial, checked server-side), browser speechSynthesis fallback; speech input via Web Speech API. Chat opens in voice mode by default.

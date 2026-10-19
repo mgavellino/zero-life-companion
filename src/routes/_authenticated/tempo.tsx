@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRows, useTableMutations } from "@/lib/data";
+import { DailyHabits } from "@/components/DailyHabits";
 
 export const Route = createFileRoute("/_authenticated/tempo")({
-  head: () => ({ meta: [{ title: "Tempo — Zero" }, { name: "description", content: "Tarefas, prazos e foco." }, { property: "og:title", content: "Tempo — Zero" }, { property: "og:description", content: "Tarefas, prazos e foco." }] }),
+  head: () => ({ meta: [{ title: "Tempo — Zero" }, { name: "description", content: "Suas tarefas e hábitos diários, sem tarefas pré-cadastradas." }, { property: "og:title", content: "Tempo — Zero" }, { property: "og:description", content: "Suas tarefas e hábitos diários." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: TimePage,
 });
 
@@ -54,7 +55,7 @@ function TimePage() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!f.title) return;
-            m.insert.mutate({ title: f.title, due_at: f.due_at ? new Date(f.due_at).toISOString() : null, minutes: f.minutes ? Number(f.minutes) : null, priority: f.priority });
+            m.insert.mutate({ title: f.title.trim(), due_at: f.due_at ? new Date(f.due_at).toISOString() : null, minutes: f.minutes ? Number(f.minutes) : null, priority: f.priority });
             setF({ title: "", due_at: "", minutes: "", priority: "media" });
           }}
         >
@@ -95,6 +96,7 @@ function TimePage() {
           </div>
         ))}
       </div>
+      <DailyHabits />
     </Page>
   );
 }

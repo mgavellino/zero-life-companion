@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { QuickCapture } from "@/components/QuickCapture";
+import { FinancialGoals } from "@/components/FinancialGoals";
 import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dinheiro")({
-  head: () => ({ meta: [{ title: "Dinheiro — Zero" }, { name: "description", content: "Gastos, receitas e orçamentos." }, { property: "og:title", content: "Dinheiro — Zero" }, { property: "og:description", content: "Gastos, receitas e orçamentos." }] }),
+  head: () => ({ meta: [{ title: "Dinheiro — Zero" }, { name: "description", content: "Gastos, receitas, metas e projeções financeiras." }, { property: "og:title", content: "Dinheiro — Zero" }, { property: "og:description", content: "Metas de economia e projeções do mês." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: MoneyPage,
 });
 
@@ -47,7 +48,7 @@ function MoneyPage() {
   );
   const shownTotal = shown.reduce((a, x) => a + (x.kind === "income" ? 1 : -1) * Number(x.amount), 0);
   const month = today().slice(0, 7);
-  const cur = tx.filter((x) => x.occurred_on.startsWith(month));
+  const cur = tx.filter((x) => x.occurred_on.startsWith(month) && x.occurred_on <= today());
   const inc = cur.filter((x) => x.kind === "income").reduce((a, x) => a + Number(x.amount), 0);
   const exp = cur.filter((x) => x.kind === "expense").reduce((a, x) => a + Number(x.amount), 0);
   const byCat: Record<string, number> = {};
@@ -61,6 +62,7 @@ function MoneyPage() {
         <Stat label={t("expense")} value={money(exp, L)} tone="text-destructive" />
         <Stat label={t("balance")} value={money(inc - exp, L)} />
       </div>
+      <FinancialGoals income={inc} expense={exp} language={L} />
       <Card className="mb-6">
         <form
           className="grid gap-2 md:grid-cols-[130px_120px_1fr_1fr_150px_auto]"

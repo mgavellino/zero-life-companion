@@ -90,7 +90,7 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
               ) : (
                 <p className="text-xs">
                   <span className="line-through opacity-50">{brl(full)}</span> <span className="font-semibold">{brl(now)}</span>
-                  <span className="opacity-60"> a cada {CYCLE_MONTHS[cycle]} meses</span>
+                  <span className="opacity-60"> em cobrança única a cada {CYCLE_MONTHS[cycle]} meses, sem parcelamento</span>
                 </p>
               )}
               <ul className="mt-6 flex-1 space-y-2 text-sm">

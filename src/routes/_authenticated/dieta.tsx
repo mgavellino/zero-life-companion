@@ -10,9 +10,10 @@ import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRows, useTableMutations, today } from "@/lib/data";
+import { EnergyBalance } from "@/components/EnergyBalance";
 
 export const Route = createFileRoute("/_authenticated/dieta")({
-  head: () => ({ meta: [{ title: "Dieta — Zero" }, { name: "description", content: "Refeições e macros do dia." }, { property: "og:title", content: "Dieta — Zero" }, { property: "og:description", content: "Refeições e macros do dia." }] }),
+  head: () => ({ meta: [{ title: "Dieta — Zero" }, { name: "description", content: "Refeições, macros e gasto energético estimado." }, { property: "og:title", content: "Dieta — Zero" }, { property: "og:description", content: "Consumo e gasto energético diário." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: DietPage,
 });
 
@@ -38,6 +39,7 @@ function DietPage() {
         <Stat label={t("carbs")} value={`${sum("carbs")}g`} />
         <Stat label={t("fat")} value={`${sum("fat")}g`} />
       </div>
+      <EnergyBalance intake={sum("calories")} />
       <Card className="mb-6">
         <form
           className="grid gap-2 md:grid-cols-[1fr_160px_auto]"
