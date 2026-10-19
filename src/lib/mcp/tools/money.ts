@@ -1,7 +1,7 @@
 import { defineTool, ToolError } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 import { supabaseForUser } from "../supabase";
-import { categorize } from "@/lib/data";
+import { automaticCategory } from "@/lib/bills";
 
 export const listTransactionsTool = defineTool({
   name: "list_transactions",
@@ -34,7 +34,7 @@ export const addTransactionTool = defineTool({
   handler: async ({ kind, amount, description, category, occurred_on }, ctx) => {
     const userId = ctx.getUserId();
     if (!userId) throw new ToolError("Not signed in.");
-    const row = { user_id: userId, kind, amount, description: description ?? null, category: category ?? categorize(description ?? "", kind), occurred_on: occurred_on ?? new Date().toISOString().slice(0, 10) };
+    const row = { user_id: userId, kind, amount, description: description ?? null, category: automaticCategory(description ?? "", category ?? ""), occurred_on: occurred_on ?? new Date().toISOString().slice(0, 10) };
     const { data, error } = await supabaseForUser(ctx).from("transactions").insert(row).select("id,kind,amount,category,occurred_on").single();
     if (error) throw new ToolError("Could not save the transaction.");
     return { content: [{ type: "text", text: `Saved ${data.kind} of ${data.amount} in ${data.category} on ${data.occurred_on}.` }], structuredContent: { transaction: { id: data.id, kind: data.kind, amount: Number(data.amount), category: data.category, occurred_on: data.occurred_on } } };
