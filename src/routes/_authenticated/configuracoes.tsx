@@ -7,6 +7,7 @@ import { PushSettings } from "@/components/PushSettings";
 import { CalendarConnection } from "@/components/CalendarConnection";
 import { InstallZero } from "@/components/InstallZero";
 import { PrivacyControls } from "@/components/PrivacyControls";
+import { UnitsSettings } from "@/components/UnitsSettings";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({
@@ -30,6 +31,7 @@ function Configuracoes() {
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("settings.appearance")}</p>
         <div className="mt-4"><Prefs /></div>
       </Card>
+      <div className="mb-6"><UnitsSettings /></div>
       <PushSettings />
       <CalendarConnection />
       <div className="my-4"><InstallZero /></div>
