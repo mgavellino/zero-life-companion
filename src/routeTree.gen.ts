@@ -13,17 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as AuthenticatedAcademiaRouteImport } from './routes/_authenticated/academia'
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDietaRouteImport } from './routes/_authenticated/dieta'
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
 import { Route as AuthenticatedTempoRouteImport } from './routes/_authenticated/tempo'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as AuthenticatedAcademiaWorkoutIdRouteImport } from './routes/_authenticated/academia.$workoutId'
-import { Route as AuthenticatedChatIndexRouteImport } from './routes/_authenticated/chat.index'
-import { Route as AuthenticatedChatThreadIdRouteImport } from './routes/_authenticated/chat.$threadId'
-import { Route as ApiExerciseGifIdRouteImport } from './routes/api/exercise-gif.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -43,11 +38,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedAcademiaRoute = AuthenticatedAcademiaRouteImport.update({
-  id: '/academia',
-  path: '/academia',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   id: '/chat',
@@ -79,59 +69,28 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAcademiaWorkoutIdRoute =
-  AuthenticatedAcademiaWorkoutIdRouteImport.update({
-    id: '/$workoutId',
-    path: '/$workoutId',
-    getParentRoute: () => AuthenticatedAcademiaRoute,
-  } as any)
-const AuthenticatedChatIndexRoute = AuthenticatedChatIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedChatRoute,
-} as any)
-const AuthenticatedChatThreadIdRoute =
-  AuthenticatedChatThreadIdRouteImport.update({
-    id: '/$threadId',
-    path: '/$threadId',
-    getParentRoute: () => AuthenticatedChatRoute,
-  } as any)
-const ApiExerciseGifIdRoute = ApiExerciseGifIdRouteImport.update({
-  id: '/api/exercise-gif/$id',
-  path: '/api/exercise-gif/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/academia': typeof AuthenticatedAcademiaRouteWithChildren
-  '/chat': typeof AuthenticatedChatRouteWithChildren
+  '/chat': typeof AuthenticatedChatRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/dieta': typeof AuthenticatedDietaRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
-  '/academia/$workoutId': typeof AuthenticatedAcademiaWorkoutIdRoute
-  '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
-  '/api/exercise-gif/$id': typeof ApiExerciseGifIdRoute
-  '/chat/': typeof AuthenticatedChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/academia': typeof AuthenticatedAcademiaRouteWithChildren
+  '/chat': typeof AuthenticatedChatRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/dieta': typeof AuthenticatedDietaRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
-  '/academia/$workoutId': typeof AuthenticatedAcademiaWorkoutIdRoute
-  '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
-  '/api/exercise-gif/$id': typeof ApiExerciseGifIdRoute
-  '/chat': typeof AuthenticatedChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -139,17 +98,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/academia': typeof AuthenticatedAcademiaRouteWithChildren
-  '/_authenticated/chat': typeof AuthenticatedChatRouteWithChildren
+  '/_authenticated/chat': typeof AuthenticatedChatRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/dieta': typeof AuthenticatedDietaRoute
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
   '/_authenticated/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
-  '/_authenticated/academia/$workoutId': typeof AuthenticatedAcademiaWorkoutIdRoute
-  '/_authenticated/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
-  '/api/exercise-gif/$id': typeof ApiExerciseGifIdRoute
-  '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,49 +111,35 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
-    | '/academia'
     | '/chat'
     | '/dashboard'
     | '/dieta'
     | '/dinheiro'
     | '/tempo'
     | '/api/chat'
-    | '/academia/$workoutId'
-    | '/chat/$threadId'
-    | '/api/exercise-gif/$id'
-    | '/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
-    | '/academia'
+    | '/chat'
     | '/dashboard'
     | '/dieta'
     | '/dinheiro'
     | '/tempo'
     | '/api/chat'
-    | '/academia/$workoutId'
-    | '/chat/$threadId'
-    | '/api/exercise-gif/$id'
-    | '/chat'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
-    | '/_authenticated/academia'
     | '/_authenticated/chat'
     | '/_authenticated/dashboard'
     | '/_authenticated/dieta'
     | '/_authenticated/dinheiro'
     | '/_authenticated/tempo'
     | '/api/chat'
-    | '/_authenticated/academia/$workoutId'
-    | '/_authenticated/chat/$threadId'
-    | '/api/exercise-gif/$id'
-    | '/_authenticated/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,7 +148,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiChatRoute: typeof ApiChatRoute
-  ApiExerciseGifIdRoute: typeof ApiExerciseGifIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -240,13 +179,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/academia': {
-      id: '/_authenticated/academia'
-      path: '/academia'
-      fullPath: '/academia'
-      preLoaderRoute: typeof AuthenticatedAcademiaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/chat': {
       id: '/_authenticated/chat'
@@ -290,66 +222,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/academia/$workoutId': {
-      id: '/_authenticated/academia/$workoutId'
-      path: '/$workoutId'
-      fullPath: '/academia/$workoutId'
-      preLoaderRoute: typeof AuthenticatedAcademiaWorkoutIdRouteImport
-      parentRoute: typeof AuthenticatedAcademiaRoute
-    }
-    '/_authenticated/chat/': {
-      id: '/_authenticated/chat/'
-      path: '/'
-      fullPath: '/chat/'
-      preLoaderRoute: typeof AuthenticatedChatIndexRouteImport
-      parentRoute: typeof AuthenticatedChatRoute
-    }
-    '/_authenticated/chat/$threadId': {
-      id: '/_authenticated/chat/$threadId'
-      path: '/$threadId'
-      fullPath: '/chat/$threadId'
-      preLoaderRoute: typeof AuthenticatedChatThreadIdRouteImport
-      parentRoute: typeof AuthenticatedChatRoute
-    }
-    '/api/exercise-gif/$id': {
-      id: '/api/exercise-gif/$id'
-      path: '/api/exercise-gif/$id'
-      fullPath: '/api/exercise-gif/$id'
-      preLoaderRoute: typeof ApiExerciseGifIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
-interface AuthenticatedAcademiaRouteChildren {
-  AuthenticatedAcademiaWorkoutIdRoute: typeof AuthenticatedAcademiaWorkoutIdRoute
-}
-
-const AuthenticatedAcademiaRouteChildren: AuthenticatedAcademiaRouteChildren = {
-  AuthenticatedAcademiaWorkoutIdRoute: AuthenticatedAcademiaWorkoutIdRoute,
-}
-
-const AuthenticatedAcademiaRouteWithChildren =
-  AuthenticatedAcademiaRoute._addFileChildren(
-    AuthenticatedAcademiaRouteChildren,
-  )
-
-interface AuthenticatedChatRouteChildren {
-  AuthenticatedChatThreadIdRoute: typeof AuthenticatedChatThreadIdRoute
-  AuthenticatedChatIndexRoute: typeof AuthenticatedChatIndexRoute
-}
-
-const AuthenticatedChatRouteChildren: AuthenticatedChatRouteChildren = {
-  AuthenticatedChatThreadIdRoute: AuthenticatedChatThreadIdRoute,
-  AuthenticatedChatIndexRoute: AuthenticatedChatIndexRoute,
-}
-
-const AuthenticatedChatRouteWithChildren =
-  AuthenticatedChatRoute._addFileChildren(AuthenticatedChatRouteChildren)
-
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAcademiaRoute: typeof AuthenticatedAcademiaRouteWithChildren
-  AuthenticatedChatRoute: typeof AuthenticatedChatRouteWithChildren
+  AuthenticatedChatRoute: typeof AuthenticatedChatRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDietaRoute: typeof AuthenticatedDietaRoute
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
@@ -357,8 +234,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAcademiaRoute: AuthenticatedAcademiaRouteWithChildren,
-  AuthenticatedChatRoute: AuthenticatedChatRouteWithChildren,
+  AuthenticatedChatRoute: AuthenticatedChatRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDietaRoute: AuthenticatedDietaRoute,
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
@@ -374,7 +250,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiChatRoute: ApiChatRoute,
-  ApiExerciseGifIdRoute: ApiExerciseGifIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

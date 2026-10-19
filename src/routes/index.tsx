@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Clock, Wallet, Dumbbell, ArrowRight } from "lucide-react";
+import { Clock, Wallet, Salad, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ function Landing() {
   const pillars = [
     { icon: Clock, title: t("pillarTime"), d: t("pillarTimeD"), color: "text-time" },
     { icon: Wallet, title: t("pillarMoney"), d: t("pillarMoneyD"), color: "text-money" },
-    { icon: Dumbbell, title: t("pillarBody"), d: t("pillarBodyD"), color: "text-body" },
+    { icon: Salad, title: t("pillarBody"), d: t("pillarBodyD"), color: "text-body" },
   ];
   return (
     <div className="min-h-screen grid-bg">
