@@ -196,9 +196,10 @@ ${JSON.stringify(meals.data ?? [])}`;
     messages: await convertToModelMessages(messages),
     tools,
     stopWhen: stepCountIs(8),
-    abortSignal: request.signal,
   });
 
+  // Finish (and save) the reply even if the user leaves the page mid-answer.
+  void result.consumeStream();
   return result.toUIMessageStreamResponse({
       originalMessages: messages,
       sendReasoning: true,
