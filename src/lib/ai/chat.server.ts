@@ -7,6 +7,7 @@ import { serverPaddleEnv } from "@/lib/paddle.server";
 import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
 import { estimateAndLogActivity } from "@/lib/activity.server";
+import { dailyTimeSummary, type TimeSession } from "@/lib/time-tracking";
 
 
 export function userClient(token: string) {
@@ -67,6 +68,10 @@ export async function handleChat(request: Request) {
   const monthStart = today.slice(0, 8) + "01";
   const { data: preferenceData } = await sb.from("user_preferences").select("display_name,goals,currency,language,health_consent_at").eq("user_id", userId).maybeSingle();
   const preferences = { data: preferenceData };
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+  const localDay = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+  const { data: timeSessions } = await sb.from("time_sessions").select("id,category,started_at,ended_at").eq("user_id", userId).gte("started_at", `${localDay}T00:00:00`).limit(200);
+  const recordedTime = dailyTimeSummary((timeSessions ?? []) as TimeSession[], localDay, new Date());
   const [mem, other, tasks, tx, budgets, meals, profile] = await Promise.all([
     sb.from("memories").select("content,created_at").order("created_at", { ascending: false }).limit(60),
     Promise.resolve({ data: [] as { role: string; parts: unknown }[] }),
@@ -116,7 +121,10 @@ ${JSON.stringify(tasks.data ?? [])}
 income=${income.toFixed(2)} expense=${expense.toFixed(2)} by_category=${JSON.stringify(byCat)} budgets=${JSON.stringify(budgets.data ?? [])}
 
 ## Meals today
-${JSON.stringify(meals.data ?? [])}`;
+${JSON.stringify(meals.data ?? [])}
+
+## Previous day's recorded time (${localDay}; server timezone, full-day denominator)
+${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Never invent a breakdown."}`;
 
   const tools = {
     log_activity: tool({
