@@ -10,6 +10,7 @@ import { NotificationBell } from "./NotificationBell";
 import { PaymentTestModeBanner } from "./PaymentTestModeBanner";
 import { useSubscription } from "@/hooks/use-subscription";
 import { OnboardingGate } from "./Onboarding";
+import { ShellClock } from "./ShellClock";
 
 const PLAN_LABEL = { free: "Grátis", essencial: "Essencial", pro: "Pro", max: "Max" } as const;
 
@@ -50,6 +51,7 @@ export function AppShell() {
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <aside className="flex shrink-0 items-center justify-between border-b bg-sidebar px-3 py-2 md:w-60 md:flex-col md:items-stretch md:justify-start md:border-b-0 md:border-r md:p-4">
           <Link to="/chat" className="md:mb-8"><Logo /></Link>
+          <ShellClock />
           <nav className="flex gap-1 overflow-x-auto md:flex-col">
             {items.map((i) => (
               <Link
