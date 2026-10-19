@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -7,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { savePreferences } from "@/lib/preferences.functions";
 import { preferencesSchema, type PreferencesInput } from "@/lib/onboarding";
 import i18n, { LANGS } from "@/lib/i18n";
+import { heightToCm, setUnits, useUnits, weightToKg, weightValue, type CurrencyCode } from "@/lib/units";
 import { Logo } from "./Logo";
 import { Prefs } from "./Prefs";
 import { Button } from "./ui/button";
@@ -17,23 +19,26 @@ export const preferencesQuery = {
   queryKey: ["user-preferences"],
   queryFn: async () => {
     const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) throw new Error("Entre novamente para continuar.");
+    if (!auth.user) throw new Error(i18n.t("onboarding.authError"));
     const { data, error } = await supabase.from("user_preferences").select("*").eq("user_id", auth.user.id).maybeSingle();
-    if (error) throw new Error("Não foi possível carregar suas preferências.");
+    if (error) throw new Error(i18n.t("onboarding.loadError"));
     return data;
   },
 };
-const focus = [{ id: "time", label: "Organizar meu tempo", icon: Clock }, { id: "money", label: "Cuidar do meu dinheiro", icon: Wallet }, { id: "body", label: "Cuidar da alimentação e energia", icon: Salad }] as const;
+const focus = [{ id: "time", label: "onboarding.time", icon: Clock }, { id: "money", label: "onboarding.money", icon: Wallet }, { id: "body", label: "onboarding.body", icon: Salad }] as const;
 
 export function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const query = useQuery(preferencesQuery);
-  if (query.isPending) return <div className="p-10 text-muted-foreground">Preparando seu Zero…</div>;
-  if (query.isError) return <div className="p-10"><p>{query.error.message}</p><Button className="mt-4" onClick={() => query.refetch()}>Tentar novamente</Button></div>;
+  if (query.isPending) return <div className="p-10 text-muted-foreground">{t("onboarding.preparing")}</div>;
+  if (query.isError) return <div className="p-10"><p>{query.error.message}</p><Button className="mt-4" onClick={() => query.refetch()}>{t("shell.retry")}</Button></div>;
   if (!query.data?.onboarding_completed_at) return <Onboarding />;
   return children;
 }
 
 export function Onboarding({ onDone }: { onDone?: () => void }) {
+  const { t } = useTranslation();
+  const units = useUnits();
   const qc = useQueryClient(), save = useServerFn(savePreferences);
   const { data: previous } = useQuery(preferencesQuery);
   const [step, setStep] = useState(0), [busy, setBusy] = useState(false);
@@ -42,33 +47,38 @@ export function Onboarding({ onDone }: { onDone?: () => void }) {
   const [language, setLanguage] = useState(previous?.language ?? i18n.language.slice(0, 2));
   const [currency, setCurrency] = useState(previous?.currency ?? "BRL");
   const [health, setHealth] = useState(Boolean(previous?.health_consent_at));
-  const [measurements, setMeasurements] = useState({ weight: previous?.weight_kg?.toString() ?? "", height: previous?.height_cm?.toString() ?? "", age: previous?.age?.toString() ?? "", sex: previous?.sex ?? "" });
+  const [measurements, setMeasurements] = useState(() => ({
+    weight: previous?.weight_kg ? weightValue(Number(previous.weight_kg), units).toFixed(1).replace(/\.0$/, "") : "",
+    height: previous?.height_cm ? (units.height === "ft" ? (Number(previous.height_cm) / 30.48).toFixed(2).replace(/0$/, "").replace(/\.$/, "") : String(Math.round(Number(previous.height_cm)))) : "",
+    age: previous?.age?.toString() ?? "",
+    sex: previous?.sex ?? "",
+  }));
   const [notice, setNotice] = useState(false);
-  const titles = ["Vamos começar pelo que importa.", "Seu ritmo. Suas escolhas.", "Seu corpo, sem obrigação.", "Seus dados, suas decisões."];
+  const titles = [t("onboarding.title1"), t("onboarding.title2"), t("onboarding.title3"), t("onboarding.title4")];
   async function finish() {
     const values = { display_name: name, goals, language, currency, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, health_consent: health,
-      weight_kg: health && measurements.weight ? Number(measurements.weight) : null,
-      height_cm: health && measurements.height ? Number(measurements.height) : null,
+      weight_kg: health && measurements.weight ? Math.round(weightToKg(Number(measurements.weight), units) * 10) / 10 : null,
+      height_cm: health && measurements.height ? Math.round(heightToCm(Number(measurements.height), units)) : null,
       age: health && measurements.age ? Number(measurements.age) : null,
       sex: health && measurements.sex ? measurements.sex : null };
     const parsed = preferencesSchema.safeParse(values);
-    if (!parsed.success) { toast.error("Confira suas medidas e escolhas antes de continuar."); setStep(2); return; }
+    if (!parsed.success) { toast.error(t("onboarding.validation")); setStep(2); return; }
     setBusy(true);
-    try { await save({ data: parsed.data }); await i18n.changeLanguage(language); localStorage.setItem("zero-lang", language); await qc.invalidateQueries({ queryKey: preferencesQuery.queryKey }); onDone?.(); }
-    catch { toast.error("Não foi possível salvar. Tente novamente."); }
+    try { await save({ data: parsed.data }); setUnits({ currency: parsed.data.currency as CurrencyCode }); await i18n.changeLanguage(language); localStorage.setItem("zero-lang", language); await qc.invalidateQueries({ queryKey: preferencesQuery.queryKey }); onDone?.(); }
+    catch { toast.error(t("onboarding.saveError")); }
     finally { setBusy(false); }
   }
   return <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-5 py-8 sm:px-10">
     <header className="mb-12 flex items-center justify-between"><Logo /><Prefs /></header>
-    <div className="mb-7 flex items-center gap-2" aria-label={`Etapa ${step + 1} de 4`}>{titles.map((_, index) => <span key={index} className={`h-1 flex-1 rounded-full ${index <= step ? "bg-primary" : "bg-muted"}`} />)}</div>
-    <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Seu Zero · {step + 1} de 4</p>
+    <div className="mb-7 flex items-center gap-2" aria-label={t("onboarding.step", { value: step + 1 })}>{titles.map((_, index) => <span key={index} className={`h-1 flex-1 rounded-full ${index <= step ? "bg-primary" : "bg-muted"}`} />)}</div>
+    <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">{t("onboarding.progress", { value: step + 1 })}</p>
     <h1 className="mb-7 font-display text-3xl font-semibold">{titles[step]}</h1>
     <div className="min-h-72 space-y-5">
-      {step === 0 && <><label className="block space-y-2"><span className="text-sm font-medium">Como quer ser chamado? <span className="text-muted-foreground">(opcional)</span></span><Input aria-label="Seu nome" maxLength={80} value={name} onChange={e => setName(e.target.value)} placeholder="Seu primeiro nome" /></label><p className="text-sm font-medium">O que você quer priorizar?</p><div className="grid gap-3">{focus.map(item => <Button key={item.id} variant={goals.includes(item.id) ? "default" : "outline"} className="h-auto justify-start gap-3 whitespace-normal py-4 text-left" onClick={() => setGoals(goals.includes(item.id) ? goals.filter(x => x !== item.id) : [...goals, item.id])}><item.icon className="size-5 shrink-0" /><span className="flex-1">{item.label}</span>{goals.includes(item.id) && <Check className="size-4 shrink-0" />}</Button>)}</div></>}
-      {step === 1 && <><label className="block space-y-2"><span>Idioma</span><select aria-label="Idioma do assistente" className="h-11 w-full rounded-md border bg-background px-3" value={language} onChange={e => setLanguage(e.target.value)}>{LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}</select></label><label className="block space-y-2"><span>Moeda dos registros</span><select aria-label="Moeda" className="h-11 w-full rounded-md border bg-background px-3" value={currency} onChange={e => setCurrency(e.target.value)}><option value="BRL">Real · BRL</option><option value="USD">Dólar · USD</option><option value="EUR">Euro · EUR</option><option value="GBP">Libra · GBP</option></select></label><p className="text-sm text-muted-foreground">Nenhuma tarefa, hábito ou gasto será criado por você. Suas escolhas não alteram o preço dos planos.</p></>}
-      {step === 2 && <><p className="text-sm text-muted-foreground">Peso e altura são opcionais. Sem peso, a atividade recebe uma faixa genérica de calorias; não uma estimativa personalizada.</p><label className="flex items-start gap-3 text-sm"><Checkbox checked={health} onCheckedChange={v => setHealth(v === true)} /><span>Autorizo o uso dos meus registros de alimentação, atividades e medidas para estimativas de energia. O texto e as medidas necessários são enviados à Groq para cálculo por IA. Posso retirar esta autorização depois.</span></label>{health && <div className="grid gap-4 sm:grid-cols-2">{[{ key: "weight", label: "Peso (kg)", min: 20, max: 350 }, { key: "height", label: "Altura (cm)", min: 80, max: 250 }, { key: "age", label: "Idade (18+)", min: 18, max: 100 }].map(field => <label key={field.key} className="space-y-2"><span className="text-sm">{field.label} · opcional</span><Input aria-label={field.label} type="number" min={field.min} max={field.max} step={field.key === "weight" ? "0.1" : "1"} value={measurements[field.key as "weight" | "height" | "age"]} onChange={e => setMeasurements({ ...measurements, [field.key]: e.target.value })} /></label>)}<label className="space-y-2"><span className="text-sm">Sexo para cálculo basal · opcional</span><select aria-label="Sexo para cálculo basal" className="h-9 w-full rounded-md border bg-background px-2" value={measurements.sex} onChange={e => setMeasurements({ ...measurements, sex: e.target.value })}><option value="">Prefiro não informar</option><option value="female">Feminino</option><option value="male">Masculino</option></select></label></div>}<p className="text-xs text-muted-foreground">Estimativas para adultos, não substituem orientação médica. O cálculo basal só aparece com medidas completas.</p></>}
-      {step === 3 && <><ShieldCheck className="size-10 text-primary" /><p className="text-sm">Suas conversas, tarefas, finanças e dados de saúde são privados à sua conta. Não aparecem para outros usuários.</p><p className="text-sm text-muted-foreground">O Zero usa serviços de hospedagem e autenticação para guardar sua conta, Groq para responder e calcular, ElevenLabs quando a voz premium é usada e Paddle para pagamentos. Esses serviços podem processar dados fora do Brasil. Nunca envie senhas ou dados bancários secretos ao chat.</p><p className="text-sm text-muted-foreground">Em Privacidade você pode revisar escolhas, exportar registros e retirar a autorização de saúde. Dados obrigatórios de cobrança podem precisar ser mantidos por obrigação legal.</p><label className="flex items-start gap-3 text-sm"><Checkbox checked={notice} onCheckedChange={v => setNotice(v === true)} /><span>Li como meus dados são utilizados. A autorização de saúde acima é opcional e independente.</span></label></>}
+      {step === 0 && <><label className="block space-y-2"><span className="text-sm font-medium">{t("onboarding.called")} <span className="text-muted-foreground">({t("shell.optional")})</span></span><Input aria-label={t("onboarding.name")} maxLength={80} value={name} onChange={e => setName(e.target.value)} placeholder={t("onboarding.firstName")} /></label><p className="text-sm font-medium">{t("onboarding.prioritize")}</p><div className="grid gap-3">{focus.map(item => <Button key={item.id} variant={goals.includes(item.id) ? "default" : "outline"} className="h-auto justify-start gap-3 whitespace-normal py-4 text-left" onClick={() => setGoals(goals.includes(item.id) ? goals.filter(x => x !== item.id) : [...goals, item.id])}><item.icon className="size-5 shrink-0" /><span className="flex-1">{t(item.label)}</span>{goals.includes(item.id) && <Check className="size-4 shrink-0" />}</Button>)}</div></>}
+      {step === 1 && <><label className="block space-y-2"><span>{t("shell.language")}</span><select aria-label={t("onboarding.language")} className="h-11 w-full rounded-md border bg-background px-3" value={language} onChange={e => setLanguage(e.target.value)}>{LANGS.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}</select></label><label className="block space-y-2"><span>{t("onboarding.recordCurrency")}</span><select aria-label={t("onboarding.currency")} className="h-11 w-full rounded-md border bg-background px-3" value={currency} onChange={e => setCurrency(e.target.value)}><option value="BRL">{t("onboarding.brl")}</option><option value="USD">{t("onboarding.usd")}</option><option value="EUR">{t("onboarding.eur")}</option><option value="GBP">{t("onboarding.gbp")}</option><option value="JPY">JPY (¥)</option><option value="CHF">CHF</option></select></label><p className="text-sm text-muted-foreground">{t("onboarding.noRecords")}</p></>}
+      {step === 2 && <><p className="text-sm text-muted-foreground">{t("onboarding.measurements")}</p><label className="flex items-start gap-3 text-sm"><Checkbox checked={health} onCheckedChange={v => setHealth(v === true)} /><span>{t("onboarding.consent")}</span></label>{health && <div className="grid gap-4 sm:grid-cols-2">{[{ key: "weight", label: `${t("onboarding.weight")} (${units.weight})`, min: units.weight === "lb" ? 44 : 20, max: units.weight === "lb" ? 770 : 350, step: "0.1" }, { key: "height", label: `${t("onboarding.height")} (${units.height === "ft" ? "ft" : "cm"})`, min: units.height === "ft" ? 2.6 : 80, max: units.height === "ft" ? 8.2 : 250, step: units.height === "ft" ? "0.01" : "1" }, { key: "age", label: t("onboarding.age"), min: 18, max: 100, step: "1" }].map(field => <label key={field.key} className="space-y-2"><span className="text-sm">{field.label} · {t("shell.optional")}</span><Input aria-label={field.label} type="number" min={field.min} max={field.max} step={field.step} value={measurements[field.key as "weight" | "height" | "age"]} onChange={e => setMeasurements({ ...measurements, [field.key]: e.target.value })} /></label>)}<label className="space-y-2"><span className="text-sm">{t("onboarding.sex")} · {t("shell.optional")}</span><select aria-label={t("onboarding.sex")} className="h-9 w-full rounded-md border bg-background px-2" value={measurements.sex} onChange={e => setMeasurements({ ...measurements, sex: e.target.value })}><option value="">{t("onboarding.private")}</option><option value="female">{t("onboarding.female")}</option><option value="male">{t("onboarding.male")}</option></select></label></div>}<p className="text-xs text-muted-foreground">{t("onboarding.medical")}</p></>}
+      {step === 3 && <><ShieldCheck className="size-10 text-primary" /><p className="text-sm">{t("onboarding.privacy")}</p><p className="text-sm text-muted-foreground">{t("onboarding.services")}</p><p className="text-sm text-muted-foreground">{t("onboarding.controls")}</p><label className="flex items-start gap-3 text-sm"><Checkbox checked={notice} onCheckedChange={v => setNotice(v === true)} /><span>{t("onboarding.read")}</span></label></>}
     </div>
-    <footer className="mt-8 flex justify-between gap-3 border-t pt-6"><Button variant="ghost" disabled={step === 0 || busy} onClick={() => setStep(step - 1)}><ArrowLeft className="size-4" />Voltar</Button><Button disabled={busy || (step === 0 && !goals.length) || (step === 3 && !notice)} onClick={() => step === 3 ? finish() : setStep(step + 1)}>{busy ? "Salvando…" : step === 3 ? "Começar meu Zero" : "Continuar"}<ArrowRight className="size-4" /></Button></footer>
+    <footer className="mt-8 flex justify-between gap-3 border-t pt-6"><Button variant="ghost" disabled={step === 0 || busy} onClick={() => setStep(step - 1)}><ArrowLeft className="size-4" />{t("shell.back")}</Button><Button disabled={busy || (step === 0 && !goals.length) || (step === 3 && !notice)} onClick={() => step === 3 ? finish() : setStep(step + 1)}>{busy ? t("shell.saving") : step === 3 ? t("onboarding.start") : t("shell.continue")}<ArrowRight className="size-4" /></Button></footer>
   </div>;
 }

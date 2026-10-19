@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,6 +14,7 @@ type SR = { lang: string; interimResults: boolean; onresult: (e: { results: { 0:
 
 /** Tony-style capture: say or type one sentence, get confirmation cards with undo. */
 export function QuickCapture({ className }: { className?: string }) {
+  const { t, i18n } = useTranslation();
   const run = useServerFn(quickCapture);
   const qc = useQueryClient();
   const [text, setText] = useState("");
@@ -26,12 +28,12 @@ export function QuickCapture({ className }: { className?: string }) {
     setBusy(true);
     try {
       const r = await run({ data: { text: value, tz: Intl.DateTimeFormat().resolvedOptions().timeZone } });
-      if (!r.items.length) toast("Não encontrei gasto nem lembrete nessa frase.");
+      if (!r.items.length) toast(t("quick.noItems"));
       setItems((prev) => [...r.items, ...prev].slice(0, 8));
       setText("");
       qc.invalidateQueries();
     } catch {
-      toast.error("Não consegui registrar agora. Tente novamente em instantes.");
+      toast.error(t("quick.error"));
     } finally {
       setBusy(false);
     }
@@ -40,7 +42,7 @@ export function QuickCapture({ className }: { className?: string }) {
   async function undo(it: CaptureItem) {
     const { error } = await supabase.from(it.type === "task" ? "tasks" : "transactions").delete().eq("id", it.id);
     if (error) {
-      toast.error("Não consegui desfazer o registro. Tente novamente.");
+      toast.error(t("quick.undoError"));
       return;
     }
     setItems((p) => p.filter((x) => x.id !== it.id));
@@ -50,10 +52,10 @@ export function QuickCapture({ className }: { className?: string }) {
   function mic() {
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const C = W.SpeechRecognition ?? W.webkitSpeechRecognition;
-    if (!C) return toast.error("Seu navegador não suporta ditado.");
+    if (!C) return toast.error(t("quick.noDictation"));
     if (listening) return rec.current?.stop();
     const r = new C();
-    r.lang = "pt-BR";
+    r.lang = i18n.language;
     r.interimResults = false;
     r.onresult = (e) => {
       const t = e.results[0]?.[0]?.transcript ?? "";
@@ -75,31 +77,31 @@ export function QuickCapture({ className }: { className?: string }) {
           void submit();
         }}
       >
-        <Button type="button" size="icon" variant={listening ? "default" : "outline"} className="shrink-0 rounded-full" onClick={mic} aria-label="Falar">
+        <Button type="button" size="icon" variant={listening ? "default" : "outline"} className="shrink-0 rounded-full" onClick={mic} aria-label={t("quick.speak")}>
           <Mic className="size-4" />
         </Button>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder='"gastei 30 no almoço e me lembra da luz amanhã"'
+          placeholder={t("quick.placeholder")}
           className="h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          aria-label="Registrar gasto ou lembrete por frase"
+          aria-label={t("quick.inputLabel")}
         />
-        <Button type="submit" size="icon" className="shrink-0 rounded-full" disabled={busy} aria-label="Registrar">
+        <Button type="submit" size="icon" className="shrink-0 rounded-full" disabled={busy} aria-label={t("quick.submit")}>
           {busy ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
         </Button>
       </form>
       {items.length > 0 && (
         <ul className="mt-3 space-y-2">
           {items.map((it) => (
-            it.type === "transaction" ? <li key={it.id}><TransactionConfirmation transaction={it} action={<Button type="button" variant="ghost" size="icon-sm" onClick={() => void undo(it)} aria-label="Desfazer registro" title="Desfazer registro"><Undo2 className="size-4" /></Button>} /></li> :
+            it.type === "transaction" ? <li key={it.id}><TransactionConfirmation transaction={it} action={<Button type="button" variant="ghost" size="icon-sm" onClick={() => void undo(it)} aria-label={t("quick.undoRecord")} title={t("quick.undoRecord")}><Undo2 className="size-4" /></Button>} /></li> :
             <li key={it.id} className="flex items-center gap-3 rounded-2xl bg-muted/60 px-3 py-2 text-sm animate-in fade-in slide-in-from-top-1">
               <span className="grid size-9 place-items-center rounded-full bg-background text-lg"><Bell className="size-4" /></span>
               <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{it.title}</p>
-                    <p className="text-xs text-muted-foreground">Lembrete {it.due_at ? new Date(it.due_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "sem data"}</p>
+                    <p className="text-xs text-muted-foreground">{t("quick.reminder", { date: it.due_at ? new Date(it.due_at).toLocaleString(i18n.language, { dateStyle: "short", timeStyle: "short" }) : t("quick.noDate") })}</p>
               </div>
-              <Button type="button" variant="ghost" size="icon-sm" onClick={() => void undo(it)} aria-label="Desfazer" title="Desfazer">
+              <Button type="button" variant="ghost" size="icon-sm" onClick={() => void undo(it)} aria-label={t("quick.undo")} title={t("quick.undo")}>
                 <Undo2 className="size-4" />
               </Button>
             </li>

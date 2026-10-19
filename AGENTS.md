@@ -31,7 +31,7 @@
 - Chat history reads are owner-scoped and paginated, model context comes from saved messages, and the UI response stream is drained through its save callback; this preserves the continuous conversation across navigation and reloads.
 - Voice: premium TTS via ElevenLabs at `/api/tts` (Pro/Max/trial, checked server-side), browser speechSynthesis fallback; speech input via Web Speech API. Chat opens in voice mode by default.
 - Diet meals are logged from free text; `logMealAuto` asks Groq for calories/macros.
-- Theme (localStorage `zero-theme`) and language (`zero-lang`, i18next in `src/lib/i18n.ts`) are toggled from `Prefs`, present on every page.
+- Theme (`zero-theme`) and language (`zero-lang`) toggle from `Prefs`. All user-facing strings use i18n keys from `src/locales/*` (6 languages each), merged by `src/lib/i18n.ts` — never hardcode PT strings. Unit prefs (kg/lb, cm/ft, km/mi, 12/24h, currency) live in `src/lib/units.ts`; money display uses `money()` in `src/lib/data.ts`.
 - Billing: Paddle via `src/lib/paddle*.ts`; webhook at `src/routes/api/public/payments/webhook.ts` writes `subscriptions`; plan prices/limits live in `src/lib/plans.ts` and must match the payment catalog.
 - Admin uses `user_roles` + `has_role()`; never store roles on profiles. Notifications are rows in `notifications` (realtime → toast + browser Notification).
 - Plan resolution: effective plan = highest of live subscription and active admin `plan_grants` row; resolved server-side via `getUserPlan` (src/lib/plan.server.ts) and per-plan limits in `LIMITS` (src/lib/plans.ts). Why: admins can grant plans without touching billing.

@@ -25,13 +25,14 @@ export function usePrefsBootstrap() {
 }
 
 export function ThemeToggle() {
+  const { t } = useTranslation();
   const [dark, setDark] = useState(false);
   useEffect(() => setDark(document.documentElement.classList.contains("dark")), []);
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Theme"
+      aria-label={t("prefs.theme")}
       onClick={() => {
         const next = !dark;
         setDark(next);
@@ -45,11 +46,11 @@ export function ThemeToggle() {
 }
 
 export function LangSwitch() {
-  const { i18n: inst } = useTranslation();
+  const { t, i18n: inst } = useTranslation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1.5 uppercase" aria-label="Language">
+        <Button variant="ghost" size="sm" className="gap-1.5 uppercase" aria-label={t("prefs.language")}>
           <Languages className="size-4" /> {inst.language}
         </Button>
       </DropdownMenuTrigger>

@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dinheiro")({
-  head: () => ({ meta: [{ title: "Dinheiro — Zero" }, { name: "description", content: "Gastos, receitas, metas e projeções financeiras." }, { property: "og:title", content: "Dinheiro — Zero" }, { property: "og:description", content: "Metas de economia e projeções do mês." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: i18n.t("money2.title") }, { name: "description", content: i18n.t("money2.description") }, { property: "og:title", content: i18n.t("money2.title") }, { property: "og:description", content: i18n.t("money2.socialDescription") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: MoneyPage,
 });
 
@@ -86,28 +87,28 @@ function MoneyPage() {
             <option value="income">{t("income")}</option>
           </select>
           <Input type="number" step="0.01" placeholder={t("amount")} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
-          <Input placeholder={`Auto: ${automaticCategory(f.description)}`} aria-label="Categoria do lançamento" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} />
+          <Input placeholder={t("money2.auto", { category: automaticCategory(f.description) })} aria-label={t("money2.category")} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} />
           <Input placeholder={t("description")} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
           <Input type="date" value={f.occurred_on} onChange={(e) => setF({ ...f, occurred_on: e.target.value })} />
-          <Button type="submit" disabled={m.insert.isPending}>{m.insert.isPending ? "Registrando…" : t("add")}</Button>
+          <Button type="submit" disabled={m.insert.isPending}>{m.insert.isPending ? t("money2.registering") : t("add")}</Button>
         </form>
         {registered && <div className="mt-4"><TransactionConfirmation transaction={registered} /></div>}
       </Card>
       <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2">
-            <Input className="h-8 max-w-[180px]" placeholder="Buscar…" value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
+            <Input className="h-8 max-w-[180px]" placeholder={t("shell.search")} value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
             <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.period} onChange={(e) => setFl({ ...fl, period: e.target.value })}>
-              <option value="7d">7 dias</option><option value="30d">30 dias</option><option value="month">Este mês</option><option value="year">Este ano</option><option value="all">Tudo</option>
+              <option value="7d">{t("money2.days", { count: 7 })}</option><option value="30d">{t("money2.days", { count: 30 })}</option><option value="month">{t("money2.month")}</option><option value="year">{t("money2.year")}</option><option value="all">{t("shell.all")}</option>
             </select>
             <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.kind} onChange={(e) => setFl({ ...fl, kind: e.target.value })}>
-              <option value="all">Entradas e saídas</option><option value="expense">{t("expense")}</option><option value="income">{t("income")}</option>
+              <option value="all">{t("money2.both")}</option><option value="expense">{t("expense")}</option><option value="income">{t("income")}</option>
             </select>
             <select className="h-8 rounded-md border bg-background px-2 text-sm capitalize" value={fl.cat} onChange={(e) => setFl({ ...fl, cat: e.target.value })}>
-              <option value="all">Todas categorias</option>
+              <option value="all">{t("money2.categories")}</option>
               {cats.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            <span className="ml-auto pr-2 text-sm text-muted-foreground">{shown.length} itens · <b className="text-foreground">{money(shownTotal, L)}</b></span>
+            <span className="ml-auto pr-2 text-sm text-muted-foreground">{t("shell.items", { count: shown.length })} · <b className="text-foreground">{money(shownTotal, L)}</b></span>
           </div>
           {shown.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
           {shown.map((x) => (

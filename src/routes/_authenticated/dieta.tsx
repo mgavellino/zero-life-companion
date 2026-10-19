@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -13,7 +14,7 @@ import { useRows, useTableMutations, today } from "@/lib/data";
 import { EnergyBalance } from "@/components/EnergyBalance";
 
 export const Route = createFileRoute("/_authenticated/dieta")({
-  head: () => ({ meta: [{ title: "Dieta — Zero" }, { name: "description", content: "Refeições, macros e gasto energético estimado." }, { property: "og:title", content: "Dieta — Zero" }, { property: "og:description", content: "Consumo e gasto energético diário." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: i18n.t("diet.title") }, { name: "description", content: i18n.t("diet.description") }, { property: "og:title", content: i18n.t("diet.title") }, { property: "og:description", content: i18n.t("diet.socialDescription") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: DietPage,
 });
 
@@ -52,7 +53,7 @@ function DietPage() {
               setF({ ...f, text: "" });
               qc.invalidateQueries({ queryKey: ["meals"] });
             } catch {
-              toast.error("Não foi possível registrar a refeição. Confira sua autorização de saúde e tente novamente.");
+              toast.error(t("diet.error"));
             } finally {
               setBusy(false);
             }
@@ -72,7 +73,7 @@ function DietPage() {
             <span className="w-20 text-xs text-muted-foreground">{x.eaten_on}</span>
             <span className="rounded-md bg-muted px-2 py-0.5 text-xs">{types[x.meal_type] ?? x.meal_type}</span>
             <span className="flex-1 font-medium">{x.name}</span>
-            <span className="text-xs text-muted-foreground">{x.calories} kcal · P{x.protein} C{x.carbs} G{x.fat}</span>
+            <span className="text-xs text-muted-foreground">{t("diet.macros", { calories: x.calories, protein: x.protein, carbs: x.carbs, fat: x.fat })}</span>
             <button aria-label={t("delete")} onClick={() => m.remove.mutate(x.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4" /></button>
           </div>
         ))}

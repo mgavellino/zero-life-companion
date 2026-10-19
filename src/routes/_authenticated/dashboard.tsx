@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Clock, Wallet, Salad, Brain, Trash2 } from "lucide-react";
@@ -6,7 +7,7 @@ import { QuickCapture } from "@/components/QuickCapture";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Painel — Zero" }, { name: "description", content: "Visão geral de tempo, dinheiro e corpo." }, { property: "og:title", content: "Painel — Zero" }, { property: "og:description", content: "Visão geral de tempo, dinheiro e corpo." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dash.title") }, { name: "description", content: i18n.t("dash.description") }, { property: "og:title", content: i18n.t("dash.title") }, { property: "og:description", content: i18n.t("dash.description") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Dashboard,
 });
 
@@ -22,9 +23,9 @@ function Dashboard() {
   const kcal = meals.filter((x) => x.eaten_on === today()).reduce((a, x) => a + x.calories, 0);
 
   const tiles = [
-    { to: "/tempo", icon: Clock, label: t("nav.time"), value: `${tasks.filter((x) => !x.done).length} ${t("pending").toLowerCase()}`, tone: "text-time" },
+    { to: "/tempo", icon: Clock, label: t("nav.time"), value: t("dash.pending", { count: tasks.filter((x) => !x.done).length }), tone: "text-time" },
     { to: "/dinheiro", icon: Wallet, label: t("nav.money"), value: money(bal, i18n.language), tone: "text-money" },
-    { to: "/dieta", icon: Salad, label: t("nav.diet"), value: `${kcal} kcal`, tone: "text-body" },
+    { to: "/dieta", icon: Salad, label: t("nav.diet"), value: t("dash.calories", { value: kcal }), tone: "text-body" },
   ] as const;
 
   return (

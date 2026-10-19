@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -15,10 +17,10 @@ import { money } from "@/lib/data";
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({
     meta: [
-      { title: "Relatórios — Zero" },
-      { name: "description", content: "Relatórios avançados de dinheiro, tempo e corpo, e planejamento semanal feito pelo assistente." },
-      { property: "og:title", content: "Relatórios — Zero" },
-      { property: "og:description", content: "Relatórios avançados e planejamento semanal do Zero." },
+      { title: i18n.t("reports.metaTitle") },
+      { name: "description", content: i18n.t("reports.metaDescription") },
+      { property: "og:title", content: i18n.t("reports.metaTitle") },
+      { property: "og:description", content: i18n.t("reports.ogDescription") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
 });
 
 function Reports() {
+  const { t } = useTranslation();
   const { plan, loading } = useSubscription();
   const allowed = LIMITS[plan].reports;
   const fetchReport = useServerFn(getReport);
@@ -35,18 +38,18 @@ function Reports() {
   const q = useQuery({ queryKey: ["report"], queryFn: () => fetchReport(), enabled: allowed });
   const pw = useMutation({
     mutationFn: () => runPlan({ data: { goal, tz: Intl.DateTimeFormat().resolvedOptions().timeZone } }),
-    onSuccess: (r) => toast.success(`${r.created} blocos criados na sua agenda de tarefas`),
+    onSuccess: (r) => toast.success(t("reports.created", { value: r.created })),
     onError: (e) => toast.error((e as Error).message),
   });
 
   if (!loading && !allowed)
     return (
-      <Page kicker="Exclusivo Max" title="Relatórios e planejamento">
+      <Page kicker={t("reports.exclusive")} title={t("reports.planningTitle")}>
         <Card className="mx-auto max-w-lg text-center">
           <Crown className="mx-auto size-10 text-signal" />
-          <p className="mt-4 font-display text-xl font-semibold">Veja para onde vai cada real e cada hora</p>
-          <p className="mt-2 text-sm text-muted-foreground">Relatórios de 3 meses, ideias de economia feitas pelo assistente e a semana inteira planejada para você. Tudo isso está no plano Max.</p>
-          <Button asChild className="mt-6"><Link to="/conta">Liberar com o Max</Link></Button>
+          <p className="mt-4 font-display text-xl font-semibold">{t("reports.upsellTitle")}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t("reports.upsellDescription")}</p>
+          <Button asChild className="mt-6"><Link to="/conta">{t("reports.unlock")}</Link></Button>
         </Card>
       </Page>
     );
@@ -54,28 +57,28 @@ function Reports() {
   const d = q.data;
   const maxExp = Math.max(1, ...(d?.months ?? []).map((m) => Math.max(m.expense, m.income)));
   return (
-    <Page kicker="Max" title="Relatórios">
+    <Page kicker="Max" title={t("reports.title")}>
       <Card className="mb-6">
-        <div className="flex items-center gap-2 font-display font-semibold"><CalendarRange className="size-5" /> Planejar minha semana</div>
-        <p className="mt-1 text-sm text-muted-foreground">O assistente organiza os próximos 7 dias com suas tarefas, finanças e saúde.</p>
+        <div className="flex items-center gap-2 font-display font-semibold"><CalendarRange className="size-5" /> {t("reports.planWeek")}</div>
+        <p className="mt-1 text-sm text-muted-foreground">{t("reports.weekDescription")}</p>
         <div className="mt-3 flex gap-2">
-          <Input placeholder="Foco da semana (opcional): ex. economizar 300 e treinar 3x" value={goal} onChange={(e) => setGoal(e.target.value)} />
-          <Button onClick={() => pw.mutate()} disabled={pw.isPending}>{pw.isPending ? <Loader2 className="size-4 animate-spin" /> : "Planejar"}</Button>
+          <Input placeholder={t("reports.goal")} value={goal} onChange={(e) => setGoal(e.target.value)} />
+          <Button onClick={() => pw.mutate()} disabled={pw.isPending}>{pw.isPending ? <Loader2 className="size-4 animate-spin" /> : t("reports.plan")}</Button>
         </div>
       </Card>
       {q.isLoading || !d ? (
-        <Card className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Gerando relatório…</Card>
+        <Card className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> {t("reports.generating")}</Card>
       ) : (
         <>
           <div className="mb-6 grid gap-4 sm:grid-cols-4">
-            <Stat label="Tarefas concluídas" value={`${d.tasks.done}/${d.tasks.total}`} />
-            <Stat label="Horas produtivas" value={`${Math.round(d.tasks.minutes / 60)}h`} />
-            <Stat label="Média kcal/dia" value={String(d.diet.avgKcal)} />
-            <Stat label="Proteína/dia" value={`${d.diet.avgProt}g`} />
+            <Stat label={t("reports.tasks")} value={`${d.tasks.done}/${d.tasks.total}`} />
+            <Stat label={t("reports.hours")} value={`${Math.round(d.tasks.minutes / 60)}h`} />
+            <Stat label={t("reports.kcal")} value={String(d.diet.avgKcal)} />
+            <Stat label={t("reports.protein")} value={`${d.diet.avgProt}g`} />
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
-              <p className="mb-4 font-display font-semibold">Entradas x saídas</p>
+              <p className="mb-4 font-display font-semibold">{t("reports.incomeExpenses")}</p>
               <div className="flex h-48 items-end gap-6">
                 {d.months.map((m) => (
                   <div key={m.month} className="flex flex-1 flex-col items-center gap-2">
@@ -86,11 +89,11 @@ function Reports() {
                     <span className="text-xs text-muted-foreground">{m.month.slice(5)}/{m.month.slice(2, 4)}</span>
                   </div>
                 ))}
-                {!d.months.length && <p className="text-sm text-muted-foreground">Sem lançamentos ainda.</p>}
+                {!d.months.length && <p className="text-sm text-muted-foreground">{t("reports.empty")}</p>}
               </div>
             </Card>
             <Card>
-              <p className="mb-4 font-display font-semibold">Onde o dinheiro foi</p>
+              <p className="mb-4 font-display font-semibold">{t("reports.spending")}</p>
               <ul className="space-y-2 text-sm">
                 {d.categories.slice(0, 8).map((c) => (
                   <li key={c.category}>
@@ -103,7 +106,7 @@ function Reports() {
           </div>
           {d.insights.length > 0 && (
             <Card className="mt-6">
-              <p className="mb-3 flex items-center gap-2 font-display font-semibold"><Lightbulb className="size-5 text-signal" /> O que o assistente notou</p>
+              <p className="mb-3 flex items-center gap-2 font-display font-semibold"><Lightbulb className="size-5 text-signal" /> {t("reports.insights")}</p>
               <ul className="space-y-2 text-sm">{d.insights.map((i) => <li key={i}>• {i}</li>)}</ul>
             </Card>
           )}

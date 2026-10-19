@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Check } from "lucide-react";
@@ -8,19 +9,10 @@ import { brl, CYCLE_MONTHS, perMonth, PRICES, priceId, savingsPct, TRIAL_DAYS, F
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const PLANS: { id: Exclude<PlanId, "free">; name: string; tag: string; features: string[]; featured?: boolean }[] = [
-  { id: "essencial", name: "Essencial", tag: "Para começar a se organizar", features: ["40 mensagens por dia", "Chat de voz com voz do navegador", "Tempo e dinheiro organizados", "Dieta automática: 5 refeições/dia", "Lembretes de tarefas"] },
-  { id: "pro", name: "Pro", tag: "O mais escolhido", featured: true, features: ["200 mensagens por dia (5x mais)", "Voz premium ultra-realista", "Conversa por voz contínua, sem as mãos", "Dieta automática ilimitada", "Alertas proativos de gastos e prazos", "Memória do assistente sobre você"] },
-  { id: "max", name: "Max", tag: "Tudo liberado, sem limites", features: ["Tudo do Pro, sem nenhum limite", "Mensagens ilimitadas", "Relatórios avançados de dinheiro e tempo", "Planejamento semanal feito pelo assistente", "Respostas prioritárias", "Novidades antes de todo mundo", "Suporte prioritário"] },
-];
-
-const CYCLES: { id: Cycle; label: string }[] = [
-  { id: "monthly", label: "Mensal" },
-  { id: "semiannual", label: "Semestral" },
-  { id: "yearly", label: "Anual" },
-];
-
 export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
+  const { t } = useTranslation();
+  const PLANS = ([{ id: "essencial", name: "Essencial" }, { id: "pro", name: "Pro", featured: true }, { id: "max", name: "Max" }] as const).map((p) => ({ ...p, featured: "featured" in p && p.featured, tag: t(`pricing.${p.id}.tag`), features: t(`pricing.${p.id}.features`) as unknown as string[] }));
+  const CYCLES = (["monthly", "semiannual", "yearly"] as const).map((id) => ({ id, label: t(`pricing.${id}`) }));
   const [cycle, setCycle] = useState<Cycle>("yearly");
   const [loading, setLoading] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -40,7 +32,7 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
         settings: { displayMode: "overlay", successUrl: `${window.location.origin}/chat?checkout=success`, allowLogout: false, variant: "one-page", locale: "pt-BR" },
       });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Não foi possível abrir o pagamento");
+      toast.error(e instanceof Error ? e.message : t("pricing.paymentError"));
     } finally {
       setLoading(null);
     }
@@ -59,17 +51,17 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
 
       <div className="grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
         <div className="flex flex-col rounded-3xl border bg-card p-6">
-          <p className="font-display text-lg font-semibold">Grátis</p>
-          <p className="text-sm text-muted-foreground">Para experimentar</p>
-          <p className="mt-6 font-display text-4xl font-semibold">R$ 0</p>
-          <p className="text-xs text-muted-foreground">para sempre</p>
+          <p className="font-display text-lg font-semibold">{t("pricing.freeName")}</p>
+          <p className="text-sm text-muted-foreground">{t("pricing.freeTag")}</p>
+          <p className="mt-6 font-display text-4xl font-semibold">{t("pricing.zeroPrice")}</p>
+          <p className="text-xs text-muted-foreground">{t("pricing.forever")}</p>
           <ul className="mt-6 flex-1 space-y-2 text-sm">
-            {[`Só ${FREE_DAILY_MESSAGES} mensagens por dia`, "Somente chat por texto", "2 refeições por dia", "Sem lembretes nem alertas"].map((f) => (
+            {(t("pricing.freeFeatures", { value: FREE_DAILY_MESSAGES }) as unknown as string[]).map((f) => (
               <li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-muted-foreground" />{f}</li>
             ))}
           </ul>
           <Button variant="outline" className="mt-6" disabled={currentPlan === "free"} onClick={() => navigate({ to: "/auth" })}>
-            {currentPlan === "free" ? "Seu plano atual" : "Começar grátis"}
+            {currentPlan === "free" ? t("pricing.current") : t("pricing.startFree")}
           </Button>
         </div>
 
@@ -78,19 +70,19 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
           const now = PRICES[p.id][cycle];
           return (
             <div key={p.id} className={cn("relative flex flex-col rounded-3xl border p-6", p.featured ? "border-transparent bg-ink text-background shadow-2xl lg:-mt-4 lg:pb-10 dark:bg-card dark:text-foreground dark:ring-2 dark:ring-signal" : "bg-card")}>
-              {p.featured && <span className="absolute -top-3 left-6 rounded-full bg-signal px-3 py-1 text-xs font-bold text-signal-foreground">Mais escolhido</span>}
+              {p.featured && <span className="absolute -top-3 left-6 rounded-full bg-signal px-3 py-1 text-xs font-bold text-signal-foreground">{t("pricing.popular")}</span>}
               <p className="font-display text-lg font-semibold">{p.name}</p>
               <p className={cn("text-sm", p.featured ? "opacity-70" : "text-muted-foreground")}>{p.tag}</p>
               <div className="mt-6 flex min-w-0 flex-wrap items-baseline gap-2">
                 <p className="font-display text-3xl font-semibold xl:text-4xl">{brl(perMonth(p.id, cycle))}</p>
-                <span className="text-sm opacity-60">/mês</span>
+                <span className="text-sm opacity-60">{t("pricing.perMonth")}</span>
               </div>
               {cycle === "monthly" ? (
-                <p className="text-xs opacity-60">cobrado mensalmente</p>
+                <p className="text-xs opacity-60">{t("pricing.billedMonthly")}</p>
               ) : (
                 <p className="text-xs">
                   <span className="line-through opacity-50">{brl(full)}</span> <span className="font-semibold">{brl(now)}</span>
-                  <span className="opacity-60"> em cobrança única a cada {CYCLE_MONTHS[cycle]} meses, sem parcelamento</span>
+                  <span className="opacity-60">{t("pricing.billing", { value: CYCLE_MONTHS[cycle] })}</span>
                 </p>
               )}
               <ul className="mt-6 flex-1 space-y-2 text-sm">
@@ -104,9 +96,9 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
                 disabled={loading === priceId(p.id, cycle) || currentPlan === p.id}
                 onClick={() => choose(p.id)}
               >
-                {currentPlan === p.id ? "Seu plano atual" : `Testar ${TRIAL_DAYS / 30 === 1 ? "1 mês" : `${TRIAL_DAYS} dias`} grátis`}
+                {currentPlan === p.id ? t("pricing.current") : t(TRIAL_DAYS / 30 === 1 ? "pricing.trialMonth" : "pricing.trialDays", { value: TRIAL_DAYS })}
               </Button>
-              <p className="mt-2 text-center text-[11px] opacity-60">Cancele quando quiser antes da cobrança.</p>
+              <p className="mt-2 text-center text-[11px] opacity-60">{t("pricing.cancel")}</p>
             </div>
           );
         })}

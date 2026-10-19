@@ -55,3 +55,6 @@
 - [x] Metas e projeções financeiras
 - [ ] Conexão bancária gratuita via Open Finance — bloqueada: nenhuma opção gratuita contínua em produção confirmada; provedores exigem contrato pago
 - [x] Impedir conteúdo técnico e código visível no chat
+
+## Pendente
+- [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
