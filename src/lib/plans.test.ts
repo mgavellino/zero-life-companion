@@ -11,7 +11,7 @@ describe("plans", () => {
       expect(savingsPct(p, "yearly")).toBeGreaterThan(savingsPct(p, "semiannual"));
     }
   });
-  it("free trial is 7 days", () => expect(TRIAL_DAYS).toBe(7));
+  it("free trial is 1 month", () => expect(TRIAL_DAYS).toBe(30));
   it("free plan has limited chat and no premium voice", () => {
     expect(hasUnlimitedChat("free")).toBe(false);
     expect(hasPremiumVoice("essencial")).toBe(false);

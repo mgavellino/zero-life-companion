@@ -1,7 +1,7 @@
 export type Cycle = "monthly" | "semiannual" | "yearly";
 export type PlanId = "free" | "essencial" | "pro" | "max";
 
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 30;
 export const FREE_DAILY_MESSAGES = 20;
 
 export const CYCLE_MONTHS: Record<Cycle, number> = { monthly: 1, semiannual: 6, yearly: 12 };
