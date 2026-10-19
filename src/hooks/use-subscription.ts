@@ -29,7 +29,7 @@ export function useSubscription() {
         .limit(1)
         .maybeSingle();
       const { data: g } = await supabase.from("plan_grants").select("plan,expires_at,is_trial").eq("user_id", u.user.id).is("revoked_at", null);
-      const valid = ((g ?? []) as { plan: string; expires_at: string | null; is_trial?: boolean }[]).filter((x) => !x.expires_at || new Date(x.expires_at) > new Date());
+      const valid = ((g ?? []) as unknown as { plan: string; expires_at: string | null; is_trial?: boolean }[]).filter((x) => !x.expires_at || new Date(x.expires_at) > new Date());
       return { sub: (data as Sub | null) ?? null, grants: valid.map((x) => x.plan as PlanId), trialGrants: valid.filter((x) => x.is_trial).map((x) => x.plan as PlanId) };
     },
   });
