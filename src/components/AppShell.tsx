@@ -38,6 +38,7 @@ export function AppShell() {
     { to: "/tempo", icon: Clock, label: t("nav.time") },
     { to: "/dinheiro", icon: Wallet, label: t("nav.money") },
     { to: "/dieta", icon: Salad, label: t("nav.diet") },
+    { to: "/relatorios", icon: BarChart3, label: "Relatórios" },
     { to: "/conta", icon: Sparkles, label: "Plano" },
     { to: "/configuracoes", icon: Settings, label: "Configurações" },
   ] as const;
