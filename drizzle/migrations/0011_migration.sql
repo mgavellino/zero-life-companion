@@ -1,0 +1,2 @@
+alter table public.time_sessions drop constraint if exists time_sessions_category_check;
+alter table public.time_sessions add constraint time_sessions_category_check check (category = any (array['work','study','gaming','exercise','sleep','rest','family','commute','other']));
