@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { savePreferences } from "@/lib/preferences.functions";
 import { preferencesSchema, type PreferencesInput } from "@/lib/onboarding";
 import i18n, { LANGS } from "@/lib/i18n";
+import { heightToCm, setUnits, useUnits, weightToKg, weightValue, type CurrencyCode } from "@/lib/units";
 import { Logo } from "./Logo";
 import { Prefs } from "./Prefs";
 import { Button } from "./ui/button";

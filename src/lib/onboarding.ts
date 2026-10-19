@@ -4,7 +4,7 @@ export const preferencesSchema = z.object({
   display_name: z.string().trim().max(80),
   goals: z.array(z.enum(["time", "money", "body"])).min(1).max(3),
   language: z.enum(["pt", "en", "es", "fr", "de", "it"]),
-  currency: z.enum(["BRL", "USD", "EUR", "GBP"]),
+  currency: z.enum(["BRL", "USD", "EUR", "GBP", "JPY", "CHF"]),
   timezone: z.string().min(1).max(80).refine(value => { try { new Intl.DateTimeFormat("en", { timeZone: value }); return true; } catch { return false; } }),
   health_consent: z.boolean(),
   weight_kg: z.number().min(20).max(350).nullable(),
