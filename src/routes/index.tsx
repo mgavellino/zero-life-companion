@@ -17,6 +17,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: i18n.t("landing.title") },
       { name: "description", content: i18n.t("landing.description") },
+      { name: "google-site-verification", content: "ZSm6svarrrXx5BmugLO4J4ONWCpii8nQXA7USUCsxoE" },
       { property: "og:title", content: i18n.t("landing.socialTitle") },
       { property: "og:description", content: i18n.t("landing.socialDescription") },
       { property: "og:type", content: "website" },

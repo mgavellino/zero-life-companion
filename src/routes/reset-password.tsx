@@ -17,6 +17,7 @@ export const Route = createFileRoute("/reset-password")({
       { property: "og:description", content: "Defina uma nova senha no Zero." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: Reset,

@@ -20,6 +20,7 @@ export const Route = createFileRoute("/auth")({
       { property: "og:description", content: i18n.t("shell.authDescription") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: AuthPage,

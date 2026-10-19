@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-export const Route=createFileRoute("/api/public/oauth/calendar/return")({server:{handlers:{GET:async({request})=>{
+export const Route=createFileRoute("/api/public/oauth/calendar/return")({staticData:{sitemap:false},server:{handlers:{GET:async({request})=>{
   const url=new URL(request.url);
   const result={type:url.searchParams.get("success")==="true"?"calendarComplete":"calendarFailed",connectorId:url.searchParams.get("connector_id"),code:url.searchParams.get("code"),attempt:url.searchParams.get("attempt")};
   const safe=JSON.stringify(result).replace(/</g,"\\u003c");
