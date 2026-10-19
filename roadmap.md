@@ -2,6 +2,8 @@
 - [ ] Onboarding completo com medidas opcionais e consentimento de saúde
 - [ ] Atividades por texto e chat com estimativa por IA
 - [ ] Isolamento de contas e controles de privacidade
+- [ ] Push no celular com app fechado — configurar serviço de envio e credenciais de Android/iOS
+- [ ] Versão nativa — depende de projeto nativo e contas das lojas; o atual é web
 - [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
 - [x] Tempo, Dinheiro
 - [x] Tema claro/escuro + 6 idiomas
