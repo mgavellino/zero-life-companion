@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import { NotificationBell } from "./NotificationBell";
 import { PaymentTestModeBanner } from "./PaymentTestModeBanner";
 import { useSubscription } from "@/hooks/use-subscription";
+import { OnboardingGate } from "./Onboarding";
 
 const PLAN_LABEL = { free: "Grátis", essencial: "Essencial", pro: "Pro", max: "Max" } as const;
 
@@ -91,7 +92,7 @@ export function AppShell() {
           </div>
         </aside>
         <main className="min-h-0 flex-1 overflow-y-auto">
-          <Outlet />
+          <OnboardingGate><Outlet /></OnboardingGate>
         </main>
       </div>
     </div>

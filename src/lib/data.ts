@@ -24,7 +24,7 @@ export function useTableMutations(table: Table | "workout_exercises", extraKeys:
     qc.invalidateQueries({ queryKey: [table] });
     extraKeys.forEach((k) => qc.invalidateQueries({ queryKey: k }));
   };
-  const onError = (e: Error) => toast.error(e.message);
+  const onError = () => toast.error("Não foi possível salvar a alteração. Tente novamente.");
   const insert = useMutation({
     mutationFn: async (row: Record<string, unknown>) => {
       const { error } = await supabase.from(table).insert(row as never);

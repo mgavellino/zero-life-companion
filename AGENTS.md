@@ -10,6 +10,9 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Onboarding is enforced at the authenticated shell using persisted owner-only preferences, with optional measurements and explicit health consent; this covers email and social signups without editing the managed auth gate.
+- Activity logging uses one authenticated server-only Groq estimator shared by chat and diet; this keeps consent, ownership and uncertainty rules consistent.
+- Personal data exports use the caller's RLS client, parent-child policies verify ownership, and identity transitions clear query caches to prevent cross-account content reuse.
 - Chat shows only customer-facing prose and action confirmations; raw tool inputs, outputs, reasoning and provider errors must never be rendered.
 - Habits use stable definitions plus date-scoped completion rows, never generated daily tasks; this preserves an empty initial agenda and completion history.
 - Energy estimates and financial projections use tested pure functions in `src/lib/planning.ts`; persistent inputs stay in owner-scoped tables so results follow saved user data.
