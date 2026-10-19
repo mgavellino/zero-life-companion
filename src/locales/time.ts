@@ -10,26 +10,37 @@ export default {
       "delete": "Excluir hábito {{title}}"
     },
     "clock": {
-      "title": "Relógio",
+      "title": "Como você usou seu tempo",
       "error": "Não foi possível alterar o relógio. Tente novamente.",
       "currentTime": "Hora atual",
       "category": "Categoria do tempo",
       "elapsed": "Tempo decorrido",
       "stop": "Encerrar",
       "start": "Iniciar",
-      "summary": "Resumo do dia",
+      "summary": "Divisão do dia",
       "summaryOngoing": "Resumo do dia · em andamento",
       "summaryDate": "Dia do resumo",
       "dayShare": "{{duration}} · {{percent}}% do dia",
       "untracked": "Não registrado: {{percent}}% do dia. Percentuais consideram o dia completo; somente períodos registrados são classificados.",
-      "empty": "Nenhum tempo registrado neste dia.",
+      "empty": "Nada registrado neste dia ainda.",
       "categories": {
         "work": "Trabalho",
-        "gaming": "Jogos",
         "study": "Estudo",
+        "gaming": "Jogos",
+        "exercise": "Exercício",
+        "sleep": "Sono",
         "rest": "Descanso",
+        "family": "Família e amigos",
+        "commute": "Deslocamento",
         "other": "Outros"
-      }
+      },
+      "intro": "Registre quanto tempo passou em cada atividade e veja quantos % do seu dia ela representa.",
+      "hours": "Horas",
+      "minutes": "Min",
+      "add": "Registrar",
+      "remove": "Remover",
+      "dayFull": "O dia já tem 24 horas registradas.",
+      "totalNote": "Total registrado: {{duration}} ({{percent}}% das 24h do dia)."
     },
     "shellClock": {
       "label": "Relógio e registro de tempo"
@@ -71,26 +82,37 @@ export default {
       "delete": "Delete habit {{title}}"
     },
     "clock": {
-      "title": "Clock",
+      "title": "How you spent your time",
       "error": "Could not update the clock. Please try again.",
       "currentTime": "Current time",
       "category": "Time category",
       "elapsed": "Elapsed time",
       "stop": "Stop",
       "start": "Start",
-      "summary": "Daily summary",
+      "summary": "Day breakdown",
       "summaryOngoing": "Daily summary · in progress",
       "summaryDate": "Summary date",
       "dayShare": "{{duration}} · {{percent}}% of the day",
       "untracked": "Untracked: {{percent}}% of the day. Percentages cover the full day; only tracked periods are categorized.",
-      "empty": "No time tracked on this day.",
+      "empty": "Nothing logged for this day yet.",
       "categories": {
         "work": "Work",
-        "gaming": "Gaming",
         "study": "Study",
+        "gaming": "Gaming",
+        "exercise": "Exercise",
+        "sleep": "Sleep",
         "rest": "Rest",
+        "family": "Family & friends",
+        "commute": "Commute",
         "other": "Other"
-      }
+      },
+      "intro": "Log how long you spent on each activity and see what % of your day it was.",
+      "hours": "Hours",
+      "minutes": "Min",
+      "add": "Log",
+      "remove": "Remove",
+      "dayFull": "This day already has 24 hours logged.",
+      "totalNote": "Total logged: {{duration}} ({{percent}}% of the 24h day)."
     },
     "shellClock": {
       "label": "Clock and time tracking"
@@ -132,26 +154,37 @@ export default {
       "delete": "Eliminar hábito {{title}}"
     },
     "clock": {
-      "title": "Reloj",
+      "title": "Cómo usaste tu tiempo",
       "error": "No se pudo actualizar el reloj. Inténtalo de nuevo.",
       "currentTime": "Hora actual",
       "category": "Categoría de tiempo",
       "elapsed": "Tiempo transcurrido",
       "stop": "Finalizar",
       "start": "Iniciar",
-      "summary": "Resumen del día",
+      "summary": "Reparto del día",
       "summaryOngoing": "Resumen del día · en curso",
       "summaryDate": "Fecha del resumen",
       "dayShare": "{{duration}} · {{percent}}% del día",
       "untracked": "Sin registrar: {{percent}}% del día. Los porcentajes consideran el día completo; solo se clasifican los períodos registrados.",
-      "empty": "No hay tiempo registrado este día.",
+      "empty": "Nada registrado este día todavía.",
       "categories": {
         "work": "Trabajo",
-        "gaming": "Juegos",
         "study": "Estudio",
+        "gaming": "Juegos",
+        "exercise": "Ejercicio",
+        "sleep": "Sueño",
         "rest": "Descanso",
+        "family": "Familia y amigos",
+        "commute": "Desplazamiento",
         "other": "Otros"
-      }
+      },
+      "intro": "Registra cuánto tiempo dedicaste a cada actividad y mira qué % de tu día representa.",
+      "hours": "Horas",
+      "minutes": "Min",
+      "add": "Registrar",
+      "remove": "Eliminar",
+      "dayFull": "Este día ya tiene 24 horas registradas.",
+      "totalNote": "Total registrado: {{duration}} ({{percent}}% de las 24h del día)."
     },
     "shellClock": {
       "label": "Reloj y registro de tiempo"
@@ -193,26 +226,37 @@ export default {
       "delete": "Supprimer l’habitude {{title}}"
     },
     "clock": {
-      "title": "Horloge",
+      "title": "Comment vous avez utilisé votre temps",
       "error": "Impossible de mettre à jour l’horloge. Réessayez.",
       "currentTime": "Heure actuelle",
       "category": "Catégorie de temps",
       "elapsed": "Temps écoulé",
       "stop": "Arrêter",
       "start": "Démarrer",
-      "summary": "Résumé du jour",
+      "summary": "Répartition de la journée",
       "summaryOngoing": "Résumé du jour · en cours",
       "summaryDate": "Date du résumé",
       "dayShare": "{{duration}} · {{percent}} % de la journée",
       "untracked": "Non enregistré : {{percent}} % de la journée. Les pourcentages portent sur la journée entière ; seules les périodes enregistrées sont classées.",
-      "empty": "Aucun temps enregistré ce jour-là.",
+      "empty": "Rien d'enregistré ce jour-là.",
       "categories": {
         "work": "Travail",
-        "gaming": "Jeux",
         "study": "Études",
+        "gaming": "Jeux",
+        "exercise": "Sport",
+        "sleep": "Sommeil",
         "rest": "Repos",
+        "family": "Famille et amis",
+        "commute": "Trajets",
         "other": "Autres"
-      }
+      },
+      "intro": "Notez le temps passé sur chaque activité et voyez quel % de votre journée cela représente.",
+      "hours": "Heures",
+      "minutes": "Min",
+      "add": "Enregistrer",
+      "remove": "Supprimer",
+      "dayFull": "Cette journée a déjà 24 heures enregistrées.",
+      "totalNote": "Total enregistré : {{duration}} ({{percent}} % des 24 h)."
     },
     "shellClock": {
       "label": "Horloge et suivi du temps"
@@ -254,26 +298,37 @@ export default {
       "delete": "Gewohnheit {{title}} löschen"
     },
     "clock": {
-      "title": "Uhr",
+      "title": "Wie du deine Zeit verbracht hast",
       "error": "Die Uhr konnte nicht aktualisiert werden. Bitte erneut versuchen.",
       "currentTime": "Aktuelle Uhrzeit",
       "category": "Zeitkategorie",
       "elapsed": "Verstrichene Zeit",
       "stop": "Beenden",
       "start": "Starten",
-      "summary": "Tagesübersicht",
+      "summary": "Tagesaufteilung",
       "summaryOngoing": "Tagesübersicht · läuft",
       "summaryDate": "Datum der Übersicht",
       "dayShare": "{{duration}} · {{percent}} % des Tages",
       "untracked": "Nicht erfasst: {{percent}} % des Tages. Die Prozentwerte beziehen sich auf den ganzen Tag; nur erfasste Zeiträume werden zugeordnet.",
-      "empty": "An diesem Tag wurde keine Zeit erfasst.",
+      "empty": "Für diesen Tag noch nichts erfasst.",
       "categories": {
         "work": "Arbeit",
-        "gaming": "Spielen",
         "study": "Lernen",
-        "rest": "Ruhe",
+        "gaming": "Spielen",
+        "exercise": "Sport",
+        "sleep": "Schlaf",
+        "rest": "Erholung",
+        "family": "Familie & Freunde",
+        "commute": "Pendeln",
         "other": "Sonstiges"
-      }
+      },
+      "intro": "Erfasse, wie lange du mit jeder Tätigkeit verbracht hast, und sieh, wie viel % deines Tages das war.",
+      "hours": "Stunden",
+      "minutes": "Min",
+      "add": "Erfassen",
+      "remove": "Entfernen",
+      "dayFull": "Für diesen Tag sind bereits 24 Stunden erfasst.",
+      "totalNote": "Erfasst: {{duration}} ({{percent}} % der 24 Std.)."
     },
     "shellClock": {
       "label": "Uhr und Zeiterfassung"
@@ -315,26 +370,37 @@ export default {
       "delete": "Elimina abitudine {{title}}"
     },
     "clock": {
-      "title": "Orologio",
+      "title": "Come hai usato il tuo tempo",
       "error": "Impossibile aggiornare l’orologio. Riprova.",
       "currentTime": "Ora attuale",
       "category": "Categoria di tempo",
       "elapsed": "Tempo trascorso",
       "stop": "Termina",
       "start": "Avvia",
-      "summary": "Riepilogo del giorno",
+      "summary": "Suddivisione della giornata",
       "summaryOngoing": "Riepilogo del giorno · in corso",
       "summaryDate": "Data del riepilogo",
       "dayShare": "{{duration}} · {{percent}}% del giorno",
       "untracked": "Non registrato: {{percent}}% del giorno. Le percentuali considerano l’intera giornata; solo i periodi registrati vengono classificati.",
-      "empty": "Nessun tempo registrato in questo giorno.",
+      "empty": "Ancora niente registrato in questo giorno.",
       "categories": {
         "work": "Lavoro",
-        "gaming": "Giochi",
         "study": "Studio",
+        "gaming": "Giochi",
+        "exercise": "Esercizio",
+        "sleep": "Sonno",
         "rest": "Riposo",
+        "family": "Famiglia e amici",
+        "commute": "Spostamenti",
         "other": "Altro"
-      }
+      },
+      "intro": "Registra quanto tempo hai dedicato a ogni attività e scopri che % della tua giornata rappresenta.",
+      "hours": "Ore",
+      "minutes": "Min",
+      "add": "Registra",
+      "remove": "Rimuovi",
+      "dayFull": "Questa giornata ha già 24 ore registrate.",
+      "totalNote": "Totale registrato: {{duration}} ({{percent}}% delle 24 ore)."
     },
     "shellClock": {
       "label": "Orologio e registrazione del tempo"
