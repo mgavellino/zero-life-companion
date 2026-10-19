@@ -1,6 +1,6 @@
 # Zero — roadmap
-- [ ] Monthly bills, payment status and deduplicated due-date reminders
-- [ ] Automatic categories across manual entry, quick capture and chat
+- [x] Monthly bills, atomic payment status and deduplicated hourly due-date reminders; UI and database flow tested
+- [x] Automatic categories across manual entry, quick capture and chat
 - [x] Admin option only for authorized accounts; role grant/revoke tested with RLS
 - [x] Hide empty metrics and projections in Tempo, Dieta and Dinheiro
 - [x] Integrated clock, saved time tracking and daily category percentages
