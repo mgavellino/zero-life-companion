@@ -2,7 +2,7 @@
 - [x] Onboarding completo com medidas opcionais e consentimento de saúde
 - [x] Atividades por texto e chat com estimativa por IA
 - [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)
-- [ ] Push no celular com app fechado — configurar serviço de envio e credenciais de Android/iOS
+- [ ] Push no celular com app fechado — bloqueado: conexão Firebase recusada; versão nativa também requer credenciais de Android/iOS
 - [ ] Versão nativa — depende de projeto nativo e contas das lojas; o atual é web
 - [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
 - [x] Tempo, Dinheiro
