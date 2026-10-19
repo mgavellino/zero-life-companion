@@ -27,6 +27,25 @@ function MoneyPage() {
   const [f, setF] = useState({ kind: "expense", amount: "", category: "", description: "", occurred_on: today() });
   const [b, setB] = useState({ category: "", monthly_limit: "" });
 
+  const [fl, setFl] = useState({ q: "", kind: "all", cat: "all", period: "month" });
+  const cats = [...new Set(tx.map((x) => x.category))].sort();
+  const since = (() => {
+    const d = new Date();
+    if (fl.period === "7d") d.setDate(d.getDate() - 7);
+    else if (fl.period === "30d") d.setDate(d.getDate() - 30);
+    else if (fl.period === "month") d.setDate(1);
+    else if (fl.period === "year") d.setMonth(0, 1);
+    else return "";
+    return d.toISOString().slice(0, 10);
+  })();
+  const shown = tx.filter(
+    (x) =>
+      (fl.kind === "all" || x.kind === fl.kind) &&
+      (fl.cat === "all" || x.category === fl.cat) &&
+      (!since || x.occurred_on >= since) &&
+      (!fl.q || `${x.category} ${x.description ?? ""}`.toLowerCase().includes(fl.q.toLowerCase())),
+  );
+  const shownTotal = shown.reduce((a, x) => a + (x.kind === "income" ? 1 : -1) * Number(x.amount), 0);
   const month = today().slice(0, 7);
   const cur = tx.filter((x) => x.occurred_on.startsWith(month));
   const inc = cur.filter((x) => x.kind === "income").reduce((a, x) => a + Number(x.amount), 0);
@@ -65,8 +84,22 @@ function MoneyPage() {
       </Card>
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-2">
-          {tx.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
-          {tx.map((x) => (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2">
+            <Input className="h-8 max-w-[180px]" placeholder="Buscar…" value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
+            <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.period} onChange={(e) => setFl({ ...fl, period: e.target.value })}>
+              <option value="7d">7 dias</option><option value="30d">30 dias</option><option value="month">Este mês</option><option value="year">Este ano</option><option value="all">Tudo</option>
+            </select>
+            <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.kind} onChange={(e) => setFl({ ...fl, kind: e.target.value })}>
+              <option value="all">Entradas e saídas</option><option value="expense">{t("expense")}</option><option value="income">{t("income")}</option>
+            </select>
+            <select className="h-8 rounded-md border bg-background px-2 text-sm capitalize" value={fl.cat} onChange={(e) => setFl({ ...fl, cat: e.target.value })}>
+              <option value="all">Todas categorias</option>
+              {cats.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <span className="ml-auto pr-2 text-sm text-muted-foreground">{shown.length} itens · <b className="text-foreground">{money(shownTotal, L)}</b></span>
+          </div>
+          {shown.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
+          {shown.map((x) => (
             <div key={x.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
               <span className="w-20 text-xs text-muted-foreground">{x.occurred_on}</span>
               <span className="flex-1">
