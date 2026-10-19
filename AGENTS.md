@@ -32,3 +32,4 @@
 - Billing: Paddle (`src/lib/paddle*.ts`), webhook writes `subscriptions`; prices/limits in `src/lib/plans.ts` must match the catalog. Effective plan = highest of live subscription and active `plan_grants`, resolved server-side by `getUserPlan`.
 - Admin uses `user_roles` + `has_role()`, never profile columns. Notifications are `notifications` rows (realtime → toast).
 - Deployment stays host-portable (no Cloudflare-only server code; Node 22 in `.nvmrc`) because the owner also deploys to Vercel with the Lovable Cloud backend.
+- External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.

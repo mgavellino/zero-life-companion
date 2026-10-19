@@ -23,6 +23,8 @@ import i18n from "@/lib/i18n";
 import { useSubscription } from "@/hooks/use-subscription";
 import { hasVoiceChat } from "@/lib/plans";
 import { readChatHistory } from "@/lib/chat-history";
+import { useWebMCP } from "use-webmcp-tool";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
 
 const chatQuery = {
   queryKey: ["chat"],
@@ -271,6 +273,28 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     setHandsFree(true);
     listen();
   }
+
+  useWebMCP({
+    name: "read_conversation",
+    description: "Read the latest messages shown in the Zero chat on this page.",
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+    execute: () => runWebMCPTool("read_conversation", () => {
+      const recent = messages.slice(-20).map((m) => `${m.role === "user" ? "User" : "Zero"}: ${plainText(m)}`).filter((l) => !l.endsWith(": "));
+      return recent.length ? recent.join("\n") : "The conversation is empty.";
+    }),
+  });
+  useWebMCP({
+    name: "draft_message",
+    description: "Put text into the chat message box without sending it, switching to text mode.",
+    inputSchema: { type: "object", properties: { text: { type: "string", description: "Message text to place in the box." } }, required: ["text"] },
+    execute: ({ text: draft }: { text: string }) => runWebMCPTool("draft_message", () => {
+      if (typeof draft !== "string" || !draft.trim()) throw new Error("Text is required.");
+      if (draft.length > 4000) throw new Error("Text is too long.");
+      setMode("text");
+      setText(draft);
+      return "Message placed in the box; the user can review and send it.";
+    }),
+  });
 
   const last = messages[messages.length - 1];
   const replies = !busy ? quickReplies(last) : [];
