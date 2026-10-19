@@ -150,7 +150,7 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 }
 
@@ -175,21 +175,36 @@
 }
 
 @utility voice-orb {
-  background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--signal) 45%, var(--card)), var(--card) 70%);
+  isolation: isolate;
+  background: radial-gradient(circle at 32% 24%, color-mix(in oklab, var(--signal) 75%, var(--card)), var(--card) 74%);
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--foreground) 8%, transparent),
-    0 30px 80px -20px color-mix(in oklab, var(--signal) 55%, transparent);
-  transition: transform 300ms ease, box-shadow 300ms ease;
-  &:hover { transform: scale(1.02); }
-  &.is-listening { animation: orb-pulse 1.2s ease-in-out infinite; }
-  &.is-thinking { animation: orb-spin 2.4s linear infinite; }
-  &.is-speaking { animation: orb-pulse 0.7s ease-in-out infinite; }
+    inset -12px -16px 32px color-mix(in oklab, var(--time) 18%, transparent),
+    0 18px 48px -24px color-mix(in oklab, var(--signal) 55%, transparent);
+  transition: transform 600ms ease;
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    inset: 10%;
+    border: 1px solid color-mix(in oklab, var(--signal) 65%, transparent);
+    border-radius: 42% 58% 62% 38% / 48% 42% 58% 52%;
+    animation: orb-flow 12s linear infinite;
+    pointer-events: none;
+  }
+  &::after { inset: 4%; animation-duration: 18s; animation-direction: reverse; border-color: color-mix(in oklab, var(--time) 35%, transparent); }
+  &.is-listening::before { animation-duration: 5s; }
+  &.is-thinking::before { animation-duration: 3s; }
+  &.is-speaking::before { animation-duration: 7s; }
+  &.is-speaking { animation: orb-breathe 4s ease-in-out infinite; }
 }
 
-@keyframes orb-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in oklab, var(--signal) 50%, transparent), 0 30px 80px -20px color-mix(in oklab, var(--signal) 55%, transparent); }
-  50% { transform: scale(1.05); box-shadow: 0 0 0 28px color-mix(in oklab, var(--signal) 0%, transparent), 0 30px 100px -10px color-mix(in oklab, var(--signal) 70%, transparent); }
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
 }
-@keyframes orb-spin {
-  to { filter: hue-rotate(40deg); transform: rotate(360deg); }
+@keyframes orb-flow {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voice-orb, .voice-orb::before, .voice-orb::after { animation: none !important; transition: none; }
 }
