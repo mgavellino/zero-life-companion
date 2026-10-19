@@ -33,7 +33,7 @@ export function useSubscription() {
   });
   useEffect(() => {
     const ch = supabase
-      .channel("sub-changes")
+      .channel(`sub-changes-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "subscriptions" }, () => qc.invalidateQueries({ queryKey: ["subscription"] }))
       .subscribe();
     return () => {
