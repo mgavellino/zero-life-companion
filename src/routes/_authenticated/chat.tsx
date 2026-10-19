@@ -5,7 +5,7 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Keyboard, AudioLines, Bell } from "lucide-react";
+import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Keyboard, AudioLines, Bell, Trash2, ListChecks, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
@@ -14,6 +14,8 @@ import { Shimmer } from "@/components/ai-elements/shimmer";
 import { actionLabel, customerText, savedTransaction } from "@/lib/chat-presentation";
 import { TransactionConfirmation } from "@/components/TransactionConfirmation";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ZeroRing } from "@/components/Logo";
 import { speak, stopSpeaking } from "@/lib/speak";
 import { cn } from "@/lib/utils";
@@ -129,7 +131,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     [threadId],
   );
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status, stop, setMessages } = useChat({
     id: threadId,
     messages: initial.messages,
     transport,
@@ -155,6 +157,35 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   });
 
   useEffect(() => () => stopSpeaking(), []);
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
+
+  // Messages streamed in this session carry client ids; reload saved ids before selecting.
+  async function startSelecting() {
+    try {
+      const fresh = await qc.fetchQuery(chatQuery);
+      setMessages(fresh.messages);
+      setSelected(new Set());
+      setSelecting(true);
+    } catch { toast.error(t("chat2.deleteError")); }
+  }
+  async function removeMessages(all: boolean) {
+    setDeleting(true);
+    try {
+      const ids = [...selected];
+      const query = supabase.from("messages").delete().eq("thread_id", threadId);
+      const { error } = all ? await query : await query.in("id", ids);
+      if (error) throw error;
+      const remaining = all ? [] : messages.filter((m) => !selected.has(m.id));
+      setMessages(remaining);
+      qc.setQueryData(chatQuery.queryKey, { threadId, messages: remaining });
+      setSelected(new Set());
+      setSelecting(false);
+      toast.success(t("chat2.deleted"));
+    } catch { toast.error(t("chat2.deleteError")); }
+    finally { setDeleting(false); }
+  }
   const busy = status === "submitted" || status === "streaming";
   const send = useCallback(
     (v: string) => {
@@ -241,7 +272,26 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-end gap-1 border-b px-4 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
+          {selecting ? (
+            <>
+              <Button size="sm" variant="destructive" disabled={!selected.size || deleting} onClick={() => removeMessages(false)}><Trash2 className="size-3.5" />{t("chat2.deleteSelected", { count: selected.size })}</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setSelecting(false); setSelected(new Set()); }}><X className="size-3.5" />{t("chat2.cancelSelect")}</Button>
+            </>
+          ) : messages.length > 0 && (
+            <>
+              <Button size="sm" variant="ghost" disabled={busy} onClick={startSelecting}><ListChecks className="size-3.5" />{t("chat2.select")}</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild><Button size="sm" variant="ghost" disabled={busy || deleting}><Trash2 className="size-3.5" />{t("chat2.clear")}</Button></AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader><AlertDialogTitle>{t("chat2.clearTitle")}</AlertDialogTitle><AlertDialogDescription>{t("chat2.clearBody")}</AlertDialogDescription></AlertDialogHeader>
+                  <AlertDialogFooter><AlertDialogCancel>{t("chat2.cancelSelect")}</AlertDialogCancel><AlertDialogAction onClick={() => removeMessages(true)}>{t("chat2.clearConfirm")}</AlertDialogAction></AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
+        </div>
         <div className="inline-flex rounded-full border bg-card p-0.5 text-xs">
           <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? setMode("voice") : toast(t("chat2.voicePlan"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
             <AudioLines className="size-3.5" /> {t("chat2.voice")}
@@ -276,7 +326,10 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
                 </div>
               )}
               {messages.map((m) => (
-                <Message from={m.role} key={m.id}>
+                <div key={m.id} className={cn("flex min-w-0 items-start gap-2", selecting && "cursor-pointer")} onClick={selecting ? () => setSelected((prev) => { const next = new Set(prev); if (next.has(m.id)) next.delete(m.id); else next.add(m.id); return next; }) : undefined}>
+                {selecting && <Checkbox className="mt-3 shrink-0" checked={selected.has(m.id)} aria-label={t("chat2.selectMessage")} />}
+                <div className="min-w-0 flex-1">
+                <Message from={m.role}>
                   <MessageContent className={m.role === "user" ? "max-w-[90%] break-words rounded-2xl rounded-br-sm bg-ink px-4 py-3 text-sm text-background dark:bg-secondary dark:text-foreground" : "max-w-full break-words rounded-2xl rounded-bl-sm border bg-card px-4 py-3 text-sm"}>
                     {m.parts.map((p, i) => {
                       if (p.type === "text") return <MessageResponse key={i} className="text-sm leading-relaxed">{customerText(p.text)}</MessageResponse>;
@@ -294,6 +347,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
                     })}
                   </MessageContent>
                 </Message>
+                </div>
+                </div>
               ))}
               {status === "submitted" && <Shimmer className="text-sm">{t("thinking")}</Shimmer>}
             </ConversationContent>

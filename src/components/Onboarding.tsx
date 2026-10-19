@@ -32,7 +32,8 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
   const query = useQuery(preferencesQuery);
   if (query.isPending) return <div className="p-10 text-muted-foreground">{t("onboarding.preparing")}</div>;
   if (query.isError) return <div className="p-10"><p>{query.error.message}</p><Button className="mt-4" onClick={() => query.refetch()}>{t("shell.retry")}</Button></div>;
-  if (!query.data?.onboarding_completed_at) return <Onboarding />;
+  // Mandatory: no app navigation is rendered until onboarding is saved.
+  if (!query.data?.onboarding_completed_at) return <div className="h-dvh overflow-y-auto"><Onboarding /></div>;
   return children;
 }
 
