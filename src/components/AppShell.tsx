@@ -13,6 +13,7 @@ import { PaymentTestModeBanner } from "./PaymentTestModeBanner";
 import { useSubscription } from "@/hooks/use-subscription";
 import { OnboardingGate } from "./Onboarding";
 import { ShellClock } from "./ShellClock";
+import { InstallZero } from "./InstallZero";
 
 const PLAN_LABEL = { free: "Grátis", essencial: "Essencial", pro: "Pro", max: "Max" } as const;
 
@@ -59,6 +60,7 @@ export function AppShell() {
         <SheetContent side="left" className="w-[min(88vw,360px)] overflow-y-auto">
           <SheetTitle>Zero</SheetTitle><SheetDescription>Seu assistente pessoal</SheetDescription>
           <nav className="mt-6 grid gap-2">{items.map(i => <Link key={i.to} to={i.to} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground" activeProps={{className:"bg-accent text-accent-foreground"}}><i.icon className="size-5 shrink-0" />{i.label}</Link>)}{isAdmin && <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 px-3"><Shield className="size-5" />Admin</Link>}</nav>
+          <div className="mt-4"><InstallZero /></div>
           <div className="mt-6 flex items-center justify-between border-t pt-4"><Prefs /><Button variant="ghost" onClick={signOut}><LogOut className="size-4" />{t("signOut")}</Button></div>
         </SheetContent>
       </Sheet>
@@ -86,6 +88,7 @@ export function AppShell() {
             )}
           </nav>
           <div className="md:mt-auto">
+            <InstallZero />
             {plan === "free" ? (
               <Link to="/planos" className="mb-3 hidden rounded-xl bg-ink p-3 text-xs text-background md:block dark:bg-card dark:text-foreground">
                 <p className="font-display text-sm font-semibold">1 mês grátis</p>
