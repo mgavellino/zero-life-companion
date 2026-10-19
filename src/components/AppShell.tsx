@@ -1,7 +1,9 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield } from "lucide-react";
+import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield, Menu } from "lucide-react";
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "./ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "./Logo";
 import { Prefs } from "./Prefs";
@@ -18,6 +20,7 @@ export function AppShell() {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
   const { plan, sub } = useSubscription();
   const { data: isAdmin } = useQuery({
     queryKey: ["is-admin"],
@@ -46,13 +49,24 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="app-shell flex h-dvh min-w-0 flex-col">
       <PaymentTestModeBanner />
-      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <aside className="flex shrink-0 items-center justify-between border-b bg-sidebar px-3 py-2 md:w-60 md:flex-col md:items-stretch md:justify-start md:border-b-0 md:border-r md:p-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b bg-sidebar px-3 py-2 lg:hidden">
+        <div className="flex min-w-0 items-center gap-1"><Button variant="ghost" size="icon" aria-label="Abrir menu" onClick={() => setMenuOpen(true)}><Menu className="size-5" /></Button><Link to="/chat"><Logo /></Link></div>
+        <div className="flex shrink-0 items-center"><ShellClock /><NotificationBell /></div>
+      </div>
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="left" className="w-[min(88vw,360px)] overflow-y-auto">
+          <SheetTitle>Zero</SheetTitle><SheetDescription>Seu assistente pessoal</SheetDescription>
+          <nav className="mt-6 grid gap-2">{items.map(i => <Link key={i.to} to={i.to} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground" activeProps={{className:"bg-accent text-accent-foreground"}}><i.icon className="size-5 shrink-0" />{i.label}</Link>)}{isAdmin && <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 px-3"><Shield className="size-5" />Admin</Link>}</nav>
+          <div className="mt-6 flex items-center justify-between border-t pt-4"><Prefs /><Button variant="ghost" onClick={signOut}><LogOut className="size-4" />{t("signOut")}</Button></div>
+        </SheetContent>
+      </Sheet>
+      <div className="flex min-h-0 min-w-0 flex-1">
+        <aside className="hidden w-60 shrink-0 flex-col items-stretch border-r bg-sidebar p-4 lg:flex">
           <Link to="/chat" className="md:mb-8"><Logo /></Link>
           <ShellClock />
-          <nav className="flex gap-1 overflow-x-auto md:flex-col">
+          <nav className="flex flex-col gap-1">
             {items.map((i) => (
               <Link
                 key={i.to}
@@ -93,10 +107,13 @@ export function AppShell() {
             </div>
           </div>
         </aside>
-        <main className="min-h-0 flex-1 overflow-y-auto">
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
           <OnboardingGate><Outlet /></OnboardingGate>
         </main>
       </div>
+      <nav aria-label="Navigation principale" className="grid shrink-0 grid-cols-4 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
+        {items.filter(i => ["/chat", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"text-primary bg-accent/40"}}><i.icon className="size-5" /><span className="max-w-full truncate">{i.label}</span></Link>)}
+      </nav>
     </div>
   );
 }
