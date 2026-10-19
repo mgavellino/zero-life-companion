@@ -417,6 +417,7 @@ export type Database = {
           expires_at: string | null
           granted_by: string | null
           id: string
+          is_trial: boolean
           note: string | null
           plan: string
           revoked_at: string | null
@@ -427,6 +428,7 @@ export type Database = {
           expires_at?: string | null
           granted_by?: string | null
           id?: string
+          is_trial?: boolean
           note?: string | null
           plan: string
           revoked_at?: string | null
@@ -437,6 +439,7 @@ export type Database = {
           expires_at?: string | null
           granted_by?: string | null
           id?: string
+          is_trial?: boolean
           note?: string | null
           plan?: string
           revoked_at?: string | null
