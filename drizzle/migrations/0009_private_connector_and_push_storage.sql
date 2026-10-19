@@ -1,0 +1,12 @@
+CREATE TABLE public.app_user_connections (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, connector_id text NOT NULL, connection_key_ciphertext text NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), UNIQUE(user_id,connector_id));
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.app_user_connections TO service_role;
+ALTER TABLE public.app_user_connections ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.push_configuration (id text PRIMARY KEY, public_key text NOT NULL, private_key_ciphertext text NOT NULL);
+GRANT ALL ON public.push_configuration TO service_role;
+ALTER TABLE public.push_configuration ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.push_devices (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, endpoint text NOT NULL UNIQUE, subscription_ciphertext text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+GRANT ALL ON public.push_devices TO service_role;
+ALTER TABLE public.push_devices ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.push_deliveries (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), notification_id uuid NOT NULL REFERENCES public.notifications(id) ON DELETE CASCADE, device_id uuid NOT NULL REFERENCES public.push_devices(id) ON DELETE CASCADE, delivered_at timestamptz, attempts integer NOT NULL DEFAULT 0, next_attempt_at timestamptz NOT NULL DEFAULT now(), UNIQUE(notification_id,device_id));
+GRANT ALL ON public.push_deliveries TO service_role;
+ALTER TABLE public.push_deliveries ENABLE ROW LEVEL SECURITY;

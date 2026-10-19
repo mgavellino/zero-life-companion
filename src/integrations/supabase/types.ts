@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_user_connections: {
+        Row: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connection_key_ciphertext?: string
+          connector_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bill_payments: {
         Row: {
           bill_id: string
@@ -411,6 +438,90 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      push_configuration: {
+        Row: {
+          id: string
+          private_key_ciphertext: string
+          public_key: string
+        }
+        Insert: {
+          id: string
+          private_key_ciphertext: string
+          public_key: string
+        }
+        Update: {
+          id?: string
+          private_key_ciphertext?: string
+          public_key?: string
+        }
+        Relationships: []
+      }
+      push_deliveries: {
+        Row: {
+          attempts: number
+          delivered_at: string | null
+          device_id: string
+          id: string
+          next_attempt_at: string
+          notification_id: string
+        }
+        Insert: {
+          attempts?: number
+          delivered_at?: string | null
+          device_id: string
+          id?: string
+          next_attempt_at?: string
+          notification_id: string
+        }
+        Update: {
+          attempts?: number
+          delivered_at?: string | null
+          device_id?: string
+          id?: string
+          next_attempt_at?: string
+          notification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_deliveries_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "push_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_devices: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          subscription_ciphertext: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          subscription_ciphertext: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          subscription_ciphertext?: string
+          user_id?: string
         }
         Relationships: []
       }
