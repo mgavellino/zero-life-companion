@@ -21,6 +21,7 @@ export function automaticCategory(text: string, supplied = "") {
 }
 export function billDueDate(month: string, day: number) {
   const [year, m] = month.split("-").map(Number);
+  if (year === undefined || m === undefined || !Number.isInteger(year) || !Number.isInteger(m) || m < 1 || m > 12) throw new Error("Mês inválido");
   const last = new Date(year, m, 0).getDate();
   return `${month}-${String(Math.min(day, last)).padStart(2, "0")}`;
 }
