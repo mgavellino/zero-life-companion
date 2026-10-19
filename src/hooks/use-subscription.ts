@@ -28,9 +28,9 @@ export function useSubscription() {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      const { data: g } = await supabase.from("plan_grants").select("plan,expires_at").eq("user_id", u.user.id).is("revoked_at", null);
-      const grants = (g ?? []).filter((x) => !x.expires_at || new Date(x.expires_at) > new Date()).map((x) => x.plan as PlanId);
-      return { sub: (data as Sub | null) ?? null, grants };
+      const { data: g } = await supabase.from("plan_grants").select("plan,expires_at,is_trial").eq("user_id", u.user.id).is("revoked_at", null);
+      const valid = ((g ?? []) as unknown as { plan: string; expires_at: string | null; is_trial?: boolean }[]).filter((x) => !x.expires_at || new Date(x.expires_at) > new Date());
+      return { sub: (data as Sub | null) ?? null, grants: valid.map((x) => x.plan as PlanId), trialGrants: valid.filter((x) => x.is_trial).map((x) => x.plan as PlanId) };
     },
   });
   useEffect(() => {
@@ -47,5 +47,9 @@ export function useSubscription() {
   const grants = q.data?.grants ?? [];
   const active = isActive(sub);
   const plan: PlanId = highestPlan(active ? planFromProduct(sub?.product_id) : "free", ...grants);
-  return { sub, active, plan, granted: grants.length > 0, loading: q.isLoading };
+  const subPlan = active ? planFromProduct(sub?.product_id) : "free";
+  const tg = q.data?.trialGrants ?? [];
+  const fullGrant = grants.filter((x) => x === plan).length > tg.filter((x) => x === plan).length;
+  const trial = plan !== "free" && !fullGrant && (plan === subPlan ? sub?.status === "trialing" : tg.includes(plan));
+  return { sub, active, plan, trial, granted: grants.length > 0, loading: q.isLoading };
 }

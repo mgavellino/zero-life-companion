@@ -20,7 +20,7 @@ export function AppShell() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { plan, sub } = useSubscription();
+  const { plan, sub, trial } = useSubscription();
   const PLAN_LABEL = { free: t("shell.freePlan"), essencial: "Essencial", pro: "Pro", max: "Max" } as const;
   const { data: isAdmin } = useQuery({
     queryKey: ["is-admin"],
@@ -98,7 +98,7 @@ export function AppShell() {
             ) : (
               <p className="mb-3 hidden px-3 text-xs text-muted-foreground md:block">
                 {t("shell.plan")} <span className="font-semibold text-foreground">{PLAN_LABEL[plan]}</span>
-                {sub?.status === "trialing" ? t("shell.trialSuffix") : ""}
+                {trial ? t("shell.trialSuffix") : ""}
               </p>
             )}
             <div className="flex items-center gap-1 md:justify-between">

@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 type Row = { id: string; display_name: string | null; created_at: string };
-type G = { id: string; user_id: string; plan: string; expires_at: string | null; note: string | null; created_at: string };
+type G = { id: string; user_id: string; plan: string; expires_at: string | null; note: string | null; created_at: string; is_trial?: boolean };
 type S = { user_id: string; product_id: string; price_id: string; status: string; current_period_end: string | null };
 
 function mrr(s: S) {
@@ -55,13 +55,13 @@ function Admin() {
         supabase.from("subscriptions").select("user_id,created_at").eq("environment", env).order("created_at", { ascending: false }).limit(500),
         supabase.from("subscriptions").select("user_id,product_id,price_id,status,current_period_end").eq("environment", env).order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id,role"),
-        supabase.from("plan_grants").select("id,user_id,plan,expires_at,note,created_at").is("revoked_at", null).order("created_at", { ascending: false }),
+        (supabase.from("plan_grants") as any).select("id,user_id,plan,expires_at,note,created_at,is_trial" as never).is("revoked_at", null).order("created_at", { ascending: false }),
       ]);
       const accounts = new Map<string, Row>();
       for (const row of p.data ?? []) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at ?? "" });
       for (const row of g.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at });
       for (const row of r.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: "" });
-      return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as G[] };
+      return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as unknown as G[] };
     },
   });
   const users = data?.users ?? [];
@@ -72,7 +72,7 @@ function Admin() {
   const admins = new Set((data?.roles ?? []).filter((r) => r.role === "admin").map((r) => r.user_id));
   const grantOf = new Map<string, G>();
   for (const g of data?.grants ?? []) if (!grantOf.has(g.user_id) && (!g.expires_at || new Date(g.expires_at) > new Date())) grantOf.set(g.user_id, g);
-  const [grant, setGrant] = useState<{ to: string; name: string; plan: string; days: string; note: string } | null>(null);
+  const [grant, setGrant] = useState<{ to: string; name: string; plan: string; days: string; note: string; trial?: boolean } | null>(null);
   const [tab, setTab] = useState<"users" | "finance">("users");
   const paying = live.filter((s) => s.status !== "trialing");
   const totalMrr = live.reduce((a, s) => a + mrr(s), 0);
@@ -95,9 +95,10 @@ function Admin() {
       expires_at: days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null,
       note: grant.note || null,
       granted_by: me.user?.id ?? null,
-    });
+      is_trial: !!grant.trial,
+    } as never);
     if (error) { toast.error(error.message); return; }
-    await supabase.from("notifications").insert({ user_id: grant.to, title: t("admin.giftTitle", { value: grant.plan.toUpperCase() }), body: days > 0 ? t("admin.validDays", { value: days }) : t("admin.unlimitedAccess"), kind: "admin" });
+    await supabase.from("notifications").insert({ user_id: grant.to, title: t(grant.trial ? "admin.trialGiftTitle" : "admin.giftTitle", { value: grant.plan.toUpperCase() }), body: days > 0 ? t("admin.validDays", { value: days }) : t("admin.unlimitedAccess"), kind: "admin" });
     toast.success(t("admin.granted"));
     setGrant(null);
     qc.invalidateQueries({ queryKey: ["admin"] });
@@ -203,7 +204,7 @@ function Admin() {
                     </td>
                     <td className="capitalize">
                       {s && ["active", "trialing", "past_due"].includes(s.status) ? planFromProduct(s.product_id) : t("pricing.freeName")}
-                      {grantOf.get(u.id) && <span className="ml-1 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">+{grantOf.get(u.id)?.plan}</span>}
+                      {grantOf.get(u.id) && <span className="ml-1 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">+{grantOf.get(u.id)?.plan}{grantOf.get(u.id)?.is_trial ? ` · ${t("admin.grantTrial")}` : ""}</span>}
                     </td>
                     <td>{s?.status ? t(`admin.statuses.${s.status}`, { defaultValue: s.status }) : "—"}</td>
                     <td>{new Date(u.created_at).toLocaleDateString()}</td>
@@ -230,6 +231,9 @@ function Admin() {
             </select>
             <select className="h-9 rounded-md border bg-background px-2 text-sm" value={grant.days} onChange={(e) => setGrant({ ...grant, days: e.target.value })}>
               <option value="7">{t("admin.days", { value: 7 })}</option><option value="30">{t("admin.days", { value: 30 })}</option><option value="90">{t("admin.days", { value: 90 })}</option><option value="365">{t("admin.year")}</option><option value="0">{t("admin.noExpiry")}</option>
+            </select>
+            <select aria-label="Tipo" className="h-9 rounded-md border bg-background px-2 text-sm" value={grant.trial ? "trial" : "full"} onChange={(e) => setGrant({ ...grant, trial: e.target.value === "trial" })}>
+              <option value="full">{t("admin.grantFull")}</option><option value="trial">{t("admin.grantTrial")}</option>
             </select>
             <Input className="max-w-xs" placeholder={t("admin.reason")} value={grant.note} onChange={(e) => setGrant({ ...grant, note: e.target.value })} />
           </div>
