@@ -163,6 +163,39 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_grants: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          note: string | null
+          plan: string
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          plan: string
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          plan?: string
+          revoked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
