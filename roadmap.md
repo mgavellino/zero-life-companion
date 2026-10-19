@@ -1,8 +1,8 @@
 # Zero — roadmap
-- [ ] Teach installation through Chrome and Safari with an accessible install action
-- [ ] Optimize mobile/tablet navigation and chat; remove oversized content; expose every option through menu and visible More shortcut
+- [x] Teach installation through Chrome and Safari with an accessible install action
+- [x] Optimize mobile/tablet navigation and chat; remove oversized content; expose every option through menu and visible More shortcut
 - [ ] Improve real chat using landing conversation reference and smooth voice animation
-- [ ] Make clock visible throughout the signed-in app
+- [x] Make clock visible throughout the signed-in app
 - [ ] Easier provider-free background push — investigate and configure where possible
 - [x] Monthly bills, atomic payment status and deduplicated hourly due-date reminders; UI and database flow tested
 - [x] Automatic categories across manual entry, quick capture and chat
@@ -43,7 +43,7 @@
 - [x] Benefícios reais: relatórios + planejamento semanal (Max), modelo/memória por plano
 - [x] Registro rápido de gastos estilo Tony (uma frase → vários lançamentos)
 - [x] Admin: conceder/revogar planos, financeiro (receita, assinaturas)
-- [ ] Integração Google Agenda por usuário — bloqueada: conexão recusada e cliente Google OAuth não configurado
+- [ ] Integração Google Agenda por usuário — tela e envio prontos; aguardando cliente Google configurado no workspace
 - [x] Corrigir chat não salvando histórico
 - [x] Filtros no financeiro e na agenda (tempo)
 - [x] Tempo vazio por padrão e hábitos diários
