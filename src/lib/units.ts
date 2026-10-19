@@ -24,7 +24,7 @@ export const CURRENCIES: { code: CurrencyCode; symbol: string }[] = [
 ];
 
 const KEY = "zero-units";
-const DEFAULTS: UnitsPrefs = { weight: "kg", distance: "km", clock: "24", currency: "BRL" };
+const DEFAULTS: UnitsPrefs = { weight: "kg", height: "cm", distance: "km", clock: "24", currency: "BRL" };
 
 let current: UnitsPrefs = load();
 const listeners = new Set<() => void>();
@@ -65,6 +65,7 @@ export function useUnits(): UnitsPrefs {
 
 const KG_TO_LB = 2.20462;
 const KM_TO_MI = 0.621371;
+const CM_TO_IN = 0.393701;
 
 /** Convert a stored kilogram value to the preferred weight unit. */
 export function weightValue(kg: number, units: UnitsPrefs): number {
@@ -78,6 +79,23 @@ export function weightToKg(value: number, units: UnitsPrefs): number {
 
 export function formatWeight(kg: number, units: UnitsPrefs, digits = 1): string {
   return `${weightValue(kg, units).toFixed(digits)} ${units.weight}`;
+}
+
+/** Convert a stored centimeter value to the preferred height unit (feet+inches text or cm number). */
+export function formatHeight(cm: number, units: UnitsPrefs): string {
+  if (units.height === "ft") {
+    const totalIn = cm * CM_TO_IN;
+    const ft = Math.floor(totalIn / 12);
+    const inch = Math.round(totalIn - ft * 12);
+    return `${ft}'${inch}"`;
+  }
+  return `${Math.round(cm)} cm`;
+}
+
+/** Convert a height entered in the preferred unit back to centimeters. Accepts cm number or feet+inches. */
+export function heightToCm(value: number, units: UnitsPrefs, inches = 0): number {
+  if (units.height === "ft") return (value * 12 + inches) / CM_TO_IN;
+  return value;
 }
 
 export function formatDistance(km: number, units: UnitsPrefs, digits = 1): string {
