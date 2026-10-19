@@ -48,7 +48,8 @@ export function useSubscription() {
   const active = isActive(sub);
   const plan: PlanId = highestPlan(active ? planFromProduct(sub?.product_id) : "free", ...grants);
   const subPlan = active ? planFromProduct(sub?.product_id) : "free";
-  const fullGrants = grants.filter((p, i) => !(q.data?.trialGrants ?? []).includes(p) || grants.indexOf(p) !== i);
-  const trial = sub?.status === "trialing" && plan === subPlan ? true : plan !== subPlan && !fullGrants.includes(plan) && (q.data?.trialGrants ?? []).includes(plan);
+  const tg = q.data?.trialGrants ?? [];
+  const fullGrant = grants.filter((x) => x === plan).length > tg.filter((x) => x === plan).length;
+  const trial = plan !== "free" && !fullGrant && (plan === subPlan ? sub?.status === "trialing" : tg.includes(plan));
   return { sub, active, plan, trial, granted: grants.length > 0, loading: q.isLoading };
 }
