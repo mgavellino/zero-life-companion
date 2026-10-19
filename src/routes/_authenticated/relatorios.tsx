@@ -15,6 +15,7 @@ import { LIMITS } from "@/lib/plans";
 import { money } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: i18n.t("reports.metaTitle") },

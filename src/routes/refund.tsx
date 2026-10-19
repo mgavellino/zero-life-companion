@@ -3,6 +3,7 @@ import i18n from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { LegalPage } from "@/components/LegalPage";
 export const Route = createFileRoute("/refund")({
+  staticData: { sitemap: true },
   head: () => ({ meta: [{ title: i18n.t("refund.text1") }, { name: "description", content: i18n.t("refund.text2") }, { property: "og:title", content: i18n.t("refund.text3") }, { property: "og:description", content: i18n.t("refund.text4") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Refund,
 });

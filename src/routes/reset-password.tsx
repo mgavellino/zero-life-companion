@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/reset-password")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Nova senha — Zero" },

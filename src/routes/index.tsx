@@ -12,6 +12,7 @@ import ogCover from "@/assets/og-cover.png.asset.json";
 const OG_IMAGE = `https://assistentezero.lovable.app${ogCover.url}`;
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: i18n.t("landing.title") },

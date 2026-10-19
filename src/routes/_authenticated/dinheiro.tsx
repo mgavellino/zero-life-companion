@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dinheiro")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [{ title: i18n.t("money2.title") }, { name: "description", content: i18n.t("money2.description") }, { property: "og:title", content: i18n.t("money2.title") }, { property: "og:description", content: i18n.t("money2.socialDescription") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: MoneyPage,
 });

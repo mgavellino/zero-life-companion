@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { LegalLinks } from "@/components/LegalLinks";
 
 export const Route = createFileRoute("/planos")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: i18n.t("pricing.metaTitle") },

@@ -7,6 +7,7 @@ import { QuickCapture } from "@/components/QuickCapture";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [{ title: i18n.t("dash.title") }, { name: "description", content: i18n.t("dash.description") }, { property: "og:title", content: i18n.t("dash.title") }, { property: "og:description", content: i18n.t("dash.description") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Dashboard,
 });

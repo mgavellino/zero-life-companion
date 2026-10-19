@@ -12,6 +12,7 @@ import { getPaddleEnvironment } from "@/lib/paddle";
 import { brl, planFromProduct, PRICES, CYCLE_MONTHS, type Cycle } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: i18n.t("admin.metaTitle") },
