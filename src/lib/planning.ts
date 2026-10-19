@@ -19,7 +19,8 @@ export function dailyExpenditure(p: EnergyProfile, extraCalories: number) {
 export function monthlyProjection(income: number, expense: number, date: Date) {
   const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const factor = days / date.getDate();
-  return { income: income * factor, expense: expense * factor, balance: (income - expense) * factor };
+  const cents = (value: number) => Math.round(value * 100) / 100;
+  return { income: cents(income * factor), expense: cents(expense * factor), balance: cents((income - expense) * factor) };
 }
 export function goalMonthlyRequired(target: number, saved: number, targetDate: string, now: string) {
   const end = new Date(`${targetDate}T12:00:00`), start = new Date(`${now}T12:00:00`);
