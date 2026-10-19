@@ -58,3 +58,6 @@
 
 ## Pendente
 - [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
+
+## Novas tarefas (19/10)
+- [ ] Primeira campanha de anúncios (pedido do usuário na aba Ads) — aguardando conclusão do GSC
