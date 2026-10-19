@@ -1,12 +1,14 @@
 import { useSyncExternalStore } from "react";
 
 export type WeightUnit = "kg" | "lb";
+export type HeightUnit = "cm" | "ft";
 export type DistanceUnit = "km" | "mi";
 export type ClockFormat = "24" | "12";
 export type CurrencyCode = "BRL" | "USD" | "EUR" | "GBP" | "JPY" | "CHF";
 
 export interface UnitsPrefs {
   weight: WeightUnit;
+  height: HeightUnit;
   distance: DistanceUnit;
   clock: ClockFormat;
   currency: CurrencyCode;

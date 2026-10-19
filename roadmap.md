@@ -57,4 +57,4 @@
 - [x] Impedir conteúdo técnico e código visível no chat
 
 ## Pendente
-- [ ] Unidades de medida nas Configuracoes: peso (kg/lb), distancia (km/mi), relogio 12h/24h, moeda (BRL/USD/EUR...); aplicar no relogio, dieta, corpo e dinheiro
+- [ ] Unidades de medida nas Configuracoes: peso (kg/lb), altura (cm/ft), distancia (km/mi), relogio 12h/24h, moeda (BRL/USD/EUR...); aplicar no relogio, dieta, corpo e dinheiro
