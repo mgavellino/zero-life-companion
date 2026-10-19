@@ -17,6 +17,8 @@ import { ZeroRing } from "@/components/Logo";
 import { speak, stopSpeaking } from "@/lib/speak";
 import { cn } from "@/lib/utils";
 import i18n from "@/lib/i18n";
+import { useSubscription } from "@/hooks/use-subscription";
+import { hasVoiceChat } from "@/lib/plans";
 
 const chatQuery = {
   queryKey: ["chat"],
@@ -76,7 +78,12 @@ function ChatPage() {
   const qc = useQueryClient();
   const { data: initial } = useSuspenseQuery(chatQuery);
   const threadId = initial.threadId;
+  const { plan, loading: subLoading } = useSubscription();
+  const voiceAllowed = hasVoiceChat(plan);
   const [mode, setMode] = useState<"voice" | "text">("voice");
+  useEffect(() => {
+    if (!subLoading && !voiceAllowed) setMode("text");
+  }, [subLoading, voiceAllowed]);
   const [text, setText] = useState("");
   const [interim, setInterim] = useState("");
   const [voice, setVoice] = useState<VoiceState>("idle");
@@ -112,7 +119,7 @@ function ChatPage() {
     onError: (e) => {
       const m = e.message || "";
       setVoice("idle");
-      if (m.includes("LIMIT")) toast.error("Você atingiu o limite diário do plano grátis.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } });
+      if (m.includes("LIMIT")) toast.error("Você atingiu o limite diário de mensagens do seu plano.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } });
       else toast.error(m.includes("429") ? "Muitas requisições, tente já já." : m || "Erro");
     },
     onFinish: async ({ message }) => {
@@ -215,7 +222,7 @@ function ChatPage() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-end gap-1 border-b px-4 py-2">
         <div className="inline-flex rounded-full border bg-card p-0.5 text-xs">
-          <button onClick={() => setMode("voice")} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
+          <button onClick={() => (voiceAllowed ? setMode("voice") : toast("Chat de voz a partir do plano Essencial.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
             <AudioLines className="size-3.5" /> Voz
           </button>
           <button
