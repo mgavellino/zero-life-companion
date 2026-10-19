@@ -1,11 +1,14 @@
 # Zero — roadmap
+- [ ] Improve real chat using landing conversation reference and smooth voice animation
+- [ ] Make clock visible throughout the signed-in app
+- [ ] Easier provider-free background push — investigate and configure where possible
 - [x] Monthly bills, atomic payment status and deduplicated hourly due-date reminders; UI and database flow tested
 - [x] Automatic categories across manual entry, quick capture and chat
 - [x] Admin option only for authorized accounts; role grant/revoke tested with RLS
 - [x] Hide empty metrics and projections in Tempo, Dieta and Dinheiro
 - [x] Integrated clock, saved time tracking and daily category percentages
 - [x] Explain isolation, managed daily backups and shared Groq quotas
-- [ ] Work-app integrations — needs selection of services and each user's authorization; no automatic access to third-party apps
+- [ ] Word, Excel and Google Docs integrations — workspace OAuth clients missing; each user must authorize their own account
 - [x] Onboarding completo com medidas opcionais e consentimento de saúde
 - [x] Atividades por texto e chat com estimativa por IA
 - [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)
