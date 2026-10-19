@@ -21,3 +21,17 @@ export async function calendarCall(userId:string,path:string,init?:RequestInit) 
   if(!response.ok){console.error("Google Calendar failed",response.status,await response.text());throw new Error("Não foi possível consultar o Google Agenda.");}
   return {connected:true,reconnectRequired:false,response};
 }
+/** Best-effort: mirror a dated task into the user's Google Calendar with popup reminders so Google sends the notification. Silent when not connected. */
+export async function syncTaskToCalendar(userId:string,task:{id:string;title:string;due_at:string|null;minutes?:number|null}) {
+  if(!task.due_at||isNaN(Date.parse(task.due_at)))return false;
+  const eventId=`zero${task.id.replace(/-/g,"")}`;
+  const body=JSON.stringify({id:eventId,summary:task.title,start:{dateTime:new Date(task.due_at).toISOString()},end:{dateTime:new Date(Date.parse(task.due_at)+(task.minutes??30)*60000).toISOString()},reminders:{useDefault:false,overrides:[{method:"popup",minutes:30},{method:"popup",minutes:10},{method:"popup",minutes:0}]}});
+  const init={headers:{"Content-Type":"application/json"},body};
+  try{
+    const put=await calendarCall(userId,`/calendar/v3/calendars/primary/events/${eventId}`,{method:"PUT",...init}).catch(()=>null);
+    if(put?.connected)return true;
+    if(put&&!put.connected)return false;
+    const created=await calendarCall(userId,"/calendar/v3/calendars/primary/events",{method:"POST",...init});
+    return created.connected;
+  }catch(e){console.error("calendar sync failed",e);return false;}
+}

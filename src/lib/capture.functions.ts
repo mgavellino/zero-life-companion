@@ -63,6 +63,7 @@ Understand Brazilian slang: "conto"/"pila" = reais, "50 mangos". "uber 18" = exp
       const due = t.due_at && !isNaN(Date.parse(t.due_at)) ? new Date(t.due_at).toISOString() : null;
       const { data: ins, error } = await context.supabase.from("tasks").insert({ user_id: context.userId, title: t.title.slice(0, 120), due_at: due, priority: "media" }).select("id").single();
       if (error) throw new Error(error.message);
+      if (due) { const { syncTaskToCalendar } = await import("@/lib/calendar.server"); await syncTaskToCalendar(context.userId, { id: ins.id, title: t.title.slice(0, 120), due_at: due }); }
       items.push({ type: "task", id: ins.id, title: t.title, due_at: due });
     }
     return { items };

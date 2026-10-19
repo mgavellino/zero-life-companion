@@ -180,7 +180,8 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         priority: z.enum(["alta", "media", "baixa"]),
       }),
       execute: async (i) => {
-        const { error } = await sb.from("tasks").insert({ ...i, user_id: userId });
+        const { data: ins, error } = await sb.from("tasks").insert({ ...i, user_id: userId }).select("id").single();
+        if (!error && ins && i.due_at) { const { syncTaskToCalendar } = await import("@/lib/calendar.server"); await syncTaskToCalendar(userId, { id: ins.id, title: i.title, due_at: i.due_at, minutes: i.minutes }); }
         return error ? { ok: false, error: error.message } : { ok: true, task: i.title };
       },
     }),
