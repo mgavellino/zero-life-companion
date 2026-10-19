@@ -50,6 +50,7 @@ export function AppShell() {
   }
 
   return (
+    <OnboardingGate>
     <div className="app-shell flex h-dvh min-w-0 flex-col">
       <PaymentTestModeBanner />
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b bg-sidebar px-3 py-2 lg:hidden">
@@ -111,7 +112,7 @@ export function AppShell() {
           </div>
         </aside>
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <OnboardingGate><Outlet /></OnboardingGate>
+          <Outlet />
         </main>
       </div>
       <nav aria-label={t("shell.mainNav")} className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
@@ -119,5 +120,6 @@ export function AppShell() {
         <Button variant="ghost" className="h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label={t("shell.moreOptions")} onClick={() => setMenuOpen(true)}><Menu className="size-5" />{t("shell.more")}</Button>
       </nav>
     </div>
+    </OnboardingGate>
   );
 }
