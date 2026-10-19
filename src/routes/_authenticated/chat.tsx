@@ -20,22 +20,31 @@ import { cn } from "@/lib/utils";
 import i18n from "@/lib/i18n";
 import { useSubscription } from "@/hooks/use-subscription";
 import { hasVoiceChat } from "@/lib/plans";
+import { readChatHistory } from "@/lib/chat-history";
 
 const chatQuery = {
   queryKey: ["chat"],
   queryFn: async (): Promise<{ threadId: string; messages: UIMessage[] }> => {
-    const { data: th } = await supabase.from("threads").select("id").order("created_at").limit(1);
+    const { data: auth, error: authError } = await supabase.auth.getUser();
+    if (authError || !auth.user) throw new Error("Não consegui abrir sua conversa. Entre novamente.");
+    const userId = auth.user.id;
+    const { data: th, error: threadError } = await supabase.from("threads").select("id").eq("user_id", userId).order("created_at").limit(1);
+    if (threadError) throw new Error("Não consegui carregar sua conversa. Tente novamente.");
     let threadId = th?.[0]?.id;
     if (!threadId) {
-      const { data, error } = await supabase.from("threads").insert({ title: "Zero" }).select("id").single();
+      const { data, error } = await supabase.from("threads").insert({ title: "Zero", user_id: userId }).select("id").single();
       if (error) throw error;
       threadId = data.id;
     }
-    const { data, error } = await supabase.from("messages").select("id,role,parts").eq("thread_id", threadId).order("created_at");
-    if (error) throw error;
-    return { threadId, messages: data.map((m) => ({ id: m.id, role: m.role as UIMessage["role"], parts: m.parts as UIMessage["parts"] })) };
+    const messages = await readChatHistory(async (from, to) => {
+      const { data, error } = await supabase.from("messages").select("id,role,parts").eq("user_id", userId).eq("thread_id", threadId).order("created_at").order("id").range(from, to);
+      if (error) throw new Error("Não consegui carregar suas mensagens. Tente novamente.");
+      return data;
+    });
+    return { threadId, messages };
   },
   staleTime: 0,
+  refetchOnWindowFocus: false,
 };
 
 export const Route = createFileRoute("/_authenticated/chat")({
@@ -77,9 +86,13 @@ function quickReplies(m: UIMessage | undefined): string[] {
 type VoiceState = "idle" | "listening" | "thinking" | "speaking";
 
 function ChatPage() {
+  const { data: initial } = useSuspenseQuery(chatQuery);
+  return <ChatConversation key={initial.threadId} initial={initial} />;
+}
+
+function ChatConversation({ initial }: { initial: { threadId: string; messages: UIMessage[] } }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const { data: initial } = useSuspenseQuery(chatQuery);
   const threadId = initial.threadId;
   const { plan, loading: subLoading } = useSubscription();
   const voiceAllowed = hasVoiceChat(plan);
@@ -125,7 +138,9 @@ function ChatPage() {
       if (m.includes("LIMIT")) toast.error("Você atingiu o limite diário de mensagens do seu plano.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } });
       else toast.error(m.includes("429") ? "Muitas solicitações, tente já já." : "Não consegui responder agora. Tente novamente em instantes.");
     },
-    onFinish: async ({ message }) => {
+    onFinish: async ({ message, messages: completedMessages }) => {
+      qc.setQueryData(chatQuery.queryKey, { threadId, messages: completedMessages });
+      void qc.invalidateQueries({ queryKey: chatQuery.queryKey, refetchType: "none" });
       qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "chat" });
       const shouldSpeak = modeRef.current === "voice" || speakTextRef.current;
       if (shouldSpeak) {

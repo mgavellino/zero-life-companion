@@ -9,6 +9,7 @@ import { getUserPlan } from "@/lib/plan.server";
 import { estimateAndLogActivity } from "@/lib/activity.server";
 import { dailyTimeSummary, type TimeSession } from "@/lib/time-tracking";
 import { automaticCategory, billSchema } from "@/lib/bills";
+import { readChatHistory } from "@/lib/chat-history";
 
 
 export function userClient(token: string) {
@@ -48,21 +49,36 @@ export async function handleChat(request: Request) {
   }
 
   const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string };
-  const { messages, threadId } = body;
-  const { data: thread } = await sb.from("threads").select("id,title").eq("id", threadId).maybeSingle();
+  const { messages: clientMessages, threadId } = body;
+  const { data: thread, error: threadError } = await sb.from("threads").select("id,title").eq("user_id", userId).eq("id", threadId).maybeSingle();
+  if (threadError) return new Response("Não consegui abrir sua conversa.", { status: 503 });
   if (!thread) return new Response("Thread not found", { status: 404 });
 
   // Persist the latest user message
-  const last = messages[messages.length - 1];
+  const last = clientMessages[clientMessages.length - 1];
   if (last?.role === "user") {
     const { error } = await sb.from("messages").insert({ thread_id: threadId, user_id: userId, role: "user", parts: last.parts as never });
-    if (error) console.error("save user msg", error);
+    if (error) {
+      console.error("save user msg", error);
+      return new Response("Não consegui salvar sua mensagem. Tente novamente.", { status: 503 });
+    }
     if (thread.title === "Nova conversa") {
       const text = last.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ").slice(0, 60);
       if (text) await sb.from("threads").update({ title: text }).eq("id", threadId);
     }
   }
   await sb.from("threads").update({ updated_at: new Date().toISOString() }).eq("id", threadId);
+  // Saved owner-scoped history is authoritative, not a potentially stale browser transcript.
+  let messages: UIMessage[];
+  try {
+    messages = await readChatHistory(async (from, to) => {
+      const { data, error } = await sb.from("messages").select("id,role,parts").eq("user_id", userId).eq("thread_id", threadId).order("created_at").order("id").range(from, to);
+      if (error) throw error;
+      return data;
+    });
+  } catch {
+    return new Response("Não consegui recuperar sua conversa. Tente novamente.", { status: 503 });
+  }
 
   // Shared memory across all threads
   const today = new Date().toISOString().slice(0, 10);
@@ -234,9 +250,13 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
   });
 
   // Finish (and save) the reply even if the user leaves the page mid-answer.
-  void result.consumeStream();
   return result.toUIMessageStreamResponse({
       originalMessages: messages,
+      consumeSseStream: async ({ stream }) => {
+        const reader = stream.getReader();
+        try { while (!(await reader.read()).done) { /* Drain the UI stream so its save callback completes. */ } }
+        finally { reader.releaseLock(); }
+      },
       sendReasoning: false,
       onError: () => "Não consegui responder agora. Tente novamente em instantes.",
       onFinish: async ({ responseMessage }) => {
@@ -246,7 +266,10 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
           role: "assistant",
           parts: responseMessage.parts as never,
         });
-        if (error) console.error("save assistant msg", error);
+        if (error) {
+          console.error("save assistant msg", error);
+          throw new Error("Não consegui guardar a resposta. Tente novamente.");
+        }
       },
     });
 }

@@ -28,6 +28,7 @@
 - Energy estimates and financial projections use tested pure functions in `src/lib/planning.ts`; persistent inputs stay in owner-scoped tables so results follow saved user data.
 - AI chat runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` using the user's own free Groq key (GROQ_API_KEY); never route AI through the Lovable AI Gateway (owner requirement).
 - Chat is ONE continuous conversation per user (single `threads` row) at `/chat`; the prompt injects `memories` plus tasks/money/meals.
+- Chat history reads are owner-scoped and paginated, model context comes from saved messages, and the UI response stream is drained through its save callback; this preserves the continuous conversation across navigation and reloads.
 - Voice: premium TTS via ElevenLabs at `/api/tts` (Pro/Max/trial, checked server-side), browser speechSynthesis fallback; speech input via Web Speech API. Chat opens in voice mode by default.
 - Diet meals are logged from free text; `logMealAuto` asks Groq for calories/macros.
 - Theme (localStorage `zero-theme`) and language (`zero-lang`, i18next in `src/lib/i18n.ts`) are toggled from `Prefs`, present on every page.
