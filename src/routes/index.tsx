@@ -27,7 +27,7 @@ const DEMO = [
   { who: "zero", text: "≈ 520 kcal e 46 g de proteína. Faltam 60 g pra sua meta de hoje — que tal um iogurte no lanche?" },
 ];
 
-const FAQ = [
+const FAQ: [string, string][] = [
   ["Preciso digitar tudo?", "Não. O Zero abre direto no modo voz: você fala e ele entende, anota e responde falando."],
   ["Como funciona o teste grátis?", "Você tem 1 mês grátis em qualquer plano pago. Cancele antes do fim do teste e não paga nada."],
   ["Meus dados ficam seguros?", "Sim. Cada conta só enxerga os próprios dados, e nada é vendido ou compartilhado para publicidade."],
@@ -146,7 +146,7 @@ function Landing() {
               </Button>
             </div>
             <ul className="space-y-3">
-              {[["Essencial", "R$ 9,90"], ["Pro · mais escolhido", "R$ 21,90"], ["Max", "R$ 37,90"]].map(([n, p]) => (
+              {([["Essencial", "R$ 9,90"], ["Pro · mais escolhido", "R$ 21,90"], ["Max", "R$ 37,90"]] as [string, string][]).map(([n, p]) => (
                 <li key={n} className="flex items-center justify-between border-b border-current/15 pb-3">
                   <span className="flex items-center gap-2"><Check className="size-4 text-signal" /> {n}</span>
                   <span className="font-display">{p}<span className="text-xs opacity-60">/mês</span></span>
