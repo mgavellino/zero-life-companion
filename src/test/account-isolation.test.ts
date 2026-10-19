@@ -1,4 +1,3 @@
-// @vitest-environment node
 /**
  * Live isolation check against the real backend: two throwaway accounts are created,
  * account A saves chat, tasks, time, money and diet data, and account B (plus a signed-out
