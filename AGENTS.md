@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Seller policies use public leaf routes and a shared legal layout/link group; refunds refer to the merchant's authoritative policy rather than inventing seller guarantees.
 - Mobile and tablet use a complete drawer menu plus persistent bottom shortcuts; layouts use shrinkable grid tracks instead of horizontally scrollable navigation.
 - Home-screen installation uses manifest metadata and a shared installation dialog; the only service worker is messaging-only, with no offline app-shell cache.
 - Background push uses a dedicated messaging-only service worker and WebCrypto Web Push; VAPID and subscriptions are encrypted in service-role-only storage, destinations are allowlisted, and lock-screen messages contain no personal content.
