@@ -89,6 +89,12 @@ export default {
       "error": "Conecte sua agenda e tente novamente."
     },
     "landing": {
+      "dlTitle": "Baixe o Zero",
+      "dlSub": "Instale no computador ou no celular e abra direto, sem navegador.",
+      "dlExe": "Baixar para Windows (.exe)",
+      "dlMacArm": "Mac com chip M (.dmg)",
+      "dlMacIntel": "Mac Intel (.dmg)",
+      "dlMobile": "No celular, instale direto pelo navegador:",
       "title": "Zero — assistente pessoal de tempo, dinheiro e corpo",
       "description": "Fale com o Zero e pare de desperdiçar tempo, dinheiro e energia. Assistente pessoal por voz que organiza agenda, finanças e dieta. 1 mês grátis.",
       "socialTitle": "Zero — seu assistente pessoal por voz",
@@ -264,6 +270,12 @@ export default {
       "error": "Connect your calendar and try again."
     },
     "landing": {
+      "dlTitle": "Download Zero",
+      "dlSub": "Install it on your computer or phone and open it directly.",
+      "dlExe": "Download for Windows (.exe)",
+      "dlMacArm": "Mac with M chip (.dmg)",
+      "dlMacIntel": "Intel Mac (.dmg)",
+      "dlMobile": "On your phone, install straight from the browser:",
       "title": "Zero — personal assistant for time, money and body",
       "description": "Talk to Zero and stop wasting time, money and energy. A voice assistant for your schedule, finances and diet. 1 month free.",
       "socialTitle": "Zero — your personal voice assistant",
@@ -439,6 +451,12 @@ export default {
       "error": "Conecta tu calendario e inténtalo de nuevo."
     },
     "landing": {
+      "dlTitle": "Descarga Zero",
+      "dlSub": "Instálalo en tu ordenador o móvil y ábrelo directamente.",
+      "dlExe": "Descargar para Windows (.exe)",
+      "dlMacArm": "Mac con chip M (.dmg)",
+      "dlMacIntel": "Mac Intel (.dmg)",
+      "dlMobile": "En el móvil, instálalo desde el navegador:",
       "title": "Zero — asistente personal de tiempo, dinero y cuerpo",
       "description": "Habla con Zero y deja de desperdiciar tiempo, dinero y energía. Asistente de voz para tu agenda, finanzas y dieta. 1 mes gratis.",
       "socialTitle": "Zero — tu asistente personal de voz",
@@ -614,6 +632,12 @@ export default {
       "error": "Connectez votre agenda et réessayez."
     },
     "landing": {
+      "dlTitle": "Télécharger Zero",
+      "dlSub": "Installez-le sur votre ordinateur ou téléphone.",
+      "dlExe": "Télécharger pour Windows (.exe)",
+      "dlMacArm": "Mac puce M (.dmg)",
+      "dlMacIntel": "Mac Intel (.dmg)",
+      "dlMobile": "Sur mobile, installez-le depuis le navigateur :",
       "title": "Zero — assistant personnel pour le temps, l’argent et le corps",
       "description": "Parlez à Zero et cessez de gaspiller temps, argent et énergie. Un assistant vocal pour votre agenda, vos finances et votre alimentation. 1 mois gratuit.",
       "socialTitle": "Zero — votre assistant personnel vocal",
@@ -789,6 +813,12 @@ export default {
       "error": "Verbinde deinen Kalender und versuche es erneut."
     },
     "landing": {
+      "dlTitle": "Zero herunterladen",
+      "dlSub": "Installiere es auf Computer oder Handy.",
+      "dlExe": "Für Windows laden (.exe)",
+      "dlMacArm": "Mac mit M-Chip (.dmg)",
+      "dlMacIntel": "Intel-Mac (.dmg)",
+      "dlMobile": "Auf dem Handy direkt im Browser installieren:",
       "title": "Zero — persönlicher Assistent für Zeit, Geld und Körper",
       "description": "Sprich mit Zero und verschwende keine Zeit, kein Geld und keine Energie mehr. Sprachassistent für Termine, Finanzen und Ernährung. 1 Monat gratis.",
       "socialTitle": "Zero — dein persönlicher Sprachassistent",
@@ -964,6 +994,12 @@ export default {
       "error": "Collega il calendario e riprova."
     },
     "landing": {
+      "dlTitle": "Scarica Zero",
+      "dlSub": "Installalo su computer o telefono.",
+      "dlExe": "Scarica per Windows (.exe)",
+      "dlMacArm": "Mac con chip M (.dmg)",
+      "dlMacIntel": "Mac Intel (.dmg)",
+      "dlMobile": "Sul telefono, installalo dal browser:",
       "title": "Zero — assistente personale per tempo, denaro e corpo",
       "description": "Parla con Zero e smetti di sprecare tempo, denaro ed energia. Assistente vocale per agenda, finanze e dieta. 1 mese gratis.",
       "socialTitle": "Zero — il tuo assistente personale vocale",
