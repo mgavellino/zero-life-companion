@@ -29,3 +29,6 @@
 - [ ] Integração Google Agenda por usuário
 - [x] Corrigir chat não salvando histórico
 - [x] Filtros no financeiro e na agenda (tempo)
+- [ ] Tempo vazio por padrão e hábitos diários
+- [ ] Gasto calórico e balanço energético
+- [ ] Metas e projeções financeiras
