@@ -10,6 +10,8 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Time tracking stores owner-only start/end sessions, uses server timestamps and a unique running session per owner, and splits daily percentages at local midnight; this preserves timers across reloads without guessing untracked activity.
+- Personal metrics render only after corresponding saved inputs exist; zero-filled empty states must not imply recorded activity.
 - Onboarding is enforced at the authenticated shell using persisted owner-only preferences, with optional measurements and explicit health consent; this covers email and social signups without editing the managed auth gate.
 - Activity logging uses one authenticated server-only Groq estimator shared by chat and diet; this keeps consent, ownership and uncertainty rules consistent.
 - Personal data exports use the caller's RLS client, parent-child policies verify ownership, and identity transitions clear query caches to prevent cross-account content reuse.

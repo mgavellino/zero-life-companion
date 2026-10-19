@@ -34,7 +34,7 @@ export const exportPersonalData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const result: Record<string, unknown> = {};
-    for (const table of ["user_preferences", "threads", "messages", "memories", "tasks", "habits", "habit_checks", "transactions", "budgets", "financial_goals", "meals", "energy_profiles", "energy_activities", "notifications"] as const) {
+    for (const table of ["user_preferences", "threads", "messages", "memories", "tasks", "habits", "habit_checks", "transactions", "budgets", "financial_goals", "meals", "energy_profiles", "energy_activities", "notifications", "time_sessions"] as const) {
       const { data, error } = await context.supabase.from(table).select("*").eq("user_id", context.userId);
       if (error) throw new Error("Não foi possível exportar seus dados.");
       result[table] = data;

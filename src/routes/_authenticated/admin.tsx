@@ -56,6 +56,7 @@ function Admin() {
       const accounts = new Map<string, Row>();
       for (const row of p.data ?? []) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at ?? "" });
       for (const row of g.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at });
+      for (const row of r.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: "" });
       return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as G[] };
     },
   });
@@ -113,6 +114,7 @@ function Admin() {
       : await supabase.from("user_roles").insert({ user_id: id, role: "admin" });
     if (res.error) { toast.error(res.error.message); return; }
     qc.invalidateQueries({ queryKey: ["admin"] });
+    qc.invalidateQueries({ queryKey: ["is-admin"] });
   }
 
   async function sendMsg() {
