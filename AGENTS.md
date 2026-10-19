@@ -12,6 +12,8 @@
 ## Architecture rules
 - AI chat runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` using the user's own free Groq key (GROQ_API_KEY); never route AI through the Lovable AI Gateway (owner requirement).
 - Chat is ONE continuous conversation per user (single `threads` row) at `/chat`; the prompt injects `memories` plus tasks/money/meals.
-- Voice uses the browser's Web Speech API (recognition + speechSynthesis), never a Lovable voice service.
+- Voice: premium TTS via ElevenLabs at `/api/tts` (Pro/Max/trial, checked server-side), browser speechSynthesis fallback; speech input via Web Speech API. Chat opens in voice mode by default.
 - Diet meals are logged from free text; `logMealAuto` asks Groq for calories/macros.
 - Theme (localStorage `zero-theme`) and language (`zero-lang`, i18next in `src/lib/i18n.ts`) are toggled from `Prefs`, present on every page.
+- Billing: Paddle via `src/lib/paddle*.ts`; webhook at `src/routes/api/public/payments/webhook.ts` writes `subscriptions`; plan prices/limits live in `src/lib/plans.ts` and must match the payment catalog.
+- Admin uses `user_roles` + `has_role()`; never store roles on profiles. Notifications are rows in `notifications` (realtime → toast + browser Notification).
