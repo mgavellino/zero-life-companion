@@ -5,6 +5,7 @@ import { Logo, ZeroRing } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { LegalLinks } from "@/components/LegalLinks";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -176,6 +177,7 @@ function Landing() {
           <Logo />
           <p>{t("slogan")}</p>
           <p>© {new Date().getFullYear()} Zero</p>
+          <LegalLinks />
         </div>
       </footer>
     </div>

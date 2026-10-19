@@ -4,6 +4,7 @@ import { Prefs } from "@/components/Prefs";
 import { PricingTable } from "@/components/PricingTable";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
+import { LegalLinks } from "@/components/LegalLinks";
 
 export const Route = createFileRoute("/planos")({
   head: () => ({
@@ -36,6 +37,7 @@ function Planos() {
         <p className="mx-auto mt-4 max-w-xl text-center text-muted-foreground">Comece com 1 mês grátis em qualquer plano. Cancele quando quiser.</p>
         <div className="mt-12"><PricingTable /></div>
       </main>
+      <footer className="mx-auto max-w-6xl border-t px-6 py-8"><LegalLinks /></footer>
     </div>
   );
 }
