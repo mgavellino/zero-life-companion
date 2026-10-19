@@ -166,6 +166,10 @@ export default {
       "a4": "Sim, direto no navegador do celular ou computador, com notificações para lembrar do que importa."
     },
     "onboarding": {
+      "recoveryTitle": "Algo não carregou",
+      "recoveryBody": "Não conseguimos abrir esta etapa agora. Seus dados estão seguros.",
+      "recoveryRetry": "Tentar novamente",
+      "recoveryReload": "Recarregar página",
       "authError": "Entre novamente para continuar.",
       "loadError": "Não foi possível carregar suas preferências.",
       "time": "Organizar meu tempo",
@@ -376,6 +380,10 @@ export default {
       "a4": "Yes, in your phone or computer browser, with notifications for what matters."
     },
     "onboarding": {
+      "recoveryTitle": "Something didn't load",
+      "recoveryBody": "We couldn't open this step right now. Your data is safe.",
+      "recoveryRetry": "Try again",
+      "recoveryReload": "Reload page",
       "authError": "Sign in again to continue.",
       "loadError": "Could not load your preferences.",
       "time": "Organize my time",
@@ -586,6 +594,10 @@ export default {
       "a4": "Sí, en el navegador del móvil o del ordenador, con notificaciones de lo importante."
     },
     "onboarding": {
+      "recoveryTitle": "Algo no cargó",
+      "recoveryBody": "No pudimos abrir este paso ahora. Tus datos están seguros.",
+      "recoveryRetry": "Intentar de nuevo",
+      "recoveryReload": "Recargar página",
       "authError": "Inicia sesión de nuevo para continuar.",
       "loadError": "No se pudieron cargar tus preferencias.",
       "time": "Organizar mi tiempo",
@@ -796,6 +808,10 @@ export default {
       "a4": "Oui, dans le navigateur du téléphone ou de l’ordinateur, avec des rappels pour l’essentiel."
     },
     "onboarding": {
+      "recoveryTitle": "Un élément n'a pas chargé",
+      "recoveryBody": "Impossible d'ouvrir cette étape pour le moment. Vos données sont en sécurité.",
+      "recoveryRetry": "Réessayer",
+      "recoveryReload": "Recharger la page",
       "authError": "Reconnectez-vous pour continuer.",
       "loadError": "Impossible de charger vos préférences.",
       "time": "Organiser mon temps",
@@ -1006,6 +1022,10 @@ export default {
       "a4": "Ja, im Browser auf Handy oder Computer, mit Benachrichtigungen für Wichtiges."
     },
     "onboarding": {
+      "recoveryTitle": "Etwas wurde nicht geladen",
+      "recoveryBody": "Dieser Schritt konnte gerade nicht geöffnet werden. Deine Daten sind sicher.",
+      "recoveryRetry": "Erneut versuchen",
+      "recoveryReload": "Seite neu laden",
       "authError": "Melde dich erneut an, um fortzufahren.",
       "loadError": "Deine Einstellungen konnten nicht geladen werden.",
       "time": "Meine Zeit organisieren",
@@ -1216,6 +1236,10 @@ export default {
       "a4": "Sì, nel browser del cellulare o computer, con notifiche per ciò che conta."
     },
     "onboarding": {
+      "recoveryTitle": "Qualcosa non si è caricato",
+      "recoveryBody": "Non riusciamo ad aprire questo passaggio ora. I tuoi dati sono al sicuro.",
+      "recoveryRetry": "Riprova",
+      "recoveryReload": "Ricarica pagina",
       "authError": "Accedi di nuovo per continuare.",
       "loadError": "Impossibile caricare le preferenze.",
       "time": "Organizzare il mio tempo",
