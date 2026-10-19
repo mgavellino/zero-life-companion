@@ -26,6 +26,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
 import { Route as ApiPublicJobsBillRemindersRouteImport } from './routes/api/public/jobs/bill-reminders'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicOauthCalendarReturnRouteImport } from './routes/api/public/oauth/calendar/return'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -113,6 +114,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicOauthCalendarReturnRoute =
+  ApiPublicOauthCalendarReturnRouteImport.update({
+    id: '/api/public/oauth/calendar/return',
+    path: '/api/public/oauth/calendar/return',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/api/tts': typeof ApiTtsRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/oauth/calendar/return': typeof ApiPublicOauthCalendarReturnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByTo {
   '/api/tts': typeof ApiTtsRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/oauth/calendar/return': typeof ApiPublicOauthCalendarReturnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,6 +178,7 @@ export interface FileRoutesById {
   '/api/tts': typeof ApiTtsRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/oauth/calendar/return': typeof ApiPublicOauthCalendarReturnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/api/tts'
     | '/api/public/jobs/bill-reminders'
     | '/api/public/payments/webhook'
+    | '/api/public/oauth/calendar/return'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/api/tts'
     | '/api/public/jobs/bill-reminders'
     | '/api/public/payments/webhook'
+    | '/api/public/oauth/calendar/return'
   id:
     | '__root__'
     | '/'
@@ -226,6 +238,7 @@ export interface FileRouteTypes {
     | '/api/tts'
     | '/api/public/jobs/bill-reminders'
     | '/api/public/payments/webhook'
+    | '/api/public/oauth/calendar/return'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -238,6 +251,7 @@ export interface RootRouteChildren {
   ApiTtsRoute: typeof ApiTtsRoute
   ApiPublicJobsBillRemindersRoute: typeof ApiPublicJobsBillRemindersRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicOauthCalendarReturnRoute: typeof ApiPublicOauthCalendarReturnRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -361,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/oauth/calendar/return': {
+      id: '/api/public/oauth/calendar/return'
+      path: '/api/public/oauth/calendar/return'
+      fullPath: '/api/public/oauth/calendar/return'
+      preLoaderRoute: typeof ApiPublicOauthCalendarReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -399,6 +420,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTtsRoute: ApiTtsRoute,
   ApiPublicJobsBillRemindersRoute: ApiPublicJobsBillRemindersRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicOauthCalendarReturnRoute: ApiPublicOauthCalendarReturnRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

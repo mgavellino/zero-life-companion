@@ -10,6 +10,9 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Mobile and tablet use a complete drawer menu plus persistent bottom shortcuts; layouts use shrinkable grid tracks instead of horizontally scrollable navigation.
+- Background push uses a dedicated messaging-only service worker and WebCrypto Web Push; VAPID and subscriptions are encrypted in service-role-only storage, destinations are allowlisted, and lock-screen messages contain no personal content.
+- Google Calendar uses per-user connector OAuth with single-use owner-bound attempts, encrypted server-only connection handles, and authenticated provider calls; no shared builder calendar is used.
 - Monthly bills are owner-scoped definitions with date-scoped payments; an atomic owner-invoker function records payment and expense once, while an authenticated hourly job deduplicates reminders by bill, due date and stage.
 - Automatic financial categories share one browser-safe classifier across manual entry, quick capture, chat and monthly bills; explicit user categories take precedence.
 - Time tracking stores owner-only start/end sessions, uses server timestamps and a unique running session per owner, and splits daily percentages at local midnight; this preserves timers across reloads without guessing untracked activity.

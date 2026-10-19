@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Trash2 } from "lucide-react";
+import { Trash2, CalendarPlus } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { CalendarConnection } from "@/components/CalendarConnection";
+import { sendTaskToCalendar } from "@/lib/calendar.functions";
 import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +26,7 @@ function TimePage() {
   const { t, i18n } = useTranslation();
   const { data = [] } = useRows<Task>("tasks", { order: "due_at", asc: true });
   const m = useTableMutations("tasks");
+  const sendCalendar = useServerFn(sendTaskToCalendar);
   const [f, setF] = useState({ title: "", due_at: "", minutes: "", priority: "media" });
   const pending = data.filter((x) => !x.done);
   const [fl, setFl] = useState({ q: "", status: "pending", when: "all", pri: "all" });
@@ -46,6 +51,7 @@ function TimePage() {
   return (
     <Page kicker={t("nav.time")} title={t("tasks")}>
       <TimeClock />
+      <CalendarConnection />
       {data.length > 0 && <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Stat label={t("pending")} value={String(pending.length)} tone="text-time" />
         <Stat label={t("done")} value={String(data.length - pending.length)} />
@@ -94,6 +100,7 @@ function TimePage() {
             <span className={`min-w-0 flex-1 break-words ${x.done ? "text-muted-foreground line-through" : ""}`}>{x.title}</span>
             {x.minutes && <span className="text-xs text-muted-foreground">{x.minutes} min</span>}
             {x.due_at && <span className="text-xs text-muted-foreground">{new Date(x.due_at).toLocaleString(i18n.language, { dateStyle: "short", timeStyle: "short" })}</span>}
+            {x.due_at && <Button variant="ghost" size="icon" aria-label="Enviar ao Google Agenda" title="Enviar ao Google Agenda" onClick={async()=>{try{await sendCalendar({data:{id:x.id}});toast.success("Compromisso salvo no Google Agenda");}catch{toast.error("Conecte sua agenda e tente novamente.");}}}><CalendarPlus className="size-4" /></Button>}
             <button aria-label={t("delete")} onClick={() => m.remove.mutate(x.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4" /></button>
           </div>
         ))}
