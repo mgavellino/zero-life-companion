@@ -1,4 +1,8 @@
 # Zero — roadmap
+- [ ] Admin option only for authorized accounts; verify role restrictions
+- [ ] Hide empty metrics and projections in Tempo, Dieta and Dinheiro
+- [ ] Integrated clock, saved time tracking and daily category percentages
+- [ ] Explain isolation, managed backups and AI quotas; assess work integrations
 - [x] Onboarding completo com medidas opcionais e consentimento de saúde
 - [x] Atividades por texto e chat com estimativa por IA
 - [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)

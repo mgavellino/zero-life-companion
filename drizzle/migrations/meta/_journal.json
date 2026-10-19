@@ -36,6 +36,13 @@
       "when": 1792422244745,
       "tag": "0004_private_onboarding_activity_estimates",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792422942615,
+      "tag": "0005_private_time_sessions",
+      "breakpoints": true
     }
   ]
 }
