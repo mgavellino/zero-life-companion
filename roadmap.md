@@ -27,3 +27,5 @@
 - [ ] Registro rápido de gastos estilo Tony (uma frase → vários lançamentos)
 - [ ] Admin: conceder/revogar planos, financeiro (receita, assinaturas)
 - [ ] Integração Google Agenda por usuário
+- [ ] Corrigir chat não salvando histórico
+- [ ] Filtros no financeiro e na agenda (tempo)

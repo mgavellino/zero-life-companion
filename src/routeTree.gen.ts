@@ -20,6 +20,7 @@ import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDietaRouteImport } from './routes/_authenticated/dieta'
 import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTempoRouteImport } from './routes/_authenticated/tempo'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
@@ -79,6 +80,11 @@ const AuthenticatedDinheiroRoute = AuthenticatedDinheiroRouteImport.update({
   path: '/dinheiro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTempoRoute = AuthenticatedTempoRouteImport.update({
   id: '/tempo',
   path: '/tempo',
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/dieta': typeof AuthenticatedDietaRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/dieta': typeof AuthenticatedDietaRoute
   '/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/dieta': typeof AuthenticatedDietaRoute
   '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dieta'
     | '/dinheiro'
+    | '/relatorios'
     | '/tempo'
     | '/api/chat'
     | '/api/tts'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dieta'
     | '/dinheiro'
+    | '/relatorios'
     | '/tempo'
     | '/api/chat'
     | '/api/tts'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/dieta'
     | '/_authenticated/dinheiro'
+    | '/_authenticated/relatorios'
     | '/_authenticated/tempo'
     | '/api/chat'
     | '/api/tts'
@@ -293,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDinheiroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tempo': {
       id: '/_authenticated/tempo'
       path: '/tempo'
@@ -331,6 +350,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDietaRoute: typeof AuthenticatedDietaRoute
   AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedTempoRoute: typeof AuthenticatedTempoRoute
 }
 
@@ -341,6 +361,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDietaRoute: AuthenticatedDietaRoute,
   AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedTempoRoute: AuthenticatedTempoRoute,
 }
 
