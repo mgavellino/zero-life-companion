@@ -1,3 +1,4 @@
+import { Bot } from "lucide-react";
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ export function AppShell() {
     { to: "/dieta", icon: Salad, label: t("nav.diet") },
     { to: "/relatorios", icon: BarChart3, label: t("shell.reports") },
     { to: "/conta", icon: Sparkles, label: t("shell.plan") },
+    { to: "/assistentes", icon: Bot, label: t("agents.nav") },
     { to: "/configuracoes", icon: Settings, label: t("shell.settings") },
   ] as const;
 
