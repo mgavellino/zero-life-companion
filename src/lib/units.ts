@@ -44,6 +44,16 @@ export function getUnits(): UnitsPrefs {
   return current;
 }
 
+/** True when the user has explicitly saved unit preferences on this device. */
+export function hasStoredUnits(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function setUnits(patch: Partial<UnitsPrefs>) {
   current = { ...current, ...patch };
   try {

@@ -1,11 +1,20 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { Ruler, Scale, Clock3, Coins } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CURRENCIES, setUnits, useUnits, type CurrencyCode, type ClockFormat, type DistanceUnit, type HeightUnit, type WeightUnit } from "@/lib/units";
+import { CURRENCIES, hasStoredUnits, setUnits, useUnits, type CurrencyCode, type ClockFormat, type DistanceUnit, type HeightUnit, type WeightUnit } from "@/lib/units";
+import { preferencesQuery } from "@/components/Onboarding";
 
 export function UnitsSettings() {
   const { t } = useTranslation();
   const units = useUnits();
+  const { data: prefs } = useQuery(preferencesQuery);
+
+  // Seed the local currency from the account preference when the user never chose one on this device.
+  useEffect(() => {
+    if (prefs?.currency && !hasStoredUnits()) setUnits({ currency: prefs.currency as CurrencyCode });
+  }, [prefs?.currency]);
 
   const rows: {
     icon: typeof Scale;
