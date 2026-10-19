@@ -1,10 +1,10 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
-const MODEL = "gemini-2.5-flash";
+const MODEL = "llama-3.3-70b-versatile";
 
 function userClient(token: string) {
   const url = process.env["SUPABASE_URL"]!;
@@ -175,9 +175,9 @@ ${JSON.stringify(workouts.data ?? [])}`;
     }),
   };
 
-  const apiKey = process.env["GEMINI_API_KEY"];
-  if (!apiKey) return new Response("A chave da IA (GEMINI_API_KEY) ainda não foi configurada.", { status: 503 });
-  const provider = createGoogleGenerativeAI({ apiKey });
+  const apiKey = process.env["GROQ_API_KEY"];
+  if (!apiKey) return new Response("A chave da IA (GROQ_API_KEY) ainda não foi configurada.", { status: 503 });
+  const provider = createGroq({ apiKey });
 
   const result = streamText({
     model: provider(MODEL),
