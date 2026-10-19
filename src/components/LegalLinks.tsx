@@ -5,5 +5,6 @@ export function LegalLinks() {
     <Link to="/privacy" className="underline-offset-4 hover:underline">Privacidade</Link>
     <Link to="/terms" className="underline-offset-4 hover:underline">Termos de uso</Link>
     <Link to="/refund" className="underline-offset-4 hover:underline">Reembolso</Link>
+    <a href="mailto:miguels.avelin@gmail.com" className="underline-offset-4 hover:underline">Contato</a>
   </nav>;
 }
