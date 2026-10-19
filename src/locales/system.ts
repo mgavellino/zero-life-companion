@@ -1,5 +1,13 @@
 export default {
   "pt": {
+    "units": {
+      "title": "Unidades e moeda",
+      "weight": "Peso",
+      "distance": "Distância",
+      "clock": "Formato do relógio",
+      "currency": "Moeda",
+      "saved": "Preferências salvas"
+    },
     "notif": {
       "title": "Notificações",
       "soon": "Daqui a pouco: {{title}}",
@@ -94,6 +102,14 @@ export default {
     }
   },
   "en": {
+    "units": {
+      "title": "Units and currency",
+      "weight": "Weight",
+      "distance": "Distance",
+      "clock": "Clock format",
+      "currency": "Currency",
+      "saved": "Preferences saved"
+    },
     "notif": {
       "title": "Notifications",
       "soon": "Coming up: {{title}}",
@@ -188,6 +204,14 @@ export default {
     }
   },
   "es": {
+    "units": {
+      "title": "Unidades y moneda",
+      "weight": "Peso",
+      "distance": "Distancia",
+      "clock": "Formato del reloj",
+      "currency": "Moneda",
+      "saved": "Preferencias guardadas"
+    },
     "notif": {
       "title": "Notificaciones",
       "soon": "Dentro de poco: {{title}}",
@@ -282,6 +306,14 @@ export default {
     }
   },
   "fr": {
+    "units": {
+      "title": "Unités et devise",
+      "weight": "Poids",
+      "distance": "Distance",
+      "clock": "Format de l'horloge",
+      "currency": "Devise",
+      "saved": "Préférences enregistrées"
+    },
     "notif": {
       "title": "Notifications",
       "soon": "Bientôt : {{title}}",
@@ -376,6 +408,14 @@ export default {
     }
   },
   "de": {
+    "units": {
+      "title": "Einheiten und Währung",
+      "weight": "Gewicht",
+      "distance": "Distanz",
+      "clock": "Uhrformat",
+      "currency": "Währung",
+      "saved": "Einstellungen gespeichert"
+    },
     "notif": {
       "title": "Benachrichtigungen",
       "soon": "Demnächst: {{title}}",
@@ -470,6 +510,14 @@ export default {
     }
   },
   "it": {
+    "units": {
+      "title": "Unità e valuta",
+      "weight": "Peso",
+      "distance": "Distanza",
+      "clock": "Formato orario",
+      "currency": "Valuta",
+      "saved": "Preferenze salvate"
+    },
     "notif": {
       "title": "Notifiche",
       "soon": "Tra poco: {{title}}",
