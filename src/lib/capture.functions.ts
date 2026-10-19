@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { automaticCategory } from "./bills";
 
 export type CaptureItem =
   | { type: "transaction"; id: string; kind: "income" | "expense"; amount: number; category: string; description: string | null; occurred_on: string; emoji: string }
@@ -49,7 +50,7 @@ Understand Brazilian slang: "conto"/"pila" = reais, "50 mangos". "uber 18" = exp
         user_id: context.userId,
         kind: t.kind === "income" ? "income" : "expense",
         amount,
-        category: (t.category || "outros").toLowerCase().slice(0, 40),
+        category: automaticCategory(t.description ?? data.text,t.category ?? "").slice(0,40),
         description: t.description?.slice(0, 120) ?? null,
         occurred_on: /^\d{4}-\d{2}-\d{2}$/.test(t.date ?? "") ? (t.date as string) : today,
       };

@@ -50,6 +50,20 @@
       "when": 1792423085181,
       "tag": "0006_enable_authorized_role_management",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792423277931,
+      "tag": "0007_monthly_bills_and_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792423415302,
+      "tag": "0008_bill_payment_transaction_ownership",
+      "breakpoints": true
     }
   ]
 }

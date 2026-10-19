@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { QuickCapture } from "@/components/QuickCapture";
 import { FinancialGoals } from "@/components/FinancialGoals";
+import { MonthlyBills } from "@/components/MonthlyBills";
+import { automaticCategory } from "@/lib/bills";
 import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,13 +65,14 @@ function MoneyPage() {
         <Stat label={t("balance")} value={money(inc - exp, L)} />
       </div>}
       <FinancialGoals income={inc} expense={exp} language={L} hasRecords={cur.length > 0} />
+      <MonthlyBills language={L} />
       <Card className="mb-6">
         <form
           className="grid gap-2 md:grid-cols-[130px_120px_1fr_1fr_150px_auto]"
           onSubmit={(e) => {
             e.preventDefault();
             if (!f.amount) return;
-            m.insert.mutate({ ...f, amount: Number(f.amount), category: (f.category || "outros").toLowerCase() });
+            m.insert.mutate({ ...f, amount: Number(f.amount), category: automaticCategory(f.description, f.category) });
             setF({ ...f, amount: "", description: "" });
           }}
         >
@@ -78,7 +81,7 @@ function MoneyPage() {
             <option value="income">{t("income")}</option>
           </select>
           <Input type="number" step="0.01" placeholder={t("amount")} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
-          <Input placeholder={t("category")} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} />
+          <Input placeholder={`Auto: ${automaticCategory(f.description)}`} aria-label="Categoria do lançamento" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} />
           <Input placeholder={t("description")} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
           <Input type="date" value={f.occurred_on} onChange={(e) => setF({ ...f, occurred_on: e.target.value })} />
           <Button type="submit">{t("add")}</Button>
