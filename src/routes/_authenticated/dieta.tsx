@@ -33,13 +33,13 @@ function DietPage() {
 
   return (
     <Page kicker={t("nav.diet")} title={t("meals")}>
-      <div className="mb-6 grid gap-4 sm:grid-cols-4">
+      {td.length > 0 && <div className="mb-6 grid gap-4 sm:grid-cols-4">
         <Stat label={t("calories")} value={`${sum("calories")}`} tone="text-body" />
         <Stat label={t("protein")} value={`${sum("protein")}g`} />
         <Stat label={t("carbs")} value={`${sum("carbs")}g`} />
         <Stat label={t("fat")} value={`${sum("fat")}g`} />
-      </div>
-      <EnergyBalance intake={sum("calories")} />
+      </div>}
+      <EnergyBalance intake={sum("calories")} hasIntake={td.length > 0} />
       <Card className="mb-6">
         <form
           className="grid gap-2 md:grid-cols-[1fr_160px_auto]"
@@ -51,8 +51,8 @@ function DietPage() {
               await auto({ data: f });
               setF({ ...f, text: "" });
               qc.invalidateQueries({ queryKey: ["meals"] });
-            } catch (err) {
-              toast.error((err as Error).message);
+            } catch {
+              toast.error("Não foi possível registrar a refeição. Confira sua autorização de saúde e tente novamente.");
             } finally {
               setBusy(false);
             }

@@ -8,9 +8,12 @@ export function useRows<T = Record<string, unknown>>(table: Table, opts?: { orde
   return useQuery({
     queryKey: [table],
     queryFn: async () => {
+      const { data: auth, error: authError } = await supabase.auth.getUser();
+      if (authError || !auth.user) throw new Error("Entre na sua conta para continuar.");
       const { data, error } = await supabase
         .from(table)
         .select(opts?.select ?? "*")
+        .eq("user_id", auth.user.id)
         .order(opts?.order ?? "created_at", { ascending: opts?.asc ?? false });
       if (error) throw error;
       return data as unknown as T[];

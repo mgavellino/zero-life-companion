@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRows, useTableMutations } from "@/lib/data";
 import { DailyHabits } from "@/components/DailyHabits";
+import { TimeClock } from "@/components/TimeClock";
 
 export const Route = createFileRoute("/_authenticated/tempo")({
   head: () => ({ meta: [{ title: "Tempo — Zero" }, { name: "description", content: "Suas tarefas e hábitos diários, sem tarefas pré-cadastradas." }, { property: "og:title", content: "Tempo — Zero" }, { property: "og:description", content: "Suas tarefas e hábitos diários." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -44,11 +45,12 @@ function TimePage() {
 
   return (
     <Page kicker={t("nav.time")} title={t("tasks")}>
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <TimeClock />
+      {data.length > 0 && <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Stat label={t("pending")} value={String(pending.length)} tone="text-time" />
         <Stat label={t("done")} value={String(data.length - pending.length)} />
         <Stat label={t("focusLoad")} value={`${Math.floor(load / 60)}h${String(load % 60).padStart(2, "0")}`} />
-      </div>
+      </div>}
       <Card className="mb-6">
         <form
           className="grid gap-2 md:grid-cols-[1fr_200px_110px_120px_auto]"

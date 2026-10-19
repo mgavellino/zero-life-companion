@@ -10,21 +10,22 @@ import { dailyExpenditure } from "@/lib/planning";
 import { logActivityAuto } from "@/lib/activity.functions";
 import { Onboarding, preferencesQuery } from "./Onboarding";
 type Activity = { id: string; activity: string; minutes: number; calories: number; calories_low: number | null; calories_high: number | null; personalized: boolean; occurred_on: string };
-export function EnergyBalance({ intake }: { intake: number }) {
+export function EnergyBalance({ intake, hasIntake }: { intake: number; hasIntake: boolean }) {
   const { data: p } = useQuery(preferencesQuery);
   const { data: activities = [] } = useRows<Activity>("energy_activities");
   const am = useTableMutations("energy_activities"), auto = useServerFn(logActivityAuto), qc = useQueryClient();
   const [edit, setEdit] = useState(false), [text, setText] = useState(""), [date, setDate] = useState(today()), [busy, setBusy] = useState(false);
   const extra = activities.filter(x => x.occurred_on === today()).reduce((sum, x) => sum + Number(x.calories), 0);
+  const hasActivity = activities.some(x => x.occurred_on === today());
   const spent = p?.health_consent_at && p.weight_kg && p.height_cm && p.age && (p.sex === "male" || p.sex === "female") ? dailyExpenditure({ weight_kg: Number(p.weight_kg), height_cm: Number(p.height_cm), age: p.age, sex: p.sex }, extra) : null;
   if (edit) return <Onboarding onDone={() => setEdit(false)} />;
   return <section className="mb-8 border-y py-6">
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-bold">Balanço energético</h2><Button variant="outline" size="sm" onClick={() => setEdit(true)}>Medidas e autorização</Button></div>
-    <div className="mb-4 grid gap-4 sm:grid-cols-3">
-      <div><p className="text-sm text-muted-foreground">Consumo hoje</p><p className="text-2xl font-bold">{intake} kcal</p></div>
-      <div><p className="text-sm text-muted-foreground">{spent === null ? "Atividades hoje · estimativa" : "Gasto total hoje · estimativa"}</p><p className="text-2xl font-bold">{spent === null ? extra : spent} kcal</p></div>
-      <div><p className="text-sm text-muted-foreground">Consumo − gasto total</p><p className="text-2xl font-bold">{spent === null ? "—" : `${intake - spent} kcal`}</p></div>
-    </div>
+    {(hasIntake || hasActivity || spent !== null) && <div className="mb-4 grid gap-4 sm:grid-cols-3">
+      {hasIntake && <div><p className="text-sm text-muted-foreground">Consumo hoje</p><p className="text-2xl font-bold">{intake} kcal</p></div>}
+      {(hasActivity || spent !== null) && <div><p className="text-sm text-muted-foreground">{spent === null ? "Atividades hoje · estimativa" : "Gasto total hoje · estimativa"}</p><p className="text-2xl font-bold">{spent === null ? extra : spent} kcal</p></div>}
+      {hasIntake && spent !== null && <div><p className="text-sm text-muted-foreground">Consumo − gasto total</p><p className="text-2xl font-bold">{intake - spent} kcal</p></div>}
+    </div>}
     <p className="mb-4 text-xs text-muted-foreground">{spent === null ? "Sem medidas completas, mostramos somente o gasto das atividades, não o metabolismo basal. Sem peso, a faixa é genérica." : "Metabolismo de repouso × 1,2 + atividade adicional, sem contar repouso duas vezes."} São aproximações, não medições ou recomendações médicas.</p>
     {!p?.health_consent_at && <p className="mb-4 text-sm text-muted-foreground">O registro de alimentação e atividades precisa da sua autorização de saúde. Ela é opcional.</p>}
     <form className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_150px_auto]" onSubmit={async e => {

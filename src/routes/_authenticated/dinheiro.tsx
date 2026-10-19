@@ -57,12 +57,12 @@ function MoneyPage() {
   return (
     <Page kicker={t("nav.money")} title={t("balance")}>
       <QuickCapture className="mb-6" />
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      {cur.length > 0 && <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Stat label={t("income")} value={money(inc, L)} tone="text-money" />
         <Stat label={t("expense")} value={money(exp, L)} tone="text-destructive" />
         <Stat label={t("balance")} value={money(inc - exp, L)} />
-      </div>
-      <FinancialGoals income={inc} expense={exp} language={L} />
+      </div>}
+      <FinancialGoals income={inc} expense={exp} language={L} hasRecords={cur.length > 0} />
       <Card className="mb-6">
         <form
           className="grid gap-2 md:grid-cols-[130px_120px_1fr_1fr_150px_auto]"
