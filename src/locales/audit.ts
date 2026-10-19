@@ -27,6 +27,20 @@ export default {
       "authTitle": "Entrar — Zero",
       "authDescription": "Entre ou crie sua conta no Zero."
     },
+    "consent": {
+      "title": "Conectar {{client}} ao Zero",
+      "explain": "{{client}} poderá usar o Zero como você: ler e adicionar suas tarefas e finanças e ler sua dieta e seu tempo.",
+      "account": "Conta conectada",
+      "identity": "Compartilha seu perfil básico e e-mail",
+      "boundary": "Isso não ignora as permissões do Zero: só os seus dados ficam acessíveis.",
+      "approve": "Permitir",
+      "deny": "Cancelar conexão",
+      "loading": "Carregando pedido…",
+      "invalid": "Este pedido de conexão expirou ou é inválido. Volte ao aplicativo e tente conectar de novo.",
+      "failed": "Não foi possível concluir agora. Tente novamente.",
+      "noRedirect": "O servidor de autorização não retornou um destino.",
+      "anApp": "um aplicativo"
+    },
     "chat2": {
       "export": "Exportar conversa",
       "exportFirst": "Exportar antes",
@@ -222,6 +236,20 @@ export default {
       "saving": "Saving…",
       "authTitle": "Sign in — Zero",
       "authDescription": "Sign in or create your Zero account."
+    },
+    "consent": {
+      "title": "Connect {{client}} to Zero",
+      "explain": "{{client}} will be able to use Zero as you: read and add your tasks and finances, and read your diet and time.",
+      "account": "Connected account",
+      "identity": "Shares your basic profile and email",
+      "boundary": "This doesn't bypass Zero's permissions: only your own data is reachable.",
+      "approve": "Allow",
+      "deny": "Cancel connection",
+      "loading": "Loading request…",
+      "invalid": "This connection request expired or is invalid. Go back to the app and try connecting again.",
+      "failed": "Couldn't finish right now. Please try again.",
+      "noRedirect": "The authorization server returned no destination.",
+      "anApp": "an app"
     },
     "chat2": {
       "export": "Export conversation",
@@ -419,6 +447,20 @@ export default {
       "authTitle": "Iniciar sesión — Zero",
       "authDescription": "Inicia sesión o crea tu cuenta en Zero."
     },
+    "consent": {
+      "title": "Conectar {{client}} a Zero",
+      "explain": "{{client}} podrá usar Zero como tú: leer y añadir tus tareas y finanzas, y leer tu dieta y tu tiempo.",
+      "account": "Cuenta conectada",
+      "identity": "Comparte tu perfil básico y correo",
+      "boundary": "Esto no omite los permisos de Zero: solo tus datos son accesibles.",
+      "approve": "Permitir",
+      "deny": "Cancelar conexión",
+      "loading": "Cargando solicitud…",
+      "invalid": "Esta solicitud expiró o no es válida. Vuelve a la aplicación e inténtalo de nuevo.",
+      "failed": "No se pudo completar ahora. Inténtalo de nuevo.",
+      "noRedirect": "El servidor de autorización no devolvió un destino.",
+      "anApp": "una aplicación"
+    },
     "chat2": {
       "export": "Exportar conversación",
       "exportFirst": "Exportar antes",
@@ -614,6 +656,20 @@ export default {
       "saving": "Enregistrement…",
       "authTitle": "Connexion — Zero",
       "authDescription": "Connectez-vous ou créez votre compte Zero."
+    },
+    "consent": {
+      "title": "Connecter {{client}} à Zero",
+      "explain": "{{client}} pourra utiliser Zero en votre nom : lire et ajouter vos tâches et finances, lire votre alimentation et votre temps.",
+      "account": "Compte connecté",
+      "identity": "Partage votre profil de base et e-mail",
+      "boundary": "Cela ne contourne pas les permissions de Zero : seules vos données sont accessibles.",
+      "approve": "Autoriser",
+      "deny": "Annuler la connexion",
+      "loading": "Chargement de la demande…",
+      "invalid": "Cette demande a expiré ou est invalide. Revenez à l'application et réessayez.",
+      "failed": "Impossible de terminer pour le moment. Réessayez.",
+      "noRedirect": "Le serveur d'autorisation n'a renvoyé aucune destination.",
+      "anApp": "une application"
     },
     "chat2": {
       "export": "Exporter la conversation",
@@ -811,6 +867,20 @@ export default {
       "authTitle": "Anmelden — Zero",
       "authDescription": "Melde dich an oder erstelle dein Zero-Konto."
     },
+    "consent": {
+      "title": "{{client}} mit Zero verbinden",
+      "explain": "{{client}} kann Zero in deinem Namen nutzen: Aufgaben und Finanzen lesen und hinzufügen, Ernährung und Zeit lesen.",
+      "account": "Verbundenes Konto",
+      "identity": "Teilt dein Basisprofil und deine E-Mail",
+      "boundary": "Zeros Berechtigungen werden nicht umgangen: nur deine eigenen Daten sind erreichbar.",
+      "approve": "Erlauben",
+      "deny": "Verbindung abbrechen",
+      "loading": "Anfrage wird geladen…",
+      "invalid": "Diese Anfrage ist abgelaufen oder ungültig. Geh zurück zur App und versuche es erneut.",
+      "failed": "Konnte gerade nicht abgeschlossen werden. Bitte erneut versuchen.",
+      "noRedirect": "Der Autorisierungsserver hat kein Ziel zurückgegeben.",
+      "anApp": "eine App"
+    },
     "chat2": {
       "export": "Unterhaltung exportieren",
       "exportFirst": "Zuerst exportieren",
@@ -1006,6 +1076,20 @@ export default {
       "saving": "Salvataggio…",
       "authTitle": "Accedi — Zero",
       "authDescription": "Accedi o crea il tuo account Zero."
+    },
+    "consent": {
+      "title": "Collega {{client}} a Zero",
+      "explain": "{{client}} potrà usare Zero al posto tuo: leggere e aggiungere attività e finanze, leggere dieta e tempo.",
+      "account": "Account collegato",
+      "identity": "Condivide il tuo profilo di base e l'e-mail",
+      "boundary": "Non aggira i permessi di Zero: solo i tuoi dati sono accessibili.",
+      "approve": "Consenti",
+      "deny": "Annulla collegamento",
+      "loading": "Caricamento richiesta…",
+      "invalid": "Questa richiesta è scaduta o non è valida. Torna all'app e riprova.",
+      "failed": "Impossibile completare ora. Riprova.",
+      "noRedirect": "Il server di autorizzazione non ha restituito una destinazione.",
+      "anApp": "un'app"
     },
     "chat2": {
       "export": "Esporta conversazione",
