@@ -52,7 +52,7 @@ export function QuickCapture({ className }: { className?: string }) {
     r.lang = "pt-BR";
     r.interimResults = false;
     r.onresult = (e) => {
-      const t = e.results[0][0].transcript;
+      const t = e.results[0]?.[0]?.transcript ?? "";
       setText(t);
       void submit(t);
     };
