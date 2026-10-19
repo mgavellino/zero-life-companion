@@ -82,7 +82,7 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
               <p className="font-display text-lg font-semibold">{p.name}</p>
               <p className={cn("text-sm", p.featured ? "opacity-70" : "text-muted-foreground")}>{p.tag}</p>
               <div className="mt-6 flex items-baseline gap-2">
-                <p className="font-display text-4xl font-semibold">{brl(perMonth(p.id, cycle))}</p>
+                <p className="font-display text-3xl font-semibold xl:text-4xl">{brl(perMonth(p.id, cycle))}</p>
                 <span className="text-sm opacity-60">/mês</span>
               </div>
               {cycle === "monthly" ? (
