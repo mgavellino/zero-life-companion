@@ -1,15 +1,10 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import {
-  createLovableAiGatewayRunIdFetch,
-  getLovableAiGatewayRunId,
-  withLovableAiGatewayRunIdHeader,
-} from "./run-id.server";
 
-const MODEL = "openai/gpt-6-astra";
+const MODEL = "gemini-2.5-flash";
 
 function userClient(token: string) {
   const url = process.env["SUPABASE_URL"]!;
@@ -180,35 +175,20 @@ ${JSON.stringify(workouts.data ?? [])}`;
     }),
   };
 
-  const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
-  const apiKey = process.env["LOVABLE_API_KEY"]!;
-  const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey,
-    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    fetch: runIdFetch.fetch,
-  });
+  const apiKey = process.env["GEMINI_API_KEY"];
+  if (!apiKey) return new Response("A chave da IA (GEMINI_API_KEY) ainda não foi configurada.", { status: 503 });
+  const provider = createGoogleGenerativeAI({ apiKey });
 
   const result = streamText({
-    model: provider.responses(MODEL),
+    model: provider(MODEL),
     instructions,
     messages: await convertToModelMessages(messages),
     tools,
     stopWhen: stepCountIs(6),
     abortSignal: request.signal,
-    providerOptions: {
-      openai: {
-        forceReasoning: true,
-        reasoningEffort: "low",
-        reasoningSummary: "auto",
-        store: false,
-        include: ["reasoning.encrypted_content"],
-      },
-    },
   });
 
-  return withLovableAiGatewayRunIdHeader(
-    result.toUIMessageStreamResponse({
+  return result.toUIMessageStreamResponse({
       originalMessages: messages,
       sendReasoning: true,
       onFinish: async ({ responseMessage }) => {
@@ -220,7 +200,5 @@ ${JSON.stringify(workouts.data ?? [])}`;
         });
         if (error) console.error("save assistant msg", error);
       },
-    }),
-    runIdFetch,
-  );
+    });
 }

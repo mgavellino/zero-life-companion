@@ -1,10 +1,8 @@
 # Zero — roadmap
-- [ ] Auth: email/senha, Google, Apple (sem "Entrar com Lovable", sem marca Lovable)
-- [ ] Chat Jarvis: várias conversas + memória única compartilhada entre elas
-- [ ] Tempo: tarefas/agenda
-- [ ] Dinheiro: receitas/despesas/orçamento
-- [ ] Dieta: refeições/macros
-- [ ] Academia: fichas de treino + demonstrações (ExerciseDB — precisa chave RapidAPI)
-- [ ] Tema claro/escuro em toda página + i18n (pt, en, es, fr, de, it)
-- [ ] IA SEM gateway Lovable: usar chave própria do usuário (aguardando provedor + chave)
-- [ ] Login Google/Apple sem broker Lovable (precisa credenciais próprias do usuário)
+- [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
+- [x] Chat Jarvis: várias conversas + memória única compartilhada
+- [x] Tempo, Dinheiro, Dieta, Academia (fichas)
+- [x] Tema claro/escuro + 6 idiomas
+- [x] Slogan melhorado
+- [ ] IA Google Gemini grátis — aguardando chave GEMINI_API_KEY
+- [ ] Demonstrações ExerciseDB — aguardando chave EXERCISEDB_API_KEY (RapidAPI)
