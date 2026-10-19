@@ -16,3 +16,7 @@
 - [ ] Notificações: no app, push do navegador, e-mail
 - [ ] Sistema de admin
 - [ ] Planos via Paddle (grátis + 3 planos, mensal/semestral/anual, teste grátis, ancoragem)
+- [ ] Página de apresentação mais bem planejada
+- [ ] Identidade visual mais trabalhada
+- [ ] Abrir o app direto no chat de voz
+- [ ] Teste grátis de 1 mês (30 dias)
