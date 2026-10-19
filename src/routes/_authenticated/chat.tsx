@@ -11,7 +11,8 @@ import { Conversation, ConversationContent, ConversationScrollButton } from "@/c
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import { actionLabel, customerText } from "@/lib/chat-presentation";
+import { actionLabel, customerText, savedTransaction } from "@/lib/chat-presentation";
+import { TransactionConfirmation } from "@/components/TransactionConfirmation";
 import { Button } from "@/components/ui/button";
 import { ZeroRing } from "@/components/Logo";
 import { speak, stopSpeaking } from "@/lib/speak";
@@ -267,6 +268,8 @@ function ChatPage() {
                         const name = p.type.slice(5);
                         if (HIDDEN_TOOLS.has(name)) return null;
                         const tp = p as unknown as { state: string; output?: unknown };
+                        const transaction = name === "add_transaction" ? savedTransaction(tp.state, tp.output) : null;
+                        if (transaction) return <div key={i} className="py-2"><TransactionConfirmation transaction={transaction} /></div>;
                         const Icon = TOOL_ICONS[name] ?? CheckCircle2;
                         const label = actionLabel(name, tp.state, tp.output);
                         return label ? <div key={i} className="flex items-center gap-2 py-2 text-sm text-muted-foreground"><Icon className="size-4"/>{label}</div> : null;

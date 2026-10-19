@@ -17,3 +17,11 @@ export function actionLabel(name: string, state: string, output?: unknown) {
   if (state === "output-error" || (output && typeof output === "object" && "ok" in output && output.ok === false)) return "Não foi possível salvar. Tente novamente.";
   return state === "output-available" ? label : "Salvando…";
 }
+
+// Only allow saved financial fields through to the customer-facing receipt.
+export function savedTransaction(state: string, output: unknown): { kind: "expense" | "income"; amount: number; category: string; occurred_on: string; description: string | null } | null {
+  if (state !== "output-available" || !output || typeof output !== "object" || !("ok" in output) || output.ok !== true || !("transaction" in output)) return null;
+  const row = output.transaction;
+  if (!row || typeof row !== "object" || !("kind" in row) || (row.kind !== "expense" && row.kind !== "income") || !("amount" in row) || typeof row.amount !== "number" || !Number.isFinite(row.amount) || !("category" in row) || typeof row.category !== "string" || !("occurred_on" in row) || typeof row.occurred_on !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(row.occurred_on)) return null;
+  return { kind: row.kind, amount: row.amount, category: customerText(row.category), occurred_on: row.occurred_on, description: "description" in row && typeof row.description === "string" ? customerText(row.description) : null };
+}

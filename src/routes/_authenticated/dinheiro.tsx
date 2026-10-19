@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { QuickCapture } from "@/components/QuickCapture";
 import { FinancialGoals } from "@/components/FinancialGoals";
 import { MonthlyBills } from "@/components/MonthlyBills";
+import { TransactionConfirmation, type ConfirmedTransaction } from "@/components/TransactionConfirmation";
 import { automaticCategory } from "@/lib/bills";
 import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ function MoneyPage() {
   const bm = useTableMutations("budgets");
   const [f, setF] = useState({ kind: "expense", amount: "", category: "", description: "", occurred_on: today() });
   const [b, setB] = useState({ category: "", monthly_limit: "" });
+  const [registered, setRegistered] = useState<ConfirmedTransaction | null>(null);
 
   const [fl, setFl] = useState({ q: "", kind: "all", cat: "all", period: "month" });
   const cats = [...new Set(tx.map((x) => x.category))].sort();
@@ -72,8 +74,11 @@ function MoneyPage() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!f.amount) return;
-            m.insert.mutate({ ...f, amount: Number(f.amount), category: automaticCategory(f.description, f.category) });
-            setF({ ...f, amount: "", description: "" });
+            const transaction: ConfirmedTransaction = { ...f, kind: f.kind === "income" ? "income" : "expense", amount: Number(f.amount), category: automaticCategory(f.description, f.category) };
+            m.insert.mutate(transaction, { onSuccess: () => {
+              setRegistered(transaction);
+              setF((previous) => ({ ...previous, amount: "", description: "" }));
+            } });
           }}
         >
           <select className="h-9 rounded-md border bg-background px-2 text-sm" value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}>
@@ -84,8 +89,9 @@ function MoneyPage() {
           <Input placeholder={`Auto: ${automaticCategory(f.description)}`} aria-label="Categoria do lançamento" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} />
           <Input placeholder={t("description")} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
           <Input type="date" value={f.occurred_on} onChange={(e) => setF({ ...f, occurred_on: e.target.value })} />
-          <Button type="submit">{t("add")}</Button>
+          <Button type="submit" disabled={m.insert.isPending}>{m.insert.isPending ? "Registrando…" : t("add")}</Button>
         </form>
+        {registered && <div className="mt-4"><TransactionConfirmation transaction={registered} /></div>}
       </Card>
       <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-2">
