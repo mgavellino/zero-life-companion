@@ -30,6 +30,7 @@ import { Route as AuthenticatedTempoRouteImport } from './routes/_authenticated/
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
 import { Route as ApiPublicJobsBillRemindersRouteImport } from './routes/api/public/jobs/bill-reminders'
+import { Route as ApiPublicJobsNotificationsRouteImport } from './routes/api/public/jobs/notifications'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicOauthCalendarReturnRouteImport } from './routes/api/public/oauth/calendar/return'
 
@@ -139,6 +140,12 @@ const ApiPublicJobsBillRemindersRoute =
     path: '/api/public/jobs/bill-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsNotificationsRoute =
+  ApiPublicJobsNotificationsRouteImport.update({
+    id: '/api/public/jobs/notifications',
+    path: '/api/public/jobs/notifications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -173,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
+  '/api/public/jobs/notifications': typeof ApiPublicJobsNotificationsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/oauth/calendar/return': typeof ApiPublicOauthCalendarReturnRoute
 }
@@ -197,6 +205,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
+  '/api/public/jobs/notifications': typeof ApiPublicJobsNotificationsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/oauth/calendar/return': typeof ApiPublicOauthCalendarReturnRoute
 }
@@ -223,6 +232,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
+  '/api/public/jobs/notifications': typeof ApiPublicJobsNotificationsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/oauth/calendar/return': typeof ApiPublicOauthCalendarReturnRoute
 }
@@ -249,6 +259,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/tts'
     | '/api/public/jobs/bill-reminders'
+    | '/api/public/jobs/notifications'
     | '/api/public/payments/webhook'
     | '/api/public/oauth/calendar/return'
   fileRoutesByTo: FileRoutesByTo
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/tts'
     | '/api/public/jobs/bill-reminders'
+    | '/api/public/jobs/notifications'
     | '/api/public/payments/webhook'
     | '/api/public/oauth/calendar/return'
   id:
@@ -298,6 +310,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/tts'
     | '/api/public/jobs/bill-reminders'
+    | '/api/public/jobs/notifications'
     | '/api/public/payments/webhook'
     | '/api/public/oauth/calendar/return'
   fileRoutesById: FileRoutesById
@@ -315,6 +328,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ApiTtsRoute: typeof ApiTtsRoute
   ApiPublicJobsBillRemindersRoute: typeof ApiPublicJobsBillRemindersRoute
+  ApiPublicJobsNotificationsRoute: typeof ApiPublicJobsNotificationsRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicOauthCalendarReturnRoute: typeof ApiPublicOauthCalendarReturnRoute
 }
@@ -468,6 +482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsBillRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/notifications': {
+      id: '/api/public/jobs/notifications'
+      path: '/api/public/jobs/notifications'
+      fullPath: '/api/public/jobs/notifications'
+      preLoaderRoute: typeof ApiPublicJobsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -525,6 +546,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ApiTtsRoute: ApiTtsRoute,
   ApiPublicJobsBillRemindersRoute: ApiPublicJobsBillRemindersRoute,
+  ApiPublicJobsNotificationsRoute: ApiPublicJobsNotificationsRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicOauthCalendarReturnRoute: ApiPublicOauthCalendarReturnRoute,
 }
