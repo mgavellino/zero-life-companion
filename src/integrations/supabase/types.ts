@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      bill_payments: {
+        Row: {
+          bill_id: string
+          due_on: string
+          id: string
+          paid_at: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          bill_id: string
+          due_on: string
+          id?: string
+          paid_at?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Update: {
+          bill_id?: string
+          due_on?: string
+          id?: string
+          paid_at?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_payments_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_payments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budgets: {
         Row: {
           category: string
@@ -293,6 +335,7 @@ export type Database = {
           kind: string
           link: string | null
           read_at: string | null
+          reminder_key: string | null
           title: string
           user_id: string
         }
@@ -303,6 +346,7 @@ export type Database = {
           kind?: string
           link?: string | null
           read_at?: string | null
+          reminder_key?: string | null
           title: string
           user_id: string
         }
@@ -313,6 +357,7 @@ export type Database = {
           kind?: string
           link?: string | null
           read_at?: string | null
+          reminder_key?: string | null
           title?: string
           user_id?: string
         }
@@ -366,6 +411,45 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      recurring_bills: {
+        Row: {
+          active: boolean
+          amount: number
+          category: string
+          created_at: string
+          due_day: number
+          id: string
+          reminder_days: number
+          starts_on: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          category?: string
+          created_at?: string
+          due_day: number
+          id?: string
+          reminder_days?: number
+          starts_on?: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          category?: string
+          created_at?: string
+          due_day?: number
+          id?: string
+          reminder_days?: number
+          starts_on?: string
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -694,6 +778,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bill_due_date: {
+        Args: { d: number; m: number; y: number }
+        Returns: string
+      }
+      generate_bill_reminders: { Args: never; Returns: number }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
@@ -704,6 +793,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      pay_monthly_bill: {
+        Args: { _bill_id: string; _due_on: string }
+        Returns: string
       }
     }
     Enums: {
