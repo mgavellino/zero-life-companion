@@ -3,13 +3,8 @@ import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage }
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import {
-  createLovableAiGatewayRunIdFetch,
-  getLovableAiGatewayRunId,
-  withLovableAiGatewayRunIdHeader,
-} from "./run-id.server";
 
-const MODEL = "openai/gpt-6-astra";
+const MODEL = "gpt-5";
 
 function userClient(token: string) {
   const url = process.env["SUPABASE_URL"]!;
@@ -180,14 +175,9 @@ ${JSON.stringify(workouts.data ?? [])}`;
     }),
   };
 
-  const runIdFetch = createLovableAiGatewayRunIdFetch(getLovableAiGatewayRunId(request));
-  const apiKey = process.env["LOVABLE_API_KEY"]!;
-  const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey,
-    headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    fetch: runIdFetch.fetch,
-  });
+  const apiKey = process.env["OPENAI_API_KEY"];
+  if (!apiKey) return new Response("OPENAI_API_KEY ausente", { status: 503 });
+  const provider = createOpenAI({ apiKey });
 
   const result = streamText({
     model: provider.responses(MODEL),
@@ -198,7 +188,6 @@ ${JSON.stringify(workouts.data ?? [])}`;
     abortSignal: request.signal,
     providerOptions: {
       openai: {
-        forceReasoning: true,
         reasoningEffort: "low",
         reasoningSummary: "auto",
         store: false,
@@ -207,8 +196,7 @@ ${JSON.stringify(workouts.data ?? [])}`;
     },
   });
 
-  return withLovableAiGatewayRunIdHeader(
-    result.toUIMessageStreamResponse({
+  return result.toUIMessageStreamResponse({
       originalMessages: messages,
       sendReasoning: true,
       onFinish: async ({ responseMessage }) => {
@@ -220,7 +208,5 @@ ${JSON.stringify(workouts.data ?? [])}`;
         });
         if (error) console.error("save assistant msg", error);
       },
-    }),
-    runIdFetch,
-  );
+    });
 }
