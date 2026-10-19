@@ -111,8 +111,9 @@ export function AppShell() {
           <OnboardingGate><Outlet /></OnboardingGate>
         </main>
       </div>
-      <nav aria-label="Navigation principale" className="grid shrink-0 grid-cols-4 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav aria-label="Navegação principal" className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
         {items.filter(i => ["/chat", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"text-primary bg-accent/40"}}><i.icon className="size-5" /><span className="max-w-full truncate">{i.label}</span></Link>)}
+        <Button variant="ghost" className="h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label="Mais opções" onClick={() => setMenuOpen(true)}><Menu className="size-5" />Mais</Button>
       </nav>
     </div>
   );
