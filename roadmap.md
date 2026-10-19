@@ -4,6 +4,7 @@
 - [x] Teach installation through Chrome and Safari with an accessible install action
 - [x] Optimize mobile/tablet navigation and chat; remove oversized content; expose every option through menu and visible More shortcut
 - [ ] Improve real chat using landing conversation reference and smooth voice animation
+- [ ] Publicar no Vercel (frontend fora da Lovable, backend Lovable Cloud mantido) — código pronto (Nitro detecta Vercel, Node 22 fixado); pendências pós-deploy: registrar domínio Vercel no login social, apontar webhook Paddle e rotina horária para a nova URL, e copiar os segredos do servidor para as variáveis da Vercel
 - [x] Make clock visible throughout the signed-in app
 - [ ] Easier provider-free background push — investigate and configure where possible
 - [x] Monthly bills, atomic payment status and deduplicated hourly due-date reminders; UI and database flow tested
