@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
+import { QuickCapture } from "@/components/QuickCapture";
 import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ function MoneyPage() {
 
   return (
     <Page kicker={t("nav.money")} title={t("balance")}>
+      <QuickCapture className="mb-6" />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Stat label={t("income")} value={money(inc, L)} tone="text-money" />
         <Stat label={t("expense")} value={money(exp, L)} tone="text-destructive" />
