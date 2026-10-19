@@ -7,6 +7,9 @@ import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LegalLinks } from "@/components/LegalLinks";
+import ogCover from "@/assets/og-cover.png.asset.json";
+
+const OG_IMAGE = `https://assistentezero.lovable.app${ogCover.url}`;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,7 +19,9 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: i18n.t("landing.socialTitle") },
       { property: "og:description", content: i18n.t("landing.socialDescription") },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
   }),
   component: Landing,
