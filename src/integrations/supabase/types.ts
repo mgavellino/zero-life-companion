@@ -35,6 +35,149 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_activities: {
+        Row: {
+          activity: string
+          calories: number
+          created_at: string
+          id: string
+          minutes: number
+          occurred_on: string
+          user_id: string
+        }
+        Insert: {
+          activity: string
+          calories: number
+          created_at?: string
+          id?: string
+          minutes: number
+          occurred_on?: string
+          user_id?: string
+        }
+        Update: {
+          activity?: string
+          calories?: number
+          created_at?: string
+          id?: string
+          minutes?: number
+          occurred_on?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      energy_profiles: {
+        Row: {
+          age: number
+          created_at: string
+          height_cm: number
+          id: string
+          sex: string
+          user_id: string
+          weight_kg: number
+        }
+        Insert: {
+          age: number
+          created_at?: string
+          height_cm: number
+          id?: string
+          sex: string
+          user_id?: string
+          weight_kg: number
+        }
+        Update: {
+          age?: number
+          created_at?: string
+          height_cm?: number
+          id?: string
+          sex?: string
+          user_id?: string
+          weight_kg?: number
+        }
+        Relationships: []
+      }
+      financial_goals: {
+        Row: {
+          created_at: string
+          id: string
+          saved_amount: number
+          target_amount: number
+          target_date: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          saved_amount?: number
+          target_amount: number
+          target_date: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          saved_amount?: number
+          target_amount?: number
+          target_date?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      habit_checks: {
+        Row: {
+          checked_on: string
+          created_at: string
+          habit_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          checked_on?: string
+          created_at?: string
+          habit_id: string
+          id?: string
+          user_id?: string
+        }
+        Update: {
+          checked_on?: string
+          created_at?: string
+          habit_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "habit_checks_habit_id_fkey"
+            columns: ["habit_id"]
+            isOneToOne: false
+            referencedRelation: "habits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      habits: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meals: {
         Row: {
           calories: number
