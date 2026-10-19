@@ -9,6 +9,7 @@ import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { oauthReturnPath } from "@/lib/oauth-return-path";
 
 export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/auth")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { next?: string } => (typeof s["next"] === "string" ? { next: s["next"] } : {}),
   component: AuthPage,
 });
 
@@ -33,16 +35,22 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  // Validated once; external agents' approval screens send users back here after sign-in.
+  const rawNext = Route.useSearch().next;
+  const next = rawNext ? oauthReturnPath(rawNext) : "";
+  const returnUrl = window.location.origin + (next ? `/auth?next=${encodeURIComponent(next)}` : "/auth");
+  const goOn = () => { if (next && next !== "/") window.location.replace(next); else navigate({ to: "/chat", replace: true }); };
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/chat", replace: true });
+      if (data.user) goOn();
     });
     const { data } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) navigate({ to: "/chat", replace: true });
+      if (s) goOn();
     });
     return () => data.subscription.unsubscribe();
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, next]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +60,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else if (mode === "up") {
-        const { error, data } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/auth" } });
+        const { error, data } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: returnUrl } });
         if (error) throw error;
         if (!data.session) toast.success(t("checkEmail"));
       } else {
@@ -68,7 +76,7 @@ function AuthPage() {
   }
 
   async function social(provider: "google" | "apple") {
-    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/auth" });
+    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: returnUrl });
     if (r.error) toast.error(String((r.error as Error).message ?? r.error));
   }
 

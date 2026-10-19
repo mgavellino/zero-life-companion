@@ -31,6 +31,7 @@ import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTempoRouteImport } from './routes/_authenticated/tempo'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicJobsBillRemindersRouteImport } from './routes/api/public/jobs/bill-reminders'
 import { Route as ApiPublicJobsNotificationsRouteImport } from './routes/api/public/jobs/notifications'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -147,6 +148,11 @@ const ApiTtsRoute = ApiTtsRouteImport.update({
   path: '/api/tts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicJobsBillRemindersRoute =
   ApiPublicJobsBillRemindersRouteImport.update({
     id: '/api/public/jobs/bill-reminders',
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
   '/api/public/jobs/notifications': typeof ApiPublicJobsNotificationsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
   '/api/public/jobs/notifications': typeof ApiPublicJobsNotificationsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/_authenticated/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/api/tts': typeof ApiTtsRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
   '/api/public/jobs/notifications': typeof ApiPublicJobsNotificationsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/tempo'
     | '/api/chat'
     | '/api/tts'
+    | '/.lovable/oauth/consent'
     | '/api/public/jobs/bill-reminders'
     | '/api/public/jobs/notifications'
     | '/api/public/payments/webhook'
@@ -306,6 +316,7 @@ export interface FileRouteTypes {
     | '/tempo'
     | '/api/chat'
     | '/api/tts'
+    | '/.lovable/oauth/consent'
     | '/api/public/jobs/bill-reminders'
     | '/api/public/jobs/notifications'
     | '/api/public/payments/webhook'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tempo'
     | '/api/chat'
     | '/api/tts'
+    | '/.lovable/oauth/consent'
     | '/api/public/jobs/bill-reminders'
     | '/api/public/jobs/notifications'
     | '/api/public/payments/webhook'
@@ -354,6 +366,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiTtsRoute: typeof ApiTtsRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicJobsBillRemindersRoute: typeof ApiPublicJobsBillRemindersRoute
   ApiPublicJobsNotificationsRoute: typeof ApiPublicJobsNotificationsRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -516,6 +529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTtsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/bill-reminders': {
       id: '/api/public/jobs/bill-reminders'
       path: '/api/public/jobs/bill-reminders'
@@ -589,6 +609,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
   ApiTtsRoute: ApiTtsRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicJobsBillRemindersRoute: ApiPublicJobsBillRemindersRoute,
   ApiPublicJobsNotificationsRoute: ApiPublicJobsNotificationsRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
