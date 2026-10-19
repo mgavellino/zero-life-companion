@@ -15,7 +15,7 @@ export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('zero-th
 export function usePrefsBootstrap() {
   useEffect(() => {
     const l = localStorage.getItem("zero-lang") ?? navigator.language.slice(0, 2);
-    if (LANGS.some((x) => x.code === l) && l !== i18n.language) i18n.changeLanguage(l);
+    if (LANGS.some((x) => x.code === l) && l !== i18n.language) setTimeout(() => i18n.changeLanguage(l), 50);
   }, []);
   useEffect(() => {
     const onChange = (l: string) => (document.documentElement.lang = l);
