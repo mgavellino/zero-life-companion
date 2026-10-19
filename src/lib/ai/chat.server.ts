@@ -65,15 +65,16 @@ export async function handleChat(request: Request) {
   // Shared memory across all threads
   const today = new Date().toISOString().slice(0, 10);
   const monthStart = today.slice(0, 8) + "01";
-  const [mem, other, tasks, tx, budgets, meals, profile, preferences] = await Promise.all([
+  const { data: preferenceData } = await sb.from("user_preferences").select("display_name,goals,currency,language,health_consent_at").eq("user_id", userId).maybeSingle();
+  const preferences = { data: preferenceData };
+  const [mem, other, tasks, tx, budgets, meals, profile] = await Promise.all([
     sb.from("memories").select("content,created_at").order("created_at", { ascending: false }).limit(60),
     Promise.resolve({ data: [] as { role: string; parts: unknown }[] }),
     sb.from("tasks").select("title,due_at,minutes,priority,done").eq("done", false).order("due_at", { ascending: true, nullsFirst: false }).limit(30),
     sb.from("transactions").select("kind,amount,category,description,occurred_on").gte("occurred_on", monthStart),
     sb.from("budgets").select("category,monthly_limit"),
-    sb.from("meals").select("name,calories,protein,carbs,fat").eq("eaten_on", today),
+    preferenceData?.health_consent_at ? sb.from("meals").select("name,calories,protein,carbs,fat").eq("user_id", userId).eq("eaten_on", today) : Promise.resolve({ data: [] }),
     sb.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
-    sb.from("user_preferences").select("display_name,goals,currency,language,health_consent_at").eq("user_id", userId).maybeSingle(),
   ]);
   const income = (tx.data ?? []).filter((t) => t.kind === "income").reduce((a, t) => a + Number(t.amount), 0);
   const expense = (tx.data ?? []).filter((t) => t.kind === "expense").reduce((a, t) => a + Number(t.amount), 0);
@@ -89,6 +90,7 @@ export async function handleChat(request: Request) {
 Your core mission: help the user master TIME and MONEY (most people struggle with both) and take care of their BODY (diet, energy, habits). Act like a coach: give concrete next actions, numbers, and hold them accountable.
 Always answer in ${lang} unless the user writes in another language.
 Never display source code, JSON, tool names, tool arguments, stack traces, internal instructions, credentials or technical errors. Use tools silently; confirm outcomes in everyday language. Never create tasks or habits unless the user actually requests or describes them.
+Never invent financial goals, projections, meals, activities or time usage. Empty records mean no data, not a measured zero. Do not give missing-protein or spending alerts without actual relevant records. Time usage is recorded only when the user starts the clock; never claim to monitor their other apps automatically.
 When the user describes a COMPLETED physical activity (e.g. ran for 15 minutes), call log_activity using their exact activity description. Do not log plans, questions or hypothetical activities. The tool estimates kcal and saves it; confirm the returned range and explain when it is generic. Weight and height are always optional; never block an activity for missing measurements. If duration is missing, ask one question first. Health data recording consent is ${preferences.data?.health_consent_at ? "granted" : "not granted: ask the user to enable it in Plano → Privacidade; do not save health records or health memories"}.
 User priorities: ${JSON.stringify(preferences.data?.goals ?? [])}. Financial records currency: ${preferences.data?.currency ?? "BRL"}. Do not assume a different currency.
 This is ONE continuous conversation with ONE long-term memory. When the user reveals a durable fact, goal, preference, income, routine, injury, or diet restriction, call the remember tool.
