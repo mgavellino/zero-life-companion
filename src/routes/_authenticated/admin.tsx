@@ -55,13 +55,13 @@ function Admin() {
         supabase.from("subscriptions").select("user_id,created_at").eq("environment", env).order("created_at", { ascending: false }).limit(500),
         supabase.from("subscriptions").select("user_id,product_id,price_id,status,current_period_end").eq("environment", env).order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id,role"),
-        supabase.from("plan_grants").select("id,user_id,plan,expires_at,note,created_at,is_trial").is("revoked_at", null).order("created_at", { ascending: false }),
+        supabase.from("plan_grants" as never).select("id,user_id,plan,expires_at,note,created_at,is_trial" as never).is("revoked_at", null).order("created_at", { ascending: false }),
       ]);
       const accounts = new Map<string, Row>();
       for (const row of p.data ?? []) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at ?? "" });
       for (const row of g.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at });
       for (const row of r.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: "" });
-      return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as G[] };
+      return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as unknown as G[] };
     },
   });
   const users = data?.users ?? [];
