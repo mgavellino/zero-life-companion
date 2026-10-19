@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 type Row = { id: string; display_name: string | null; created_at: string };
-type G = { id: string; user_id: string; plan: string; expires_at: string | null; note: string | null; created_at: string };
+type G = { id: string; user_id: string; plan: string; expires_at: string | null; note: string | null; created_at: string; is_trial?: boolean };
 type S = { user_id: string; product_id: string; price_id: string; status: string; current_period_end: string | null };
 
 function mrr(s: S) {
@@ -55,7 +55,7 @@ function Admin() {
         supabase.from("subscriptions").select("user_id,created_at").eq("environment", env).order("created_at", { ascending: false }).limit(500),
         supabase.from("subscriptions").select("user_id,product_id,price_id,status,current_period_end").eq("environment", env).order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id,role"),
-        supabase.from("plan_grants" as never).select("id,user_id,plan,expires_at,note,created_at,is_trial" as never).is("revoked_at", null).order("created_at", { ascending: false }),
+        (supabase.from("plan_grants") as any).select("id,user_id,plan,expires_at,note,created_at,is_trial" as never).is("revoked_at", null).order("created_at", { ascending: false }),
       ]);
       const accounts = new Map<string, Row>();
       for (const row of p.data ?? []) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at ?? "" });
