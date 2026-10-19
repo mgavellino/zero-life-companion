@@ -60,4 +60,4 @@
 - [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
 
 ## Novas tarefas (19/10)
-- [ ] Primeira campanha de anúncios (pedido do usuário na aba Ads) — aguardando conclusão do GSC
+- [ ] Primeira campanha de anúncios — objetivo: cadastros no teste grátis; público: global 6 idiomas; pesquisa de concorrentes salva; próximo: escolha do tipo de campanha
