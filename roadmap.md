@@ -63,3 +63,6 @@
 - [ ] Primeira campanha de anúncios — objetivo: cadastros no teste grátis; público: global 6 idiomas; pesquisa de concorrentes salva; próximo: escolha do tipo de campanha
 - [x] Consertar notificações: lembretes de tarefas pelo servidor + envio a cada minuto + teste que se autorrepara
 - [x] Verificar isolamento entre contas (só existe 1 conta; Google e Apple com mesmo e-mail viram a mesma conta)
+
+- [ ] Onboarding mais completa (aguardando detalhes do usuário)
+- [ ] Admin mais completo e funcional (aguardando detalhes do usuário)

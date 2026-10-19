@@ -33,3 +33,5 @@
 - Admin uses `user_roles` + `has_role()`, never profile columns. Notifications are `notifications` rows (realtime → toast).
 - Deployment stays host-portable (no Cloudflare-only server code; Node 22 in `.nvmrc`) because the owner also deploys to Vercel with the Lovable Cloud backend.
 - External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.
+
+- MCP tools are wrapped by `guarded()` in `src/lib/mcp/guard.ts`, which denies a tool when the owner has a `mcp_tool_blocks` row for that OAuth client; default is allowed so new connections work immediately.

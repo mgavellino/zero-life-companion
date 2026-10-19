@@ -1,4 +1,5 @@
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
+import { guarded } from "./guard";
 import { listTasksTool, addTaskTool } from "./tools/tasks";
 import { listTransactionsTool, addTransactionTool } from "./tools/money";
 import { listMealsTool, timeSummaryTool } from "./tools/body-time";
@@ -15,5 +16,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [listTasksTool, addTaskTool, listTransactionsTool, addTransactionTool, listMealsTool, timeSummaryTool],
+  tools: [listTasksTool, addTaskTool, listTransactionsTool, addTransactionTool, listMealsTool, timeSummaryTool].map(guarded),
 });

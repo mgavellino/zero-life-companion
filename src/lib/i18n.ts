@@ -7,6 +7,7 @@ import system from "@/locales/system";
 import plans from "@/locales/plans";
 import legal from "@/locales/legal";
 import audit from "@/locales/audit";
+import agents from "@/locales/agents";
 
 export const LANGS = [
   { code: "pt", label: "Português" },
@@ -32,7 +33,7 @@ function deepMerge(target: DictTree, source: DictTree): DictTree {
   return target;
 }
 
-const modules = [core, money, time, system, plans, legal, audit] as const;
+const modules = [core, money, time, system, plans, legal, audit, agents] as const;
 
 function buildResources() {
   const resources: Record<string, { translation: DictTree }> = {};

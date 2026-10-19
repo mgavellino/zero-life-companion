@@ -21,6 +21,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAssistentesRouteImport } from './routes/_authenticated/assistentes'
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated/conta'
@@ -97,6 +98,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAssistentesRoute =
+  AuthenticatedAssistentesRouteImport.update({
+    id: '/assistentes',
+    path: '/assistentes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   id: '/chat',
   path: '/chat',
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/assistentes': typeof AuthenticatedAssistentesRoute
   '/chat': typeof AuthenticatedChatRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -218,6 +226,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/assistentes': typeof AuthenticatedAssistentesRoute
   '/chat': typeof AuthenticatedChatRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/conta': typeof AuthenticatedContaRoute
@@ -248,6 +257,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/assistentes': typeof AuthenticatedAssistentesRoute
   '/_authenticated/chat': typeof AuthenticatedChatRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/conta': typeof AuthenticatedContaRoute
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/assistentes'
     | '/chat'
     | '/configuracoes'
     | '/conta'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/assistentes'
     | '/chat'
     | '/configuracoes'
     | '/conta'
@@ -335,6 +347,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/_authenticated/assistentes'
     | '/_authenticated/chat'
     | '/_authenticated/configuracoes'
     | '/_authenticated/conta'
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assistentes': {
+      id: '/_authenticated/assistentes'
+      path: '/assistentes'
+      fullPath: '/assistentes'
+      preLoaderRoute: typeof AuthenticatedAssistentesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/chat': {
       id: '/_authenticated/chat'
       path: '/chat'
@@ -569,6 +589,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAssistentesRoute: typeof AuthenticatedAssistentesRoute
   AuthenticatedChatRoute: typeof AuthenticatedChatRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedContaRoute: typeof AuthenticatedContaRoute
@@ -581,6 +602,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAssistentesRoute: AuthenticatedAssistentesRoute,
   AuthenticatedChatRoute: AuthenticatedChatRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedContaRoute: AuthenticatedContaRoute,

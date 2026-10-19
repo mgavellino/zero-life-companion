@@ -280,6 +280,27 @@ export type Database = {
         }
         Relationships: []
       }
+      mcp_tool_blocks: {
+        Row: {
+          client_id: string
+          created_at: string
+          tool_name: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          tool_name: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          tool_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meals: {
         Row: {
           calories: number
