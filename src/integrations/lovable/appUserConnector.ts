@@ -4,7 +4,7 @@ function requireApiKey() {
   return key;
 }
 export interface AppUserOAuthAuthorizeParams {
-  gatewayBaseUrl: string; connectorId: string; appUserId: string; clientAPIKey: string; returnUrl: string; connectionAPIKey?: string; credentialsConfiguration?: Record<string, unknown>;
+  gatewayBaseUrl: string; connectorId: string; appUserId: string; clientAPIKey: string; returnUrl: string; connectionAPIKey?: string | undefined; credentialsConfiguration?: Record<string, unknown>;
 }
 export async function authorizeAppUserOAuth(params: AppUserOAuthAuthorizeParams) {
   const headers: Record<string,string> = { Authorization: `Bearer ${requireApiKey()}`, "Content-Type": "application/json", "X-Client-Api-Key": params.clientAPIKey };
@@ -24,7 +24,7 @@ export async function exchangeAppUserOAuthCode(gatewayBaseUrl:string, code:strin
   if(!body.api_key || !body.connector_id) throw new Error("Não foi possível concluir a conexão.");
   return {connectionAPIKey:body.api_key as string, connectorId:body.connector_id as string};
 }
-export async function callAsAppUser(params:{gatewayBaseUrl:string;connectionAPIKey:string;connectorId:string;path:string;init?:RequestInit;requiredScopes?:string[]}) {
+export async function callAsAppUser(params:{gatewayBaseUrl:string;connectionAPIKey:string;connectorId:string;path:string;init?:RequestInit | undefined;requiredScopes?:string[]}) {
   const headers=new Headers(params.init?.headers);headers.set("Authorization",`Bearer ${requireApiKey()}`);headers.set("X-Connection-Api-Key",params.connectionAPIKey);
   if(params.requiredScopes?.length)headers.set("X-Lovable-Required-Scopes",params.requiredScopes.join(" "));
   return fetch(`${params.gatewayBaseUrl}/${params.connectorId}${params.path.startsWith("/")?params.path:`/${params.path}`}`,{...params.init,headers});
