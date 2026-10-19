@@ -38,7 +38,7 @@ function AuthPage() {
   // Validated once; external agents' approval screens send users back here after sign-in.
   const rawNext = Route.useSearch().next;
   const next = rawNext ? oauthReturnPath(rawNext) : "";
-  const returnUrl = window.location.origin + (next ? `/auth?next=${encodeURIComponent(next)}` : "/auth");
+  const returnUrl = () => window.location.origin + (next ? `/auth?next=${encodeURIComponent(next)}` : "/auth");
   const goOn = () => { if (next && next !== "/") window.location.replace(next); else navigate({ to: "/chat", replace: true }); };
 
   useEffect(() => {
@@ -60,7 +60,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else if (mode === "up") {
-        const { error, data } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: returnUrl } });
+        const { error, data } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: returnUrl() } });
         if (error) throw error;
         if (!data.session) toast.success(t("checkEmail"));
       } else {
@@ -76,7 +76,7 @@ function AuthPage() {
   }
 
   async function social(provider: "google" | "apple") {
-    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: returnUrl });
+    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: returnUrl() });
     if (r.error) toast.error(String((r.error as Error).message ?? r.error));
   }
 
