@@ -22,15 +22,15 @@
 - [x] Teste grátis de 1 mês (30 dias)
 - [ ] Páginas de Termos, Privacidade e Reembolso (aguardando nome legal da empresa) — necessário para receber pagamentos reais
 - [ ] Notificações por e-mail (aguardando domínio próprio)
-- [ ] Parcelamento no semestral/anual (verificar suporte da plataforma de pagamento)
+- [ ] Parcelamento no semestral/anual — bloqueado: Paddle não parcela assinaturas; requer outro provedor autorizado pelo usuário
 - [x] Benefícios reais: relatórios + planejamento semanal (Max), modelo/memória por plano
 - [x] Registro rápido de gastos estilo Tony (uma frase → vários lançamentos)
 - [x] Admin: conceder/revogar planos, financeiro (receita, assinaturas)
-- [ ] Integração Google Agenda por usuário
+- [ ] Integração Google Agenda por usuário — bloqueada: conexão recusada e cliente Google OAuth não configurado
 - [x] Corrigir chat não salvando histórico
 - [x] Filtros no financeiro e na agenda (tempo)
-- [ ] Tempo vazio por padrão e hábitos diários
-- [ ] Gasto calórico e balanço energético
-- [ ] Metas e projeções financeiras
-- [ ] Conexão bancária gratuita via Open Finance (verificar disponibilidade real)
-- [ ] Impedir conteúdo técnico e código visível no chat
+- [x] Tempo vazio por padrão e hábitos diários
+- [x] Gasto calórico e balanço energético
+- [x] Metas e projeções financeiras
+- [ ] Conexão bancária gratuita via Open Finance — bloqueada: nenhuma opção gratuita contínua em produção confirmada; provedores exigem contrato pago
+- [x] Impedir conteúdo técnico e código visível no chat
