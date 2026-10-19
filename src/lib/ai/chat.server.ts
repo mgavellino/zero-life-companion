@@ -1,10 +1,10 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 
-const MODEL = "gpt-5";
+const MODEL = "gemini-2.5-flash";
 
 function userClient(token: string) {
   const url = process.env["SUPABASE_URL"]!;
@@ -175,25 +175,17 @@ ${JSON.stringify(workouts.data ?? [])}`;
     }),
   };
 
-  const apiKey = process.env["OPENAI_API_KEY"];
-  if (!apiKey) return new Response("OPENAI_API_KEY ausente", { status: 503 });
-  const provider = createOpenAI({ apiKey });
+  const apiKey = process.env["GEMINI_API_KEY"];
+  if (!apiKey) return new Response("A chave da IA (GEMINI_API_KEY) ainda não foi configurada.", { status: 503 });
+  const provider = createGoogleGenerativeAI({ apiKey });
 
   const result = streamText({
-    model: provider.responses(MODEL),
+    model: provider(MODEL),
     instructions,
     messages: await convertToModelMessages(messages),
     tools,
     stopWhen: stepCountIs(6),
     abortSignal: request.signal,
-    providerOptions: {
-      openai: {
-        reasoningEffort: "low",
-        reasoningSummary: "auto",
-        store: false,
-        include: ["reasoning.encrypted_content"],
-      },
-    },
   });
 
   return result.toUIMessageStreamResponse({
