@@ -36,7 +36,7 @@ export function TimeClock() {
   }
   return <section className="mb-8 border-y py-6">
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <div><h2 className="flex items-center gap-2 text-xl font-bold"><Clock3 className="size-5 text-time" />{t("clock.title")}</h2><p className="mt-2 font-mono text-3xl tabular-nums" aria-label={t("clock.currentTime")}>{now?.toLocaleTimeString(i18n.language) ?? "—"}</p></div>
+      <div><h2 className="flex items-center gap-2 text-xl font-bold"><Clock3 className="size-5 text-time" />{t("clock.title")}</h2><p className="mt-2 font-mono text-3xl tabular-nums" aria-label={t("clock.currentTime")}>{now?.toLocaleTimeString(i18n.language, { hour12: units.clock === "12" }) ?? "—"}</p></div>
       <div className="flex flex-wrap items-center gap-3">
         <select aria-label={t("clock.category")} className="h-10 rounded-md border bg-background px-3 text-sm" value={active?.category ?? category} disabled={!!active} onChange={e => setCategory(startTimeSchema.parse({ category: e.target.value }).category)}>{Object.entries(TIME_LABELS).map(([key]) => <option key={key} value={key}>{t(`clock.categories.${key}`)}</option>)}</select>
         <span className="w-24 font-mono text-lg tabular-nums" aria-label={t("clock.elapsed")}>{active && now ? durationLabel((now.getTime() - Date.parse(active.started_at)) / 1000) : "00:00:00"}</span>
