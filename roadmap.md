@@ -1,4 +1,5 @@
 # Zero — roadmap
+- [ ] Teach installation through Chrome and Safari with an accessible install action
 - [ ] Optimize mobile/tablet navigation and chat; remove oversized content; expose every option through menu and visible More shortcut
 - [ ] Improve real chat using landing conversation reference and smooth voice animation
 - [ ] Make clock visible throughout the signed-in app
@@ -13,7 +14,7 @@
 - [x] Onboarding completo com medidas opcionais e consentimento de saúde
 - [x] Atividades por texto e chat com estimativa por IA
 - [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)
-- [ ] Push no celular com app fechado — bloqueado: conexão Firebase recusada; versão nativa também requer credenciais de Android/iOS
+- [ ] Verify closed-app Web Push delivery on HTTPS with a real device; native push additionally requires Android/iOS configuration
 - [ ] Versão nativa — depende de projeto nativo e contas das lojas; o atual é web
 - [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
 - [x] Tempo, Dinheiro
