@@ -1,4 +1,5 @@
 # Zero — roadmap
+- [ ] Optimize mobile/tablet navigation and chat; remove horizontal scrolling across app screens
 - [ ] Improve real chat using landing conversation reference and smooth voice animation
 - [ ] Make clock visible throughout the signed-in app
 - [ ] Easier provider-free background push — investigate and configure where possible
