@@ -6,6 +6,7 @@ import { serverPaddleEnv } from "@/lib/paddle.server";
 const VOICE_ID = "EXAVITQu4vr4xnSDxMaL"; // Sarah — warm, multilingual
 
 export const Route = createFileRoute("/api/tts")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {

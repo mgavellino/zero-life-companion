@@ -10,6 +10,7 @@ import { PrivacyControls } from "@/components/PrivacyControls";
 import { UnitsSettings } from "@/components/UnitsSettings";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: i18n.t("settings.metaTitle") },

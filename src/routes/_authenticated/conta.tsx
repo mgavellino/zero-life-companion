@@ -15,6 +15,7 @@ import { PushSettings } from "@/components/PushSettings";
 import { InstallZero } from "@/components/InstallZero";
 
 export const Route = createFileRoute("/_authenticated/conta")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: i18n.t("account.metaTitle") },

@@ -16,6 +16,7 @@ import { DailyHabits } from "@/components/DailyHabits";
 import { TimeClock } from "@/components/TimeClock";
 
 export const Route = createFileRoute("/_authenticated/tempo")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [{ title: i18n.t("time2.title") }, { name: "description", content: i18n.t("time2.description") }, { property: "og:title", content: i18n.t("time2.title") }, { property: "og:description", content: i18n.t("time2.socialDescription") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: TimePage,
 });

@@ -48,6 +48,7 @@ const chatQuery = {
 };
 
 export const Route = createFileRoute("/_authenticated/chat")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: i18n.t("chat2.title") },

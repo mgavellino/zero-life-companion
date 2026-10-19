@@ -14,6 +14,7 @@ import { useRows, useTableMutations, today } from "@/lib/data";
 import { EnergyBalance } from "@/components/EnergyBalance";
 
 export const Route = createFileRoute("/_authenticated/dieta")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [{ title: i18n.t("diet.title") }, { name: "description", content: i18n.t("diet.description") }, { property: "og:title", content: i18n.t("diet.title") }, { property: "og:description", content: i18n.t("diet.socialDescription") }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: DietPage,
 });
