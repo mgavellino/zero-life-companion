@@ -37,7 +37,7 @@
 - [x] Identidade visual mais trabalhada
 - [x] Abrir o app direto no chat de voz
 - [x] Teste grátis de 1 mês (30 dias)
-- [x] Páginas públicas de Termos, Privacidade e Reembolso com nome legal e links na apresentação e nos planos
+- [x] Páginas públicas de Termos, Privacidade e Reembolso com nome legal, e-mail de contato e links na apresentação e nos planos
 - [ ] Pagamentos reais — aguardam publicação, verificação do vendedor e aprovação da Paddle
 - [ ] Notificações por e-mail (aguardando domínio próprio)
 - [ ] Parcelamento no semestral/anual — bloqueado: Paddle não parcela assinaturas; requer outro provedor autorizado pelo usuário
