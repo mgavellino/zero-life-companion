@@ -33,3 +33,4 @@
 - [ ] Gasto calórico e balanço energético
 - [ ] Metas e projeções financeiras
 - [ ] Conexão bancária gratuita via Open Finance (verificar disponibilidade real)
+- [ ] Impedir conteúdo técnico e código visível no chat
