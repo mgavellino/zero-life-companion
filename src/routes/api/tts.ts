@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/tts")({
         const clean = (text ?? "").slice(0, 2500).trim();
         if (!clean) return new Response("Empty", { status: 400 });
 
-        const key = process.env.ELEVENLABS_API_KEY;
+        const key = process.env["ELEVENLABS_API_KEY"];
         if (!key) return new Response("Voice not configured", { status: 503 });
         const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream?output_format=mp3_44100_128`, {
           method: "POST",

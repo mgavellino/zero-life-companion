@@ -11,7 +11,7 @@ type N = { id: string; title: string; body: string | null; created_at: string; r
 function browserNotify(title: string, body?: string | null) {
   if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
   try {
-    new Notification(title, { body: body ?? undefined, icon: "/favicon.png" });
+    new Notification(title, { body: body ?? "", icon: "/favicon.png" });
   } catch {
     /* some mobile browsers only allow notifications via a service worker */
   }
@@ -83,7 +83,7 @@ export function NotificationBell() {
   }
 
   async function enablePush() {
-    if (typeof Notification === "undefined") return toast.error("Seu navegador não suporta notificações.");
+    if (typeof Notification === "undefined") { toast.error("Seu navegador não suporta notificações."); return; }
     const p = await Notification.requestPermission();
     setPerm(p);
     if (p === "granted") browserNotify("Notificações ativadas", "O Zero vai te avisar na hora certa.");

@@ -64,14 +64,14 @@ function Admin() {
     const res = admins.has(id)
       ? await supabase.from("user_roles").delete().eq("user_id", id).eq("role", "admin")
       : await supabase.from("user_roles").insert({ user_id: id, role: "admin" });
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) { toast.error(res.error.message); return; }
     qc.invalidateQueries({ queryKey: ["admin"] });
   }
 
   async function sendMsg() {
     if (!msg?.title.trim()) return;
     const { error } = await supabase.from("notifications").insert({ user_id: msg.to, title: msg.title, body: msg.body || null, kind: "admin" });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Notificação enviada");
     setMsg(null);
   }

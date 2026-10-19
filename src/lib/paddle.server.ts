@@ -51,6 +51,6 @@ export async function verifyWebhook(req: Request, env: PaddleEnv) {
 
 /** Environment the current build talks to (test token in preview, live when published). */
 export function serverPaddleEnv(): PaddleEnv {
-  const tok = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
+  const tok = import.meta.env["VITE_PAYMENTS_CLIENT_TOKEN"] as string | undefined;
   return tok?.startsWith("test_") ? "sandbox" : "live";
 }
