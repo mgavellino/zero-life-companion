@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, Shield } from "lucide-react";
+import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "./Logo";
 import { Prefs } from "./Prefs";
@@ -32,6 +32,7 @@ export function AppShell() {
     { to: "/tempo", icon: Clock, label: t("nav.time") },
     { to: "/dinheiro", icon: Wallet, label: t("nav.money") },
     { to: "/dieta", icon: Salad, label: t("nav.diet") },
+    { to: "/relatorios", icon: BarChart3, label: "Relatórios" },
     { to: "/conta", icon: Sparkles, label: "Plano" },
   ] as const;
 
