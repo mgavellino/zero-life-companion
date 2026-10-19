@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { serverPaddleEnv } from "@/lib/paddle.server";
-import { LIMITS } from "@/lib/plans";
+import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
 
 const MODEL = "openai/gpt-oss-120b";
@@ -95,7 +95,10 @@ When the user mentions spending/earning money, a task/appointment, or a meal, lo
 Today is ${today}. User name: ${profile.data?.display_name ?? "unknown"}.
 
 ## Long-term memory
-${(mem.data ?? []).map((m) => `- ${m.content}`).join("\n") || "(empty)"}
+${plan === "pro" || plan === "max" ? (mem.data ?? []).map((m) => `- ${m.content}`).join("\n") || "(empty)" : "(long-term memory is a Pro/Max feature; if the user asks you to remember something, say it is available on Pro)"}
+## User plan: ${plan}
+${LIMITS[plan].proactive ? "Proactive mode ON: open with alerts about overspending vs budgets, tasks due today, and missing protein when relevant." : "Proactive alerts are a Pro feature: do not volunteer unsolicited alerts."}
+${plan === "max" ? "MAX user: you may produce deep reports, weekly plans (call add_task for each block when asked to plan the week) and detailed analyses." : "Weekly planning and advanced reports are Max features; if asked, give a short version and mention Max."}
 
 ## Recent messages from other threads
 ${otherSnippets || "(none)"}
@@ -188,7 +191,7 @@ ${JSON.stringify(meals.data ?? [])}`;
   const provider = createGroq({ apiKey });
 
   const result = streamText({
-    model: provider(MODEL),
+    model: provider(modelFor(plan)),
     instructions,
     messages: await convertToModelMessages(messages),
     tools,

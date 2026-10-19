@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getPaddleEnvironment } from "@/lib/paddle";
-import { planFromProduct, type PlanId } from "@/lib/plans";
+import { highestPlan, planFromProduct, type PlanId } from "@/lib/plans";
 
 export type Sub = { status: string; product_id: string; price_id: string; current_period_end: string | null; cancel_at_period_end: boolean | null };
 
@@ -28,20 +28,24 @@ export function useSubscription() {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      return (data as Sub | null) ?? null;
+      const { data: g } = await supabase.from("plan_grants").select("plan,expires_at").eq("user_id", u.user.id).is("revoked_at", null);
+      const grants = (g ?? []).filter((x) => !x.expires_at || new Date(x.expires_at) > new Date()).map((x) => x.plan as PlanId);
+      return { sub: (data as Sub | null) ?? null, grants };
     },
   });
   useEffect(() => {
     const ch = supabase
       .channel(`sub-changes-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "subscriptions" }, () => qc.invalidateQueries({ queryKey: ["subscription"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "plan_grants" }, () => qc.invalidateQueries({ queryKey: ["subscription"] }))
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
   }, [qc]);
-  const sub = q.data ?? null;
+  const sub = q.data?.sub ?? null;
+  const grants = q.data?.grants ?? [];
   const active = isActive(sub);
-  const plan: PlanId = active ? planFromProduct(sub?.product_id) : "free";
-  return { sub, active, plan, loading: q.isLoading };
+  const plan: PlanId = highestPlan(active ? planFromProduct(sub?.product_id) : "free", ...grants);
+  return { sub, active, plan, granted: grants.length > 0, loading: q.isLoading };
 }
