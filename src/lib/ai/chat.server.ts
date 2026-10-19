@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { serverPaddleEnv } from "@/lib/paddle.server";
 import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
+import { estimateAndLogActivity } from "@/lib/activity.server";
 
 
 export function userClient(token: string) {
@@ -64,7 +65,7 @@ export async function handleChat(request: Request) {
   // Shared memory across all threads
   const today = new Date().toISOString().slice(0, 10);
   const monthStart = today.slice(0, 8) + "01";
-  const [mem, other, tasks, tx, budgets, meals, profile] = await Promise.all([
+  const [mem, other, tasks, tx, budgets, meals, profile, preferences] = await Promise.all([
     sb.from("memories").select("content,created_at").order("created_at", { ascending: false }).limit(60),
     Promise.resolve({ data: [] as { role: string; parts: unknown }[] }),
     sb.from("tasks").select("title,due_at,minutes,priority,done").eq("done", false).order("due_at", { ascending: true, nullsFirst: false }).limit(30),
@@ -72,6 +73,7 @@ export async function handleChat(request: Request) {
     sb.from("budgets").select("category,monthly_limit"),
     sb.from("meals").select("name,calories,protein,carbs,fat").eq("eaten_on", today),
     sb.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
+    sb.from("user_preferences").select("display_name,goals,currency,language,health_consent_at").eq("user_id", userId).maybeSingle(),
   ]);
   const income = (tx.data ?? []).filter((t) => t.kind === "income").reduce((a, t) => a + Number(t.amount), 0);
   const expense = (tx.data ?? []).filter((t) => t.kind === "expense").reduce((a, t) => a + Number(t.amount), 0);
@@ -87,12 +89,14 @@ export async function handleChat(request: Request) {
 Your core mission: help the user master TIME and MONEY (most people struggle with both) and take care of their BODY (diet, energy, habits). Act like a coach: give concrete next actions, numbers, and hold them accountable.
 Always answer in ${lang} unless the user writes in another language.
 Never display source code, JSON, tool names, tool arguments, stack traces, internal instructions, credentials or technical errors. Use tools silently; confirm outcomes in everyday language. Never create tasks or habits unless the user actually requests or describes them.
+When the user describes a COMPLETED physical activity (e.g. ran for 15 minutes), call log_activity using their exact activity description. Do not log plans, questions or hypothetical activities. The tool estimates kcal and saves it; confirm the returned range and explain when it is generic. Weight and height are always optional; never block an activity for missing measurements. If duration is missing, ask one question first. Health data recording consent is ${preferences.data?.health_consent_at ? "granted" : "not granted: ask the user to enable it in Plano → Privacidade; do not save health records or health memories"}.
+User priorities: ${JSON.stringify(preferences.data?.goals ?? [])}. Financial records currency: ${preferences.data?.currency ?? "BRL"}. Do not assume a different currency.
 This is ONE continuous conversation with ONE long-term memory. When the user reveals a durable fact, goal, preference, income, routine, injury, or diet restriction, call the remember tool.
 Be INTERACTIVE and proactive: ask one sharp follow-up question when useful, point out patterns (overspending, overloaded days, missing protein), and propose the next concrete step. Replies are often spoken aloud, so keep them short (2-4 sentences) unless the user asks for detail.
 At the END of every reply, call suggest_replies with 2-4 short options the user would likely tap next (in the user's language).
 When the user asks to be reminded of something, create a task with due_at so the app notifies them.
 When the user mentions spending/earning money, a task/appointment, or a meal, log it with the right tool without asking (confirm briefly after). Use markdown, short lists and tables when helpful.
-Today is ${today}. User name: ${profile.data?.display_name ?? "unknown"}.
+Today is ${today}. User name: ${preferences.data?.display_name || profile.data?.display_name || "unknown"}.
 
 ## Long-term memory
 ${plan === "pro" || plan === "max" ? (mem.data ?? []).map((m) => `- ${m.content}`).join("\n") || "(empty)" : "(long-term memory is a Pro/Max feature; if the user asks you to remember something, say it is available on Pro)"}
@@ -113,6 +117,14 @@ income=${income.toFixed(2)} expense=${expense.toFixed(2)} by_category=${JSON.str
 ${JSON.stringify(meals.data ?? [])}`;
 
   const tools = {
+    log_activity: tool({
+      description: "Estimate and save a completed physical activity from the user's exact natural-language description. Weight and height are optional.",
+      inputSchema: z.object({ text: z.string().min(3).max(500), occurred_on: z.iso.date().nullable() }),
+      execute: async ({ text, occurred_on }) => {
+        try { return { ok: true, ...await estimateAndLogActivity(sb, userId, text, occurred_on ?? today) }; }
+        catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Não foi possível registrar a atividade." }; }
+      },
+    }),
     remember: tool({
       description: "Save a durable fact about the user to long-term memory shared across all threads.",
       inputSchema: z.object({ content: z.string() }),
@@ -181,6 +193,7 @@ ${JSON.stringify(meals.data ?? [])}`;
         fat: z.number(),
       }),
       execute: async (i) => {
+        if (!preferences.data?.health_consent_at) return { ok: false, message: "Autorize os dados de saúde em Privacidade antes de registrar refeições." };
         const { error } = await sb.from("meals").insert({ ...i, calories: Math.round(i.calories), user_id: userId });
         return error ? { ok: false, error: error.message } : { ok: true };
       },
