@@ -1,5 +1,5 @@
 # Zero — roadmap
-- [ ] Show saved expense confirmations with amount, category and date in chat and money entry
+- [x] Show saved expense confirmations with amount, category and date in chat and money entry; actual capture/chat persistence verified
 - [x] Teach installation through Chrome and Safari with an accessible install action
 - [x] Optimize mobile/tablet navigation and chat; remove oversized content; expose every option through menu and visible More shortcut
 - [ ] Improve real chat using landing conversation reference and smooth voice animation
