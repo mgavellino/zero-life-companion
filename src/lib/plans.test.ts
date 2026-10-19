@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PRICES, savingsPct, hasPremiumVoice, hasUnlimitedChat, hasVoiceChat, LIMITS, TRIAL_DAYS, priceId } from "./plans";
+import { highestPlan, PRICES, savingsPct, hasPremiumVoice, hasUnlimitedChat, hasVoiceChat, LIMITS, TRIAL_DAYS, priceId } from "./plans";
 
 describe("plans", () => {
   it("monthly prices are 9,90 / 21,90 / 37,90", () => {
@@ -27,4 +27,8 @@ describe("plans", () => {
     expect(hasPremiumVoice("pro")).toBe(true);
   });
   it("price ids match catalog", () => expect(priceId("pro", "semiannual")).toBe("pro_semiannual"));
+  it("admin grant wins when higher than subscription", () => {
+    expect(highestPlan("essencial", "max")).toBe("max");
+    expect(highestPlan("pro", "essencial")).toBe("pro");
+  });
 });

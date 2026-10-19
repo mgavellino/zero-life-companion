@@ -57,3 +57,13 @@ export function hasUnlimitedChat(plan: PlanId) {
 export function hasVoiceChat(plan: PlanId) {
   return LIMITS[plan].voiceChat;
 }
+
+/** Highest of several plans (subscription vs admin grant). */
+export function highestPlan(...plans: PlanId[]): PlanId {
+  return plans.reduce((a, b) => (PLAN_ORDER.indexOf(b) > PLAN_ORDER.indexOf(a) ? b : a), "free" as PlanId);
+}
+
+/** AI model per plan: Pro/Max get the stronger model. */
+export function modelFor(plan: PlanId) {
+  return plan === "pro" || plan === "max" ? "openai/gpt-oss-120b" : "openai/gpt-oss-20b";
+}

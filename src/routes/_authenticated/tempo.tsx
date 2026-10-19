@@ -22,6 +22,23 @@ function TimePage() {
   const m = useTableMutations("tasks");
   const [f, setF] = useState({ title: "", due_at: "", minutes: "", priority: "media" });
   const pending = data.filter((x) => !x.done);
+  const [fl, setFl] = useState({ q: "", status: "pending", when: "all", pri: "all" });
+  const shown = data.filter((x) => {
+    if (fl.status === "pending" && x.done) return false;
+    if (fl.status === "done" && !x.done) return false;
+    if (fl.pri !== "all" && x.priority !== fl.pri) return false;
+    if (fl.q && !x.title.toLowerCase().includes(fl.q.toLowerCase())) return false;
+    if (fl.when !== "all") {
+      if (!x.due_at) return fl.when === "nodate";
+      if (fl.when === "nodate") return false;
+      const d = new Date(x.due_at), now = new Date();
+      const start = new Date(now); start.setHours(0, 0, 0, 0);
+      const end = new Date(start); end.setDate(end.getDate() + (fl.when === "today" ? 1 : 7));
+      if (fl.when === "late") return d < now && !x.done;
+      return d >= start && d < end;
+    }
+    return true;
+  });
   const load = pending.reduce((a, x) => a + (x.minutes ?? 0), 0);
 
   return (
@@ -53,8 +70,21 @@ function TimePage() {
         </form>
       </Card>
       <div className="space-y-2">
-        {data.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
-        {data.map((x) => (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2">
+          <Input className="h-8 max-w-[180px]" placeholder="Buscar…" value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
+          {([["pending", t("pending")], ["done", t("done")], ["all", "Todas"]] as const).map(([v, l]) => (
+            <Button key={v} size="sm" variant={fl.status === v ? "default" : "ghost"} onClick={() => setFl({ ...fl, status: v })}>{l}</Button>
+          ))}
+          <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.when} onChange={(e) => setFl({ ...fl, when: e.target.value })}>
+            <option value="all">Qualquer data</option><option value="today">Hoje</option><option value="week">Próximos 7 dias</option><option value="late">Atrasadas</option><option value="nodate">Sem data</option>
+          </select>
+          <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.pri} onChange={(e) => setFl({ ...fl, pri: e.target.value })}>
+            <option value="all">Toda prioridade</option><option value="alta">{t("high")}</option><option value="media">{t("medium")}</option><option value="baixa">{t("low")}</option>
+          </select>
+          <span className="ml-auto pr-2 text-sm text-muted-foreground">{shown.length} itens</span>
+        </div>
+        {shown.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
+        {shown.map((x) => (
           <div key={x.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
             <Checkbox checked={x.done} onCheckedChange={(v) => m.update.mutate({ id: x.id, done: !!v })} />
             <span className={`size-2 rounded-full ${PRI[x.priority] ?? PRI["media"]}`} />

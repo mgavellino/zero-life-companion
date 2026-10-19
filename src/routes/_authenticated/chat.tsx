@@ -34,7 +34,7 @@ const chatQuery = {
     if (error) throw error;
     return { threadId, messages: data.map((m) => ({ id: m.id, role: m.role as UIMessage["role"], parts: m.parts as UIMessage["parts"] })) };
   },
-  staleTime: Infinity,
+  staleTime: 0,
 };
 
 export const Route = createFileRoute("/_authenticated/chat")({
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/chat")({
       { property: "og:description", content: "Fale com o Zero, seu assistente pessoal, por voz ou texto." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(chatQuery),
+  loader: ({ context }) => context.queryClient.fetchQuery(chatQuery),
   component: ChatPage,
 });
 
