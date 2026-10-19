@@ -1,46 +1,42 @@
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Trash2, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { today, useRows, useTableMutations } from "@/lib/data";
-import { ACTIVITIES, activityCalories, dailyExpenditure, type EnergyProfile } from "@/lib/planning";
-type Profile = EnergyProfile & { id: string };
-type Activity = { id: string; activity: string; minutes: number; calories: number; occurred_on: string };
+import { dailyExpenditure } from "@/lib/planning";
+import { logActivityAuto } from "@/lib/activity.functions";
+import { Onboarding, preferencesQuery } from "./Onboarding";
+type Activity = { id: string; activity: string; minutes: number; calories: number; calories_low: number | null; calories_high: number | null; personalized: boolean; occurred_on: string };
 export function EnergyBalance({ intake }: { intake: number }) {
-  const { data: profiles = [] } = useRows<Profile>("energy_profiles");
+  const { data: p } = useQuery(preferencesQuery);
   const { data: activities = [] } = useRows<Activity>("energy_activities");
-  const pm = useTableMutations("energy_profiles"), am = useTableMutations("energy_activities");
-  const profile = profiles[0];
-  const [edit, setEdit] = useState(false);
-  const [f, setF] = useState({ weight_kg: "", height_cm: "", age: "", sex: "female" });
-  const [a, setA] = useState({ activity: "walk" as keyof typeof ACTIVITIES, minutes: "30", date: today() });
-  const current = activities.filter(x => x.occurred_on === today());
-  const extra = current.reduce((sum, x) => sum + Number(x.calories), 0);
-  const spent = profile ? dailyExpenditure(profile, extra) : null;
+  const am = useTableMutations("energy_activities"), auto = useServerFn(logActivityAuto), qc = useQueryClient();
+  const [edit, setEdit] = useState(false), [text, setText] = useState(""), [date, setDate] = useState(today()), [busy, setBusy] = useState(false);
+  const extra = activities.filter(x => x.occurred_on === today()).reduce((sum, x) => sum + Number(x.calories), 0);
+  const spent = p?.health_consent_at && p.weight_kg && p.height_cm && p.age && (p.sex === "male" || p.sex === "female") ? dailyExpenditure({ weight_kg: Number(p.weight_kg), height_cm: Number(p.height_cm), age: p.age, sex: p.sex }, extra) : null;
+  if (edit) return <Onboarding onDone={() => setEdit(false)} />;
   return <section className="mb-8 border-y py-6">
-    <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-bold">Balanço energético</h2>{profile && <Button variant="outline" size="sm" onClick={() => { setF({ weight_kg: String(profile.weight_kg), height_cm: String(profile.height_cm), age: String(profile.age), sex: profile.sex }); setEdit(!edit); }}>Editar medidas</Button>}</div>
-    {(!profile || edit) && <form className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5" onSubmit={async e => {
-      e.preventDefault(); const row = { weight_kg: Number(f.weight_kg), height_cm: Number(f.height_cm), age: Number(f.age), sex: f.sex };
-      if (profile) await pm.update.mutateAsync({ id: profile.id, ...row }); else await pm.insert.mutateAsync(row); setEdit(false);
-    }}>
-      <Input aria-label="Peso em kg" placeholder="Peso (kg)" type="number" min="20" max="350" step="0.1" required value={f.weight_kg} onChange={e => setF({ ...f, weight_kg: e.target.value })}/>
-      <Input aria-label="Altura em cm" placeholder="Altura (cm)" type="number" min="80" max="250" required value={f.height_cm} onChange={e => setF({ ...f, height_cm: e.target.value })}/>
-      <Input aria-label="Idade" placeholder="Idade (18+)" type="number" min="18" max="100" required value={f.age} onChange={e => setF({ ...f, age: e.target.value })}/>
-      <select aria-label="Sexo para cálculo metabólico" className="h-9 rounded-md border bg-background px-2 text-sm" value={f.sex} onChange={e => setF({ ...f, sex: e.target.value })}><option value="female">Sexo feminino</option><option value="male">Sexo masculino</option></select>
-      <Button disabled={pm.insert.isPending || pm.update.isPending}>Salvar medidas</Button>
-    </form>}
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-bold">Balanço energético</h2><Button variant="outline" size="sm" onClick={() => setEdit(true)}>Medidas e autorização</Button></div>
     <div className="mb-4 grid gap-4 sm:grid-cols-3">
       <div><p className="text-sm text-muted-foreground">Consumo hoje</p><p className="text-2xl font-bold">{intake} kcal</p></div>
-      <div><p className="text-sm text-muted-foreground">Gasto estimado hoje</p><p className="text-2xl font-bold">{spent === null ? "—" : `${spent} kcal`}</p></div>
-      <div><p className="text-sm text-muted-foreground">Consumo − gasto</p><p className="text-2xl font-bold">{spent === null ? "—" : `${intake - spent} kcal`}</p></div>
+      <div><p className="text-sm text-muted-foreground">{spent === null ? "Atividades hoje · estimativa" : "Gasto total hoje · estimativa"}</p><p className="text-2xl font-bold">{spent === null ? extra : spent} kcal</p></div>
+      <div><p className="text-sm text-muted-foreground">Consumo − gasto total</p><p className="text-2xl font-bold">{spent === null ? "—" : `${intake - spent} kcal`}</p></div>
     </div>
-    <p className="mb-4 text-xs text-muted-foreground">Estimativa para adultos: metabolismo de repouso × 1,2 + atividade adicional. Não é uma medição nem recomendação clínica; o saldo muda ao registrar refeições.</p>
-    <form className="mb-3 grid gap-2 sm:grid-cols-[1fr_110px_150px_auto]" onSubmit={async e => { e.preventDefault(); if (!profile) return; await am.insert.mutateAsync({ activity: ACTIVITIES[a.activity].label, minutes: Number(a.minutes), calories: activityCalories(ACTIVITIES[a.activity].met, Number(profile.weight_kg), Number(a.minutes)), occurred_on: a.date }); }}>
-      <select aria-label="Atividade" className="h-9 rounded-md border bg-background px-2 text-sm" value={a.activity} onChange={e => setA({ ...a, activity: e.target.value as keyof typeof ACTIVITIES })}>{Object.entries(ACTIVITIES).map(([id, value]) => <option key={id} value={id}>{value.label}</option>)}</select>
-      <Input aria-label="Duração da atividade em minutos" type="number" min="1" max="1440" required value={a.minutes} onChange={e => setA({ ...a, minutes: e.target.value })}/>
-      <Input aria-label="Data da atividade" type="date" required value={a.date} onChange={e => setA({ ...a, date: e.target.value })}/>
-      <Button disabled={!profile || am.insert.isPending}>Registrar atividade</Button>
+    <p className="mb-4 text-xs text-muted-foreground">{spent === null ? "Sem medidas completas, mostramos somente o gasto das atividades, não o metabolismo basal. Sem peso, a faixa é genérica." : "Metabolismo de repouso × 1,2 + atividade adicional, sem contar repouso duas vezes."} São aproximações, não medições ou recomendações médicas.</p>
+    {!p?.health_consent_at && <p className="mb-4 text-sm text-muted-foreground">O registro de alimentação e atividades precisa da sua autorização de saúde. Ela é opcional.</p>}
+    <form className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_150px_auto]" onSubmit={async e => {
+      e.preventDefault(); if (!text.trim()) return; setBusy(true);
+      try { const result = await auto({ data: { text, date } }); setText(""); await qc.invalidateQueries({ queryKey: ["energy_activities"] }); toast.success(`${result.activity} salva · cerca de ${Math.round(result.calories)} kcal adicionais.`); }
+      catch (error) { toast.error(error instanceof Error && !/[{}<>]/.test(error.message) ? error.message : "Não foi possível registrar a atividade."); }
+      finally { setBusy(false); }
+    }}>
+      <Input aria-label="Atividade realizada" placeholder="Corri por 15 minutos" maxLength={500} required value={text} onChange={e => setText(e.target.value)} />
+      <Input aria-label="Data da atividade" type="date" required value={date} onChange={e => setDate(e.target.value)} />
+      <Button disabled={!p?.health_consent_at || busy}><Sparkles className="size-4" />{busy ? "Calculando…" : "Registrar atividade"}</Button>
     </form>
-    {activities.map(x => <div key={x.id} className="flex flex-wrap items-center gap-2 border-b py-2 text-sm"><span className="flex-1">{x.activity} · {x.minutes} min · {x.occurred_on}</span><span>{x.calories} kcal adicionais</span><Button aria-label={`Excluir atividade ${x.activity}`} variant="ghost" size="icon" onClick={() => am.remove.mutate(x.id)}><Trash2 className="size-4"/></Button></div>)}
+    {activities.map(x => <div key={x.id} className="flex flex-wrap items-center gap-2 border-b py-3 text-sm"><div className="min-w-0 flex-1"><p>{x.activity} · {x.minutes} min · {x.occurred_on}</p><p className="text-xs text-muted-foreground">{x.personalized ? "Estimativa com seu peso" : "Faixa genérica · sem peso informado"}</p></div><span>{x.calories_low !== null && x.calories_high !== null ? `${Math.round(x.calories_low)}–${Math.round(x.calories_high)}` : Math.round(x.calories)} kcal adicionais</span><Button aria-label={`Excluir atividade ${x.activity}`} variant="ghost" size="icon" onClick={() => am.remove.mutate(x.id)}><Trash2 className="size-4" /></Button></div>)}
   </section>;
 }

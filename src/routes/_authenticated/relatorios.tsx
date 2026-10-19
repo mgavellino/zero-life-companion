@@ -19,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
       { name: "description", content: "Relatórios avançados de dinheiro, tempo e corpo, e planejamento semanal feito pelo assistente." },
       { property: "og:title", content: "Relatórios — Zero" },
       { property: "og:description", content: "Relatórios avançados e planejamento semanal do Zero." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Reports,

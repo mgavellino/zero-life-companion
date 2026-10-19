@@ -13,6 +13,8 @@ export const logMealAuto = createServerFn({ method: "POST" })
     meal_type: ["cafe", "almoco", "lanche", "jantar"].includes(i.meal_type) ? i.meal_type : "almoco",
   }))
   .handler(async ({ data, context }) => {
+    const { data: preferences } = await context.supabase.from("user_preferences").select("health_consent_at").eq("user_id", context.userId).maybeSingle();
+    if (!preferences?.health_consent_at) throw new Error("Autorize o uso dos dados de saúde em Privacidade para registrar refeições.");
     const key = process.env["GROQ_API_KEY"];
     if (!key) throw new Error("GROQ_API_KEY ausente");
     const cap = LIMITS[await getUserPlan(context.supabase as never, context.userId)].mealsPerDay;

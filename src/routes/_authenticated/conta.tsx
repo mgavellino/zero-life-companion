@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/use-subscription";
 import { createPortalSession } from "@/utils/payments.functions";
 import { getPaddleEnvironment } from "@/lib/paddle";
+import { PrivacyControls } from "@/components/PrivacyControls";
 
 export const Route = createFileRoute("/_authenticated/conta")({
   head: () => ({
@@ -16,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/conta")({
       { name: "description", content: "Gerencie sua assinatura do Zero." },
       { property: "og:title", content: "Meu plano — Zero" },
       { property: "og:description", content: "Gerencie sua assinatura do Zero." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Conta,
@@ -64,6 +67,7 @@ function Conta() {
         )}
       </Card>
       <PricingTable currentPlan={plan} />
+      <PrivacyControls />
     </Page>
   );
 }

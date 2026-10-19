@@ -39,28 +39,40 @@ export type Database = {
         Row: {
           activity: string
           calories: number
+          calories_high: number | null
+          calories_low: number | null
           created_at: string
+          estimate_note: string | null
           id: string
           minutes: number
           occurred_on: string
+          personalized: boolean
           user_id: string
         }
         Insert: {
           activity: string
           calories: number
+          calories_high?: number | null
+          calories_low?: number | null
           created_at?: string
+          estimate_note?: string | null
           id?: string
           minutes: number
           occurred_on?: string
+          personalized?: boolean
           user_id?: string
         }
         Update: {
           activity?: string
           calories?: number
+          calories_high?: number | null
+          calories_low?: number | null
           created_at?: string
+          estimate_note?: string | null
           id?: string
           minutes?: number
           occurred_on?: string
+          personalized?: boolean
           user_id?: string
         }
         Relationships: []
@@ -492,6 +504,60 @@ export type Database = {
           kind?: string
           occurred_on?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          age: number | null
+          created_at: string
+          currency: string
+          display_name: string | null
+          goals: string[]
+          health_consent_at: string | null
+          height_cm: number | null
+          id: string
+          language: string
+          onboarding_completed_at: string | null
+          privacy_version: string
+          sex: string | null
+          timezone: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          currency?: string
+          display_name?: string | null
+          goals?: string[]
+          health_consent_at?: string | null
+          height_cm?: number | null
+          id?: string
+          language?: string
+          onboarding_completed_at?: string | null
+          privacy_version?: string
+          sex?: string | null
+          timezone?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          currency?: string
+          display_name?: string | null
+          goals?: string[]
+          health_consent_at?: string | null
+          height_cm?: number | null
+          id?: string
+          language?: string
+          onboarding_completed_at?: string | null
+          privacy_version?: string
+          sex?: string | null
+          timezone?: string
+          user_id?: string
+          weight_kg?: number | null
         }
         Relationships: []
       }

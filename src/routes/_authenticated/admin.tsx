@@ -16,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "description", content: "Painel administrativo do Zero." },
       { property: "og:title", content: "Admin — Zero" },
       { property: "og:description", content: "Painel administrativo do Zero." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -46,12 +48,15 @@ function Admin() {
     queryKey: ["admin", env],
     queryFn: async () => {
       const [p, s, r, g] = await Promise.all([
-        supabase.from("profiles").select("id,display_name,created_at").order("created_at", { ascending: false }).limit(500),
+        supabase.from("subscriptions").select("user_id,created_at").eq("environment", env).order("created_at", { ascending: false }).limit(500),
         supabase.from("subscriptions").select("user_id,product_id,price_id,status,current_period_end").eq("environment", env).order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id,role"),
         supabase.from("plan_grants").select("id,user_id,plan,expires_at,note,created_at").is("revoked_at", null).order("created_at", { ascending: false }),
       ]);
-      return { users: (p.data ?? []) as Row[], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as G[] };
+      const accounts = new Map<string, Row>();
+      for (const row of p.data ?? []) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at ?? "" });
+      for (const row of g.data ?? []) if (!accounts.has(row.user_id)) accounts.set(row.user_id, { id: row.user_id, display_name: null, created_at: row.created_at });
+      return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as G[] };
     },
   });
   const users = data?.users ?? [];
@@ -192,13 +197,13 @@ function Admin() {
                     </td>
                     <td className="capitalize">
                       {s && ["active", "trialing", "past_due"].includes(s.status) ? planFromProduct(s.product_id) : "free"}
-                      {grantOf.get(u.id) && <span className="ml-1 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">+{grantOf.get(u.id)!.plan}</span>}
+                      {grantOf.get(u.id) && <span className="ml-1 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">+{grantOf.get(u.id)?.plan}</span>}
                     </td>
                     <td>{s?.status ?? "—"}</td>
                     <td>{new Date(u.created_at).toLocaleDateString()}</td>
                     <td className="space-x-1 p-4 text-right">
                       <Button size="sm" variant="outline" onClick={() => setGrant({ to: u.id, name: u.display_name ?? "usuário", plan: "pro", days: "30", note: "" })}>Dar plano</Button>
-                      {grantOf.get(u.id) && <Button size="sm" variant="ghost" onClick={() => revoke(grantOf.get(u.id)!.id)}>Tirar plano</Button>}
+                      {grantOf.get(u.id) && <Button size="sm" variant="ghost" onClick={() => { const activeGrant = grantOf.get(u.id); if (activeGrant) void revoke(activeGrant.id); }}>Tirar plano</Button>}
                       <Button size="sm" variant="ghost" onClick={() => setMsg({ to: u.id, title: "", body: "" })}>Notificar</Button>
                       <Button size="sm" variant="ghost" onClick={() => toggleAdmin(u.id)}>{admins.has(u.id) ? "Remover admin" : "Tornar admin"}</Button>
                     </td>

@@ -16,6 +16,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Entre ou crie sua conta no Zero." },
       { property: "og:title", content: "Entrar — Zero" },
       { property: "og:description", content: "Entre ou crie sua conta no Zero." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -47,7 +49,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else if (mode === "up") {
-        const { error, data } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/chat" } });
+        const { error, data } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/auth" } });
         if (error) throw error;
         if (!data.session) toast.success(t("checkEmail"));
       } else {
