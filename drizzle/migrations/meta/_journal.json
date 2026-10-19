@@ -22,6 +22,13 @@
       "when": 1792421090034,
       "tag": "0002_plan_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792421709023,
+      "tag": "0003_habits_energy_financial_goals",
+      "breakpoints": true
     }
   ]
 }

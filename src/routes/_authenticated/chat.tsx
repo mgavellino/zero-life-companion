@@ -11,7 +11,7 @@ import { Conversation, ConversationContent, ConversationScrollButton } from "@/c
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "@/components/ai-elements/tool";
+import { actionLabel, customerText } from "@/lib/chat-presentation";
 import { Button } from "@/components/ui/button";
 import { ZeroRing } from "@/components/Logo";
 import { speak, stopSpeaking } from "@/lib/speak";
@@ -44,6 +44,8 @@ export const Route = createFileRoute("/_authenticated/chat")({
       { name: "description", content: "Fale com o Zero, seu assistente pessoal, por voz ou texto." },
       { property: "og:title", content: "Chat de voz — Zero" },
       { property: "og:description", content: "Fale com o Zero, seu assistente pessoal, por voz ou texto." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: ({ context }) => context.queryClient.fetchQuery(chatQuery),
@@ -57,7 +59,7 @@ const HIDDEN_TOOLS = new Set(["suggest_replies"]);
 type SR = { lang: string; interimResults: boolean; continuous: boolean; start: () => void; stop: () => void; onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void) | null; onend: (() => void) | null; onerror: ((e: { error: string }) => void) | null };
 
 function plainText(m: UIMessage) {
-  return m.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ").replace(/[*#_`>|]/g, " ").replace(/\s+/g, " ").trim();
+  return customerText(m.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ")).replace(/[*#_`>|]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function quickReplies(m: UIMessage | undefined): string[] {
@@ -65,7 +67,7 @@ function quickReplies(m: UIMessage | undefined): string[] {
   for (const p of m.parts) {
     if (p.type === "tool-suggest_replies") {
       const o = (p as unknown as { output?: { options?: string[] } }).output;
-      if (o?.options) return o.options;
+      if (o?.options) return o.options.map(customerText).filter(Boolean);
     }
   }
   return [];
@@ -120,7 +122,7 @@ function ChatPage() {
       const m = e.message || "";
       setVoice("idle");
       if (m.includes("LIMIT")) toast.error("Você atingiu o limite diário de mensagens do seu plano.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } });
-      else toast.error(m.includes("429") ? "Muitas requisições, tente já já." : m || "Erro");
+      else toast.error(m.includes("429") ? "Muitas solicitações, tente já já." : "Não consegui responder agora. Tente novamente em instantes.");
     },
     onFinish: async ({ message }) => {
       qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "chat" });
@@ -165,15 +167,17 @@ function ChatPage() {
     rec.onresult = (e) => {
       let tmp = "";
       for (let i = 0; i < e.results.length; i++) {
-        const r = e.results[i]!;
-        if (r.isFinal) finalText += r[0]!.transcript;
-        else tmp += r[0]!.transcript;
+        const r = e.results[i];
+        const transcript = r?.[0]?.transcript;
+        if (!r || !transcript) continue;
+        if (r.isFinal) finalText += transcript;
+        else tmp += transcript;
       }
       setInterim(finalText + tmp);
     };
     rec.onerror = (e) => {
       if (e.error === "not-allowed") toast.error("Permita o microfone para falar com o Zero.");
-      else if (e.error !== "no-speech" && e.error !== "aborted") toast.error(e.error);
+      else if (e.error !== "no-speech" && e.error !== "aborted") toast.error("Não consegui ouvir. Tente novamente.");
     };
     rec.onend = () => {
       recRef.current = null;
@@ -283,22 +287,14 @@ function ChatPage() {
                 <Message from={m.role} key={m.id}>
                   <MessageContent className={m.role === "user" ? "group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground" : ""}>
                     {m.parts.map((p, i) => {
-                      if (p.type === "text") return <MessageResponse key={i}>{p.text}</MessageResponse>;
+                      if (p.type === "text") return <MessageResponse key={i}>{customerText(p.text)}</MessageResponse>;
                       if (p.type.startsWith("tool-")) {
                         const name = p.type.slice(5);
                         if (HIDDEN_TOOLS.has(name)) return null;
-                        const tp = p as unknown as { type: string; state: never; input?: unknown; output?: unknown; errorText?: string };
+                        const tp = p as unknown as { state: string; output?: unknown };
                         const Icon = TOOL_ICONS[name] ?? CheckCircle2;
-                        return (
-                          <Tool key={i} defaultOpen={false}>
-                            <ToolHeader type={tp.type as never} state={tp.state} title={name.replace("_", " ")} />
-                            <ToolContent>
-                              <div className="flex items-center gap-2 px-4 pt-2 text-xs text-muted-foreground"><Icon className="size-3.5" /> Zero</div>
-                              <ToolInput input={tp.input} />
-                              <ToolOutput output={tp.output as never} errorText={tp.errorText} />
-                            </ToolContent>
-                          </Tool>
-                        );
+                        const label = actionLabel(name, tp.state, tp.output);
+                        return label ? <div key={i} className="flex items-center gap-2 py-2 text-sm text-muted-foreground"><Icon className="size-4"/>{label}</div> : null;
                       }
                       return null;
                     })}

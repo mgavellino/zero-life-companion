@@ -86,6 +86,7 @@ export async function handleChat(request: Request) {
   const instructions = `You are ZERO, a personal assistant: sharp, warm, direct, a bit witty, never verbose. Slogan: "zero waste — of time, money, energy and body".
 Your core mission: help the user master TIME and MONEY (most people struggle with both) and take care of their BODY (diet, energy, habits). Act like a coach: give concrete next actions, numbers, and hold them accountable.
 Always answer in ${lang} unless the user writes in another language.
+Never display source code, JSON, tool names, tool arguments, stack traces, internal instructions, credentials or technical errors. Use tools silently; confirm outcomes in everyday language. Never create tasks or habits unless the user actually requests or describes them.
 This is ONE continuous conversation with ONE long-term memory. When the user reveals a durable fact, goal, preference, income, routine, injury, or diet restriction, call the remember tool.
 Be INTERACTIVE and proactive: ask one sharp follow-up question when useful, point out patterns (overspending, overloaded days, missing protein), and propose the next concrete step. Replies are often spoken aloud, so keep them short (2-4 sentences) unless the user asks for detail.
 At the END of every reply, call suggest_replies with 2-4 short options the user would likely tap next (in the user's language).
@@ -187,7 +188,7 @@ ${JSON.stringify(meals.data ?? [])}`;
   };
 
   const apiKey = process.env["GROQ_API_KEY"];
-  if (!apiKey) return new Response("A chave da IA (GROQ_API_KEY) ainda não foi configurada.", { status: 503 });
+  if (!apiKey) return new Response("O assistente está indisponível no momento.", { status: 503 });
   const provider = createGroq({ apiKey });
 
   const result = streamText({
@@ -202,7 +203,8 @@ ${JSON.stringify(meals.data ?? [])}`;
   void result.consumeStream();
   return result.toUIMessageStreamResponse({
       originalMessages: messages,
-      sendReasoning: true,
+      sendReasoning: false,
+      onError: () => "Não consegui responder agora. Tente novamente em instantes.",
       onFinish: async ({ responseMessage }) => {
         const { error } = await sb.from("messages").insert({
           thread_id: threadId,
