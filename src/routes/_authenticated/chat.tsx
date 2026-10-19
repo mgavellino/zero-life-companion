@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/chat")({
       { property: "og:description", content: "Fale com o Zero, seu assistente pessoal, por voz ou texto." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(chatQuery),
+  loader: ({ context }) => context.queryClient.fetchQuery(chatQuery),
   component: ChatPage,
 });
 
