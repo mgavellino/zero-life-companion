@@ -57,7 +57,7 @@ function TimePage() {
         {data.map((x) => (
           <div key={x.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
             <Checkbox checked={x.done} onCheckedChange={(v) => m.update.mutate({ id: x.id, done: !!v })} />
-            <span className={`size-2 rounded-full ${PRI[x.priority] ?? PRI.media}`} />
+            <span className={`size-2 rounded-full ${PRI[x.priority] ?? PRI["media"]}`} />
             <span className={`flex-1 ${x.done ? "text-muted-foreground line-through" : ""}`}>{x.title}</span>
             {x.minutes && <span className="text-xs text-muted-foreground">{x.minutes} min</span>}
             {x.due_at && <span className="text-xs text-muted-foreground">{new Date(x.due_at).toLocaleString(i18n.language, { dateStyle: "short", timeStyle: "short" })}</span>}
