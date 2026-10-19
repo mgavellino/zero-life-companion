@@ -23,3 +23,7 @@
 - [ ] Páginas de Termos, Privacidade e Reembolso (aguardando nome legal da empresa) — necessário para receber pagamentos reais
 - [ ] Notificações por e-mail (aguardando domínio próprio)
 - [ ] Parcelamento no semestral/anual (verificar suporte da plataforma de pagamento)
+- [ ] Benefícios reais: relatórios + planejamento semanal (Max), modelo/memória por plano
+- [ ] Registro rápido de gastos estilo Tony (uma frase → vários lançamentos)
+- [ ] Admin: conceder/revogar planos, financeiro (receita, assinaturas)
+- [ ] Integração Google Agenda por usuário
