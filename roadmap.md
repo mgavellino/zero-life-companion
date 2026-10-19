@@ -55,3 +55,6 @@
 - [x] Metas e projeções financeiras
 - [ ] Conexão bancária gratuita via Open Finance — bloqueada: nenhuma opção gratuita contínua em produção confirmada; provedores exigem contrato pago
 - [x] Impedir conteúdo técnico e código visível no chat
+
+## Pendente
+- [ ] Unidades de medida nas Configuracoes: peso (kg/lb), distancia (km/mi), relogio 12h/24h; aplicar no relogio, dieta e corpo
