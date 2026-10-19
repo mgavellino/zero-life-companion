@@ -6,7 +6,6 @@ import { Bell, Loader2, Mic, Send, Undo2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { quickCapture, type CaptureItem } from "@/lib/capture.functions";
 import { Button } from "@/components/ui/button";
-import { money } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { TransactionConfirmation } from "@/components/TransactionConfirmation";
 
@@ -92,25 +91,11 @@ export function QuickCapture({ className }: { className?: string }) {
           {items.map((it) => (
             it.type === "transaction" ? <li key={it.id}><TransactionConfirmation transaction={it} action={<Button type="button" variant="ghost" size="icon-sm" onClick={() => void undo(it)} aria-label="Desfazer registro" title="Desfazer registro"><Undo2 className="size-4" /></Button>} /></li> :
             <li key={it.id} className="flex items-center gap-3 rounded-2xl bg-muted/60 px-3 py-2 text-sm animate-in fade-in slide-in-from-top-1">
-              <span className="grid size-9 place-items-center rounded-full bg-background text-lg">{it.type === "task" ? <Bell className="size-4" /> : it.emoji}</span>
+              <span className="grid size-9 place-items-center rounded-full bg-background text-lg"><Bell className="size-4" /></span>
               <div className="min-w-0 flex-1">
-                {it.type === "transaction" ? (
-                  <>
-                    <p className="truncate font-medium">{it.description ?? it.category}</p>
-                    <p className="text-xs text-muted-foreground">{it.category} · {new Date(it.occurred_on + "T12:00").toLocaleDateString("pt-BR")}</p>
-                  </>
-                ) : (
-                  <>
                     <p className="truncate font-medium">{it.title}</p>
                     <p className="text-xs text-muted-foreground">Lembrete {it.due_at ? new Date(it.due_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "sem data"}</p>
-                  </>
-                )}
               </div>
-              {it.type === "transaction" && (
-                <span className={cn("font-display font-semibold", it.kind === "income" ? "text-money" : "text-destructive")}>
-                  {it.kind === "income" ? "+" : "−"}{money(it.amount)}
-                </span>
-              )}
               <Button type="button" variant="ghost" size="icon-sm" onClick={() => void undo(it)} aria-label="Desfazer" title="Desfazer">
                 <Undo2 className="size-4" />
               </Button>

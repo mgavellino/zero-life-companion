@@ -178,8 +178,8 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         occurred_on: z.string().nullable().describe("YYYY-MM-DD or null for today"),
       }),
       execute: async (i) => {
-        const { error } = await sb.from("transactions").insert({ ...i, category:automaticCategory(i.description ?? "",i.category), occurred_on: i.occurred_on ?? today, user_id: userId });
-        return error ? { ok: false, error: error.message } : { ok: true };
+        const { data: transaction, error } = await sb.from("transactions").insert({ ...i, category:automaticCategory(i.description ?? "",i.category), occurred_on: i.occurred_on ?? today, user_id: userId }).select("kind,amount,category,description,occurred_on").single();
+        return error ? { ok: false } : { ok: true, transaction };
       },
     }),
     set_budget: tool({

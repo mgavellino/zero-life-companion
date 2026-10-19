@@ -23,6 +23,7 @@
 - Activity logging uses one authenticated server-only Groq estimator shared by chat and diet; this keeps consent, ownership and uncertainty rules consistent.
 - Personal data exports use the caller's RLS client, parent-child policies verify ownership, and identity transitions clear query caches to prevent cross-account content reuse.
 - Chat shows only customer-facing prose and action confirmations; raw tool inputs, outputs, reasoning and provider errors must never be rendered.
+- Financial confirmations share a receipt view and render only validated saved fields after successful persistence; this prevents premature success messages and raw tool output exposure.
 - Habits use stable definitions plus date-scoped completion rows, never generated daily tasks; this preserves an empty initial agenda and completion history.
 - Energy estimates and financial projections use tested pure functions in `src/lib/planning.ts`; persistent inputs stay in owner-scoped tables so results follow saved user data.
 - AI chat runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` using the user's own free Groq key (GROQ_API_KEY); never route AI through the Lovable AI Gateway (owner requirement).
