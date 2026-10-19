@@ -104,6 +104,27 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_oauth_attempts: {
+        Row: {
+          expires_at: string
+          id: string
+          nonce_hash: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string
+          id?: string
+          nonce_hash: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+          nonce_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       energy_activities: {
         Row: {
           activity: string

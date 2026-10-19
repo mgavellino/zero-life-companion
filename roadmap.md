@@ -1,7 +1,8 @@
 # Zero — roadmap
-- [ ] Optimize mobile/tablet navigation and chat; remove horizontal scrolling across app screens
+- [x] Teach installation through Chrome and Safari with an accessible install action
+- [x] Optimize mobile/tablet navigation and chat; remove oversized content; expose every option through menu and visible More shortcut
 - [ ] Improve real chat using landing conversation reference and smooth voice animation
-- [ ] Make clock visible throughout the signed-in app
+- [x] Make clock visible throughout the signed-in app
 - [ ] Easier provider-free background push — investigate and configure where possible
 - [x] Monthly bills, atomic payment status and deduplicated hourly due-date reminders; UI and database flow tested
 - [x] Automatic categories across manual entry, quick capture and chat
@@ -9,11 +10,11 @@
 - [x] Hide empty metrics and projections in Tempo, Dieta and Dinheiro
 - [x] Integrated clock, saved time tracking and daily category percentages
 - [x] Explain isolation, managed daily backups and shared Groq quotas
-- [ ] Word, Excel and Google Docs integrations — workspace OAuth clients missing; each user must authorize their own account
+- [x] Remove Word, Excel and document integrations from scope at user's request
 - [x] Onboarding completo com medidas opcionais e consentimento de saúde
 - [x] Atividades por texto e chat com estimativa por IA
 - [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)
-- [ ] Push no celular com app fechado — bloqueado: conexão Firebase recusada; versão nativa também requer credenciais de Android/iOS
+- [ ] Verify closed-app Web Push delivery on HTTPS with a real device; native push additionally requires Android/iOS configuration
 - [ ] Versão nativa — depende de projeto nativo e contas das lojas; o atual é web
 - [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
 - [x] Tempo, Dinheiro
@@ -42,7 +43,7 @@
 - [x] Benefícios reais: relatórios + planejamento semanal (Max), modelo/memória por plano
 - [x] Registro rápido de gastos estilo Tony (uma frase → vários lançamentos)
 - [x] Admin: conceder/revogar planos, financeiro (receita, assinaturas)
-- [ ] Integração Google Agenda por usuário — bloqueada: conexão recusada e cliente Google OAuth não configurado
+- [ ] Integração Google Agenda por usuário — tela e envio prontos; aguardando cliente Google configurado no workspace
 - [x] Corrigir chat não salvando histórico
 - [x] Filtros no financeiro e na agenda (tempo)
 - [x] Tempo vazio por padrão e hábitos diários

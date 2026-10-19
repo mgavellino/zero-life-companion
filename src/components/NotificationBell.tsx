@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 type N = { id: string; title: string; body: string | null; created_at: string; read_at: string | null; link: string | null };
 
@@ -106,11 +107,7 @@ export function NotificationBell() {
             </button>
           )}
         </div>
-        {perm !== "granted" && (
-          <button onClick={enablePush} className="w-full border-b bg-muted px-4 py-2 text-left text-xs hover:bg-accent">
-            Ativar avisos no navegador →
-          </button>
-        )}
+        <Button asChild variant="ghost" className="h-auto w-full justify-start whitespace-normal rounded-none border-b px-4 py-3 text-xs"><Link to="/conta">Configurar avisos com o app fechado →</Link></Button>
         <div className="max-h-80 overflow-y-auto">
           {data.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">Nada por aqui ainda.</p>}
           {data.map((n) => (

@@ -57,7 +57,7 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-4">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
         <div className="flex flex-col rounded-3xl border bg-card p-6">
           <p className="font-display text-lg font-semibold">Grátis</p>
           <p className="text-sm text-muted-foreground">Para experimentar</p>
@@ -81,7 +81,7 @@ export function PricingTable({ currentPlan }: { currentPlan?: PlanId }) {
               {p.featured && <span className="absolute -top-3 left-6 rounded-full bg-signal px-3 py-1 text-xs font-bold text-signal-foreground">Mais escolhido</span>}
               <p className="font-display text-lg font-semibold">{p.name}</p>
               <p className={cn("text-sm", p.featured ? "opacity-70" : "text-muted-foreground")}>{p.tag}</p>
-              <div className="mt-6 flex items-baseline gap-2">
+              <div className="mt-6 flex min-w-0 flex-wrap items-baseline gap-2">
                 <p className="font-display text-3xl font-semibold xl:text-4xl">{brl(perMonth(p.id, cycle))}</p>
                 <span className="text-sm opacity-60">/mês</span>
               </div>

@@ -226,10 +226,10 @@ function ChatPage() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-end gap-1 border-b px-4 py-2">
         <div className="inline-flex rounded-full border bg-card p-0.5 text-xs">
-          <button onClick={() => (voiceAllowed ? setMode("voice") : toast("Chat de voz a partir do plano Essencial.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
+          <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? setMode("voice") : toast("Chat de voz a partir do plano Essencial.", { action: { label: "Ver planos", onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
             <AudioLines className="size-3.5" /> Voz
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost" size="sm"
             onClick={() => {
               recRef.current?.stop();
               setHandsFree(false);
@@ -238,56 +238,31 @@ function ChatPage() {
             className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
           >
             <Keyboard className="size-3.5" /> Texto
-          </button>
+          </Button>
         </div>
       </div>
 
-      {mode === "voice" ? (
-        <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 pb-10">
-          <div className="pointer-events-none absolute inset-0 zero-aura" />
-          <button
-            onClick={toggleVoice}
-            aria-label={voiceLabel[voice]}
-            className={cn("voice-orb relative grid size-56 place-items-center rounded-full md:size-72", `is-${voice}`)}
-          >
-            <ZeroRing className="size-24 md:size-28" />
-          </button>
-          <p className="mt-10 font-display text-sm uppercase tracking-[0.25em] text-muted-foreground">{voiceLabel[voice]}</p>
-          <p className="mt-4 min-h-[3.5rem] max-w-2xl text-center text-xl font-medium md:text-2xl">
-            {voice === "listening" ? interim || "…" : voice === "thinking" ? <Shimmer>{t("thinking")}</Shimmer> : lastAssistant ? plainText(lastAssistant).slice(0, 280) : t("emptyChat")}
-          </p>
-          <div className="mt-8 flex max-w-2xl flex-wrap justify-center gap-2">
-            {(replies.length ? replies : messages.length === 0 ? suggestions : []).map((s) => (
-              <button key={s} onClick={() => send(s)} className="rounded-full border bg-card/80 px-4 py-2 text-sm backdrop-blur hover:border-ring">
-                {s}
-              </button>
-            ))}
-          </div>
-          {handsFree && (
-            <button onClick={() => setHandsFree(false)} className="mt-6 text-xs text-muted-foreground underline">
-              Pausar conversa contínua
-            </button>
-          )}
-          <Link to="/planos" className="mt-4 text-xs text-muted-foreground hover:text-foreground">
-            Voz premium nos planos Pro e Max
-          </Link>
+      {mode === "voice" && (
+        <div className="flex shrink-0 items-center justify-center gap-4 border-b bg-card/50 px-4 py-3">
+          <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} className={cn("voice-orb relative grid size-16 shrink-0 place-items-center rounded-full p-0", `is-${voice}`)}><ZeroRing className="size-7" /></Button>
+          <div className="min-w-0"><p className="text-sm font-medium">{voiceLabel[voice]}</p><p className="mt-1 max-w-lg break-words text-xs text-muted-foreground">{voice === "listening" ? interim || "…" : "Zero · assistente pessoal"}</p>{handsFree && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => {setHandsFree(false); recRef.current?.stop();}}>Pausar conversa contínua</Button>}</div>
         </div>
-      ) : (
-        <>
+      )}
+      <>
           <Conversation className="flex-1">
-            <ConversationContent className="mx-auto w-full max-w-3xl">
+            <ConversationContent className="mx-auto w-full min-w-0 max-w-2xl px-4 py-6">
               {messages.length === 0 && (
-                <div className="flex flex-col items-center pt-16 text-center">
+                <div className="flex flex-col items-center py-8 text-center">
                   <ZeroRing className="size-16" />
-                  <h2 className="mt-6 text-3xl font-bold">{t("emptyChat")}</h2>
+                  <h2 className="mt-6 text-xl font-bold sm:text-2xl">{t("emptyChat")}</h2>
                   <p className="mt-2 text-sm text-muted-foreground">{t("slogan")}</p>
                 </div>
               )}
               {messages.map((m) => (
                 <Message from={m.role} key={m.id}>
-                  <MessageContent className={m.role === "user" ? "group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground" : ""}>
+                  <MessageContent className={m.role === "user" ? "max-w-[90%] break-words rounded-2xl rounded-br-sm bg-ink px-4 py-3 text-sm text-background dark:bg-secondary dark:text-foreground" : "max-w-full break-words rounded-2xl rounded-bl-sm border bg-card px-4 py-3 text-sm"}>
                     {m.parts.map((p, i) => {
-                      if (p.type === "text") return <MessageResponse key={i}>{customerText(p.text)}</MessageResponse>;
+                      if (p.type === "text") return <MessageResponse key={i} className="text-sm leading-relaxed">{customerText(p.text)}</MessageResponse>;
                       if (p.type.startsWith("tool-")) {
                         const name = p.type.slice(5);
                         if (HIDDEN_TOOLS.has(name)) return null;
@@ -305,12 +280,12 @@ function ChatPage() {
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
-          <div className="mx-auto w-full max-w-3xl p-4">
+          <div className="mx-auto w-full min-w-0 max-w-2xl shrink-0 p-3 sm:p-4">
             <div className="mb-2 flex flex-wrap gap-2">
               {(replies.length ? replies : messages.length === 0 ? suggestions : []).map((s) => (
-                <button key={s} onClick={() => send(s)} className="rounded-full border bg-card px-3 py-1.5 text-xs hover:border-ring">
+                <Button variant="outline" size="sm" key={s} onClick={() => send(s)} className="h-auto max-w-full whitespace-normal rounded-full px-3 py-2 text-xs">
                   {s}
-                </button>
+                </Button>
               ))}
             </div>
             <PromptInput onSubmit={(msg) => send(msg.text ?? "")}>
@@ -339,7 +314,6 @@ function ChatPage() {
             </PromptInput>
           </div>
         </>
-      )}
     </div>
   );
 }

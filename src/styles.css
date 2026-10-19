@@ -208,3 +208,17 @@
 @media (prefers-reduced-motion: reduce) {
   .voice-orb, .voice-orb::before, .voice-orb::after { animation: none !important; transition: none; }
 }
+
+.app-shell input, .app-shell select, .app-shell textarea { min-width: 0; max-width: 100%; }
+.app-shell input[type="date"], .app-shell input[type="datetime-local"], .app-shell input[type="month"] { width: 100%; min-width: 0; }
+@media (max-width: 1023px) {
+  .app-shell form { grid-template-columns: minmax(0, 1fr); }
+  .app-shell form > * { min-width: 0; max-width: 100%; }
+  .app-shell table { display: block; }
+  .app-shell table thead { display: none; }
+  .app-shell table tbody { display: grid; gap: 12px; }
+  .app-shell table tr { display: grid; gap: 8px; padding: 16px; border-bottom: 1px solid var(--border); }
+  .app-shell table td { display: block; text-align: left; padding: 0; min-width: 0; overflow-wrap: anywhere; }
+  .app-shell table td:last-child { display: flex; flex-wrap: wrap; gap: 8px; }
+  .app-shell [class*="overflow-x-auto"] { overflow-x: visible; }
+}
