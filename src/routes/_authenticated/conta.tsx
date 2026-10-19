@@ -33,7 +33,7 @@ const LABEL = { essencial: "Essencial", pro: "Pro", max: "Max" } as const;
 
 function Conta() {
   const { t } = useTranslation();
-  const { plan, sub } = useSubscription();
+  const { plan, sub, trial } = useSubscription();
   const portal = useServerFn(createPortalSession);
   const [busy, setBusy] = useState(false);
   return (
@@ -42,7 +42,7 @@ function Conta() {
         <div>
           <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("account.current")}</p>
           <p className="mt-1 font-display text-2xl font-semibold">
-            {plan === "free" ? t("pricing.freeName") : LABEL[plan]} {sub?.status === "trialing" && <span className="ml-2 rounded-full bg-signal px-2 py-0.5 text-xs text-signal-foreground">{t("account.trial")}</span>}
+            {plan === "free" ? t("pricing.freeName") : LABEL[plan]} {trial && <span className="ml-2 rounded-full bg-signal px-2 py-0.5 text-xs text-signal-foreground">{t("account.trial")}</span>}
           </p>
           {sub?.current_period_end && plan !== "free" && (
             <p className="text-sm text-muted-foreground">
