@@ -9,7 +9,7 @@
 - [x] Hide empty metrics and projections in Tempo, Dieta and Dinheiro
 - [x] Integrated clock, saved time tracking and daily category percentages
 - [x] Explain isolation, managed daily backups and shared Groq quotas
-- [ ] Word, Excel and Google Docs integrations — workspace OAuth clients missing; each user must authorize their own account
+- [x] Remove Word, Excel and document integrations from scope at user's request
 - [x] Onboarding completo com medidas opcionais e consentimento de saúde
 - [x] Atividades por texto e chat com estimativa por IA
 - [x] Isolamento de contas e controles de privacidade (exportação, revisão, retirada de consentimento)
