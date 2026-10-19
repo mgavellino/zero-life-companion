@@ -53,7 +53,7 @@ function TimePage() {
       </div>}
       <Card className="mb-6">
         <form
-          className="grid gap-2 md:grid-cols-[1fr_200px_110px_120px_auto]"
+          className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_200px_110px_120px_auto]"
           onSubmit={(e) => {
             e.preventDefault();
             if (!f.title) return;
@@ -88,10 +88,10 @@ function TimePage() {
         </div>
         {shown.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
         {shown.map((x) => (
-          <div key={x.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
+          <div key={x.id} className="flex min-w-0 flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3">
             <Checkbox checked={x.done} onCheckedChange={(v) => m.update.mutate({ id: x.id, done: !!v })} />
             <span className={`size-2 rounded-full ${PRI[x.priority] ?? PRI["media"]}`} />
-            <span className={`flex-1 ${x.done ? "text-muted-foreground line-through" : ""}`}>{x.title}</span>
+            <span className={`min-w-0 flex-1 break-words ${x.done ? "text-muted-foreground line-through" : ""}`}>{x.title}</span>
             {x.minutes && <span className="text-xs text-muted-foreground">{x.minutes} min</span>}
             {x.due_at && <span className="text-xs text-muted-foreground">{new Date(x.due_at).toLocaleString(i18n.language, { dateStyle: "short", timeStyle: "short" })}</span>}
             <button aria-label={t("delete")} onClick={() => m.remove.mutate(x.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-4" /></button>

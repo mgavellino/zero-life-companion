@@ -9,6 +9,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { createPortalSession } from "@/utils/payments.functions";
 import { getPaddleEnvironment } from "@/lib/paddle";
 import { PrivacyControls } from "@/components/PrivacyControls";
+import { PushSettings } from "@/components/PushSettings";
 
 export const Route = createFileRoute("/_authenticated/conta")({
   head: () => ({
@@ -67,6 +68,7 @@ function Conta() {
         )}
       </Card>
       <PricingTable currentPlan={plan} />
+      <PushSettings />
       <PrivacyControls />
     </Page>
   );

@@ -7,5 +7,7 @@ export const Route = createFileRoute("/api/public/jobs/bill-reminders")({server:
   const {supabaseAdmin}=await import("@/integrations/supabase/client.server");
   const {data,error}=await supabaseAdmin.rpc("generate_bill_reminders");
   if(error){console.error("Bill reminders failed",error.code);return Response.json({ok:false},{status:500});}
-  return Response.json({ok:true,created:data});
+  const {dispatchPendingPush}=await import("@/lib/push.server");
+  const sent=await dispatchPendingPush(new URL(request.url).origin);
+  return Response.json({ok:true,created:data,sent});
 }}}});

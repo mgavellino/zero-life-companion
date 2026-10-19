@@ -68,7 +68,7 @@ function MoneyPage() {
       <MonthlyBills language={L} />
       <Card className="mb-6">
         <form
-          className="grid gap-2 md:grid-cols-[130px_120px_1fr_1fr_150px_auto]"
+          className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3"
           onSubmit={(e) => {
             e.preventDefault();
             if (!f.amount) return;
@@ -87,8 +87,8 @@ function MoneyPage() {
           <Button type="submit">{t("add")}</Button>
         </form>
       </Card>
-      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-2">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2">
             <Input className="h-8 max-w-[180px]" placeholder="Buscar…" value={fl.q} onChange={(e) => setFl({ ...fl, q: e.target.value })} />
             <select className="h-8 rounded-md border bg-background px-2 text-sm" value={fl.period} onChange={(e) => setFl({ ...fl, period: e.target.value })}>
@@ -105,9 +105,9 @@ function MoneyPage() {
           </div>
           {shown.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
           {shown.map((x) => (
-            <div key={x.id} className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
+            <div key={x.id} className="flex min-w-0 flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3">
               <span className="w-20 text-xs text-muted-foreground">{x.occurred_on}</span>
-              <span className="flex-1">
+              <span className="min-w-0 flex-1 break-words">
                 <span className="font-medium capitalize">{x.category}</span>
                 {x.description && <span className="text-muted-foreground"> · {x.description}</span>}
               </span>
@@ -138,7 +138,7 @@ function MoneyPage() {
             })}
           </div>
           <form
-            className="mt-5 grid grid-cols-[1fr_100px_auto] gap-2"
+            className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-1"
             onSubmit={(e) => {
               e.preventDefault();
               if (!b.category || !b.monthly_limit) return;
