@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/tts")({
           .limit(1)
           .maybeSingle();
         const live = sub && ["active", "trialing", "past_due", "canceled"].includes(sub.status) && (!sub.current_period_end || new Date(sub.current_period_end) > new Date());
-        const premium = live && (sub.product_id === "pro_plan" || sub.product_id === "max_plan" || sub.status === "trialing");
+        const premium = live && (sub.product_id === "pro_plan" || sub.product_id === "max_plan");
         if (!premium) return new Response("UPGRADE", { status: 402 });
 
         const { text } = (await request.json()) as { text?: string };

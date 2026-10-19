@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PRICES, savingsPct, hasPremiumVoice, hasUnlimitedChat, TRIAL_DAYS, priceId } from "./plans";
+import { PRICES, savingsPct, hasPremiumVoice, hasUnlimitedChat, hasVoiceChat, LIMITS, TRIAL_DAYS, priceId } from "./plans";
 
 describe("plans", () => {
   it("monthly prices are 9,90 / 21,90 / 37,90", () => {
@@ -12,6 +12,15 @@ describe("plans", () => {
     }
   });
   it("free trial is 1 month", () => expect(TRIAL_DAYS).toBe(30));
+  it("message limits per day: free 5, essencial 40, pro 200, max unlimited", () => {
+    expect([LIMITS.free, LIMITS.essencial, LIMITS.pro, LIMITS.max].map((l) => l.messagesPerDay)).toEqual([5, 40, 200, null]);
+    expect(hasUnlimitedChat("max")).toBe(true);
+  });
+  it("free has no voice chat", () => {
+    expect(hasVoiceChat("free")).toBe(false);
+    expect(hasVoiceChat("essencial")).toBe(true);
+  });
+  it("only max has reports", () => expect(LIMITS.pro.reports).toBe(false));
   it("free plan has limited chat and no premium voice", () => {
     expect(hasUnlimitedChat("free")).toBe(false);
     expect(hasPremiumVoice("essencial")).toBe(false);
