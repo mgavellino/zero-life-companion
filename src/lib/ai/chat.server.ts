@@ -7,7 +7,6 @@ import { serverPaddleEnv } from "@/lib/paddle.server";
 import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
 
-const MODEL = "openai/gpt-oss-120b";
 
 export function userClient(token: string) {
   const url = process.env["SUPABASE_URL"]!;
@@ -117,6 +116,7 @@ ${JSON.stringify(meals.data ?? [])}`;
       description: "Save a durable fact about the user to long-term memory shared across all threads.",
       inputSchema: z.object({ content: z.string() }),
       execute: async ({ content }) => {
+        if (plan !== "pro" && plan !== "max") return { ok: false, error: "Memória de longo prazo é do plano Pro" };
         const { error } = await sb.from("memories").insert({ content, user_id: userId });
         return error ? { ok: false, error: error.message } : { ok: true };
       },
