@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Download, Share, Smartphone } from "lucide-react";
 import { Button } from "./ui/button";
@@ -9,6 +10,7 @@ interface InstallPrompt extends Event {
 }
 
 export function InstallZero() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [prompt, setPrompt] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
@@ -22,14 +24,14 @@ export function InstallZero() {
     return () => { window.removeEventListener("beforeinstallprompt", capture); window.removeEventListener("appinstalled", complete); };
   }, []);
   return <>
-    <Button variant="ghost" className="justify-start gap-3" onClick={() => setOpen(true)}><Download className="size-4 shrink-0" />{installed ? "Zero neste aparelho" : "Instalar Zero"}</Button>
+    <Button variant="ghost" className="justify-start gap-3" onClick={() => setOpen(true)}><Download className="size-4 shrink-0" />{installed ? t("install.device") : t("install.action")}</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Zero na Tela de Início</DialogTitle><DialogDescription>{installed ? "Você já está usando o Zero pela Tela de Início." : "Adicione um ícone do Zero ao seu celular ou tablet, sem passar pelas lojas."}</DialogDescription></DialogHeader>
-        {prompt && !installed && <Button onClick={async () => { await prompt.prompt(); const choice = await prompt.userChoice; setPrompt(null); if (choice.outcome === "accepted") setOpen(false); }}><Download className="size-4" />Instalar neste aparelho</Button>}
-        <section className="min-w-0 border-b pb-4"><h3 className="flex items-center gap-2 font-semibold"><Smartphone className="size-4" />Chrome · Android</h3><ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground"><li>Abra o endereço do Zero no Chrome, em sua própria aba.</li><li>Toque nos três pontos ⋮ e escolha “Adicionar à tela inicial” ou “Instalar app”.</li><li>Confirme e abra o Zero pelo novo ícone.</li></ol></section>
-        <section className="min-w-0"><h3 className="flex items-center gap-2 font-semibold"><Share className="size-4" />Safari · iPhone e iPad</h3><ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground"><li>Abra o endereço do Zero no Safari.</li><li>Toque em Compartilhar e depois em “Adicionar à Tela de Início”.</li><li>Se aparecer “Abrir como App”, deixe ativado; toque em Adicionar.</li><li>Abra o Zero pelo ícone e permita os avisos em Conta.</li></ol></section>
-        <p className="text-xs text-muted-foreground">No iPhone e iPad, os avisos com o app fechado exigem iOS/iPadOS 16.4 ou mais recente e abertura pela Tela de Início. A instalação não cria uma versão da App Store ou Play Store.</p>
+        <DialogHeader><DialogTitle>{t("install.title")}</DialogTitle><DialogDescription>{installed ? t("install.installed") : t("install.description")}</DialogDescription></DialogHeader>
+        {prompt && !installed && <Button onClick={async () => { await prompt.prompt(); const choice = await prompt.userChoice; setPrompt(null); if (choice.outcome === "accepted") setOpen(false); }}><Download className="size-4" />{t("install.installDevice")}</Button>}
+        <section className="min-w-0 border-b pb-4"><h3 className="flex items-center gap-2 font-semibold"><Smartphone className="size-4" />{t("install.chrome")}</h3><ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground"><li>{t("install.android1")}</li><li>{t("install.android2")}</li><li>{t("install.android3")}</li></ol></section>
+        <section className="min-w-0"><h3 className="flex items-center gap-2 font-semibold"><Share className="size-4" />{t("install.safari")}</h3><ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted-foreground"><li>{t("install.ios1")}</li><li>{t("install.ios2")}</li><li>{t("install.ios3")}</li><li>{t("install.ios4")}</li></ol></section>
+        <p className="text-xs text-muted-foreground">{t("install.note")}</p>
       </DialogContent>
     </Dialog>
   </>;

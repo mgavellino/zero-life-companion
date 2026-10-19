@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellRing, Check } from "lucide-react";
@@ -20,6 +21,7 @@ function browserNotify(title: string, body?: string | null) {
 
 /** Creates a notification for tasks that start within the next 10 minutes (once per task). */
 function useTaskReminders(userId: string | undefined) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (!userId) return;
     const check = async () => {
@@ -31,17 +33,18 @@ function useTaskReminders(userId: string | undefined) {
         if (sent.includes(tk.id)) continue;
         sent.push(tk.id);
         const at = new Date(tk.due_at!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        await supabase.from("notifications").insert({ user_id: userId, title: `Daqui a pouco: ${tk.title}`, body: `Começa às ${at}.`, kind: "reminder", link: "/tempo" });
+        await supabase.from("notifications").insert({ user_id: userId, title: t("notif.soon", { title: tk.title }), body: t("notif.starts", { at }), kind: "reminder", link: "/tempo" });
       }
       localStorage.setItem("zero-reminded", JSON.stringify(sent.slice(-200)));
     };
     check();
     const id = setInterval(check, 60_000);
     return () => clearInterval(id);
-  }, [userId]);
+  }, [userId, t]);
 }
 
 export function NotificationBell() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [userId, setUserId] = useState<string>();
   const [perm, setPerm] = useState<string>("default");
@@ -84,32 +87,32 @@ export function NotificationBell() {
   }
 
   async function enablePush() {
-    if (typeof Notification === "undefined") { toast.error("Seu navegador não suporta notificações."); return; }
+    if (typeof Notification === "undefined") { toast.error(t("notif.unsupported")); return; }
     const p = await Notification.requestPermission();
     setPerm(p);
-    if (p === "granted") browserNotify("Notificações ativadas", "O Zero vai te avisar na hora certa.");
+    if (p === "granted") browserNotify(t("notif.enabled"), t("notif.enabledBody"));
   }
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Notificações" className="relative">
+        <Button variant="ghost" size="icon" aria-label={t("notif.title")} className="relative">
           {unread ? <BellRing className="size-4" /> : <Bell className="size-4" />}
           {unread > 0 && <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-signal text-[10px] font-bold text-signal-foreground">{unread}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b px-4 py-3">
-          <p className="font-display text-sm font-semibold">Notificações</p>
+          <p className="font-display text-sm font-semibold">{t("notif.title")}</p>
           {unread > 0 && (
             <button onClick={markAll} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              <Check className="size-3" /> Marcar lidas
+              <Check className="size-3" /> {t("notif.markRead")}
             </button>
           )}
         </div>
-        <Button asChild variant="ghost" className="h-auto w-full justify-start whitespace-normal rounded-none border-b px-4 py-3 text-xs"><Link to="/conta">Configurar avisos com o app fechado →</Link></Button>
+        <Button asChild variant="ghost" className="h-auto w-full justify-start whitespace-normal rounded-none border-b px-4 py-3 text-xs"><Link to="/conta">{t("notif.configure")}</Link></Button>
         <div className="max-h-80 overflow-y-auto">
-          {data.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">Nada por aqui ainda.</p>}
+          {data.length === 0 && <p className="px-4 py-6 text-center text-sm text-muted-foreground">{t("notif.empty")}</p>}
           {data.map((n) => (
             <div key={n.id} className={`border-b px-4 py-3 last:border-0 ${n.read_at ? "opacity-60" : ""}`}>
               <p className="text-sm font-medium">{n.title}</p>
