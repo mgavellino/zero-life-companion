@@ -11,6 +11,7 @@
 
 ## Architecture rules
 - AI chat runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` using the user's own free Groq key (GROQ_API_KEY); never route AI through the Lovable AI Gateway (owner requirement).
-- Chat threads are separate but share one memory: the server prompt injects `memories`, recent messages from other threads and the user's tasks/money/meals/workouts.
-- Exercise demos come from ExerciseDB (RapidAPI, EXERCISEDB_API_KEY), GIFs proxied via `/api/exercise-gif/$id` so the key stays server-side.
+- Chat is ONE continuous conversation per user (single `threads` row) at `/chat`; the prompt injects `memories` plus tasks/money/meals.
+- Voice uses the browser's Web Speech API (recognition + speechSynthesis), never a Lovable voice service.
+- Diet meals are logged from free text; `logMealAuto` asks Groq for calories/macros.
 - Theme (localStorage `zero-theme`) and language (`zero-lang`, i18next in `src/lib/i18n.ts`) are toggled from `Prefs`, present on every page.
