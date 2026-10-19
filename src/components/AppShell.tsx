@@ -91,14 +91,14 @@ export function AppShell() {
             <InstallZero />
             {plan === "free" ? (
               <Link to="/planos" className="mb-3 hidden rounded-xl bg-ink p-3 text-xs text-background md:block dark:bg-card dark:text-foreground">
-                <p className="font-display text-sm font-semibold">1 mês grátis</p>
-                <p className="mt-1 opacity-70">Voz premium e IA ilimitada.</p>
-                <span className="mt-2 inline-block rounded-full bg-signal px-2 py-0.5 font-semibold text-signal-foreground">Começar teste →</span>
+                <p className="font-display text-sm font-semibold">{t("shell.freeMonth")}</p>
+                <p className="mt-1 opacity-70">{t("shell.promoVoice")}</p>
+                <span className="mt-2 inline-block rounded-full bg-signal px-2 py-0.5 font-semibold text-signal-foreground">{t("shell.startTrial")}</span>
               </Link>
             ) : (
               <p className="mb-3 hidden px-3 text-xs text-muted-foreground md:block">
-                Plano <span className="font-semibold text-foreground">{PLAN_LABEL[plan]}</span>
-                {sub?.status === "trialing" ? " · teste" : ""}
+                {t("shell.plan")} <span className="font-semibold text-foreground">{PLAN_LABEL[plan]}</span>
+                {sub?.status === "trialing" ? t("shell.trialSuffix") : ""}
               </p>
             )}
             <div className="flex items-center gap-1 md:justify-between">
@@ -114,9 +114,9 @@ export function AppShell() {
           <OnboardingGate><Outlet /></OnboardingGate>
         </main>
       </div>
-      <nav aria-label="Navegação principal" className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav aria-label={t("shell.mainNav")} className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
         {items.filter(i => ["/chat", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"text-primary bg-accent/40"}}><i.icon className="size-5" /><span className="max-w-full truncate">{i.label}</span></Link>)}
-        <Button variant="ghost" className="h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label="Mais opções" onClick={() => setMenuOpen(true)}><Menu className="size-5" />Mais</Button>
+        <Button variant="ghost" className="h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label={t("shell.moreOptions")} onClick={() => setMenuOpen(true)}><Menu className="size-5" />{t("shell.more")}</Button>
       </nav>
     </div>
   );
