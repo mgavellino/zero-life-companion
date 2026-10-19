@@ -65,7 +65,7 @@ function TimePage() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!f.title) return;
-            m.insert.mutate({ title: f.title.trim(), due_at: f.due_at ? new Date(f.due_at).toISOString() : null, minutes: f.minutes ? Number(f.minutes) : null, priority: f.priority });
+            { const id = crypto.randomUUID(); const due = f.due_at ? new Date(f.due_at).toISOString() : null; m.insert.mutate({ id, title: f.title.trim(), due_at: due, minutes: f.minutes ? Number(f.minutes) : null, priority: f.priority }, { onSuccess: () => { if (due) sendCalendar({ data: { id } }).catch(() => {}); } }); }
             setF({ title: "", due_at: "", minutes: "", priority: "media" });
           }}
         >

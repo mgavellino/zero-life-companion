@@ -42,12 +42,8 @@ export const getCalendarEvents=createServerFn({method:"POST"}).middleware([requi
 export const sendTaskToCalendar=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator(input=>z.object({id:z.string().uuid()}).parse(input)).handler(async({data,context})=>{
   const {data:task}=await context.supabase.from("tasks").select("id,title,due_at,minutes").eq("id",data.id).eq("user_id",context.userId).single();
   if(!task?.due_at)throw new Error("Defina data e hora para enviar este compromisso.");
-  const {calendarCall}=await import("./calendar.server");
-  const eventId=`zero${task.id.replace(/-/g,"")}`;
-  const result=await calendarCall(context.userId,`/calendar/v3/calendars/primary/events/${eventId}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:eventId,summary:task.title,start:{dateTime:task.due_at},end:{dateTime:new Date(Date.parse(task.due_at)+(task.minutes??30)*60000).toISOString()},reminders:{useDefault:false,overrides:[{method:"popup",minutes:10}]}})}).catch(()=>null);
-  if(result?.connected)return {ok:true};
-  const created=await calendarCall(context.userId,"/calendar/v3/calendars/primary/events",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:eventId,summary:task.title,start:{dateTime:task.due_at},end:{dateTime:new Date(Date.parse(task.due_at)+(task.minutes??30)*60000).toISOString()},reminders:{useDefault:false,overrides:[{method:"popup",minutes:10}]}})});
-  if(!created.connected)throw new Error("Conecte o Google Agenda primeiro.");
+  const {syncTaskToCalendar}=await import("./calendar.server");
+  if(!await syncTaskToCalendar(context.userId,task))throw new Error("Conecte o Google Agenda primeiro.");
   return {ok:true};
 });
 export const disconnectCalendar=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).handler(async({context})=>{
