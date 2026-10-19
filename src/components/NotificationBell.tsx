@@ -10,37 +10,17 @@ import { Link } from "@tanstack/react-router";
 
 type N = { id: string; title: string; body: string | null; created_at: string; read_at: string | null; link: string | null };
 
-function browserNotify(title: string, body?: string | null) {
-  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+/** Shows a system notice while the app is in the background; skipped when this device already receives push (avoids duplicates). */
+async function browserNotify(title: string, body?: string | null) {
+  if (typeof Notification === "undefined" || Notification.permission !== "granted" || !document.hidden) return;
   try {
-    new Notification(title, { body: body ?? "", icon: "/favicon.png" });
+    const reg = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration("/") : undefined;
+    if (reg && (await reg.pushManager?.getSubscription())) return;
+    if (reg) await reg.showNotification(title, { body: body ?? "", icon: "/favicon.png", tag: "zero-reminder" });
+    else new Notification(title, { body: body ?? "", icon: "/favicon.png" });
   } catch {
-    /* some mobile browsers only allow notifications via a service worker */
+    /* notifications unavailable on this browser */
   }
-}
-
-/** Creates a notification for tasks that start within the next 10 minutes (once per task). */
-function useTaskReminders(userId: string | undefined) {
-  const { t } = useTranslation();
-  useEffect(() => {
-    if (!userId) return;
-    const check = async () => {
-      const now = new Date();
-      const soon = new Date(now.getTime() + 10 * 60_000);
-      const { data } = await supabase.from("tasks").select("id,title,due_at").eq("done", false).gte("due_at", now.toISOString()).lte("due_at", soon.toISOString());
-      const sent: string[] = JSON.parse(localStorage.getItem("zero-reminded") ?? "[]");
-      for (const tk of data ?? []) {
-        if (sent.includes(tk.id)) continue;
-        sent.push(tk.id);
-        const at = new Date(tk.due_at!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        await supabase.from("notifications").insert({ user_id: userId, title: t("notif.soon", { title: tk.title }), body: t("notif.starts", { at }), kind: "reminder", link: "/tempo" });
-      }
-      localStorage.setItem("zero-reminded", JSON.stringify(sent.slice(-200)));
-    };
-    check();
-    const id = setInterval(check, 60_000);
-    return () => clearInterval(id);
-  }, [userId, t]);
 }
 
 export function NotificationBell() {
@@ -52,7 +32,6 @@ export function NotificationBell() {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id));
     if (typeof Notification !== "undefined") setPerm(Notification.permission);
   }, []);
-  useTaskReminders(userId);
 
   const { data = [] } = useQuery({
     queryKey: ["notifications"],
@@ -90,7 +69,7 @@ export function NotificationBell() {
     if (typeof Notification === "undefined") { toast.error(t("notif.unsupported")); return; }
     const p = await Notification.requestPermission();
     setPerm(p);
-    if (p === "granted") browserNotify(t("notif.enabled"), t("notif.enabledBody"));
+    if (p === "granted") toast.success(t("notif.enabled"), { description: t("notif.enabledBody") });
   }
 
   return (
