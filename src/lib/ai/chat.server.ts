@@ -3,10 +3,12 @@ import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage }
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { serverPaddleEnv } from "@/lib/paddle.server";
+import { FREE_DAILY_MESSAGES } from "@/lib/plans";
 
 const MODEL = "openai/gpt-oss-120b";
 
-function userClient(token: string) {
+export function userClient(token: string) {
   const url = process.env["SUPABASE_URL"]!;
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
   return createClient<Database>(url, key, {
@@ -32,6 +34,15 @@ export async function handleChat(request: Request) {
   const { data: u, error: ue } = await sb.auth.getUser(token);
   if (ue || !u.user) return new Response("Unauthorized", { status: 401 });
   const userId = u.user.id;
+
+  // Free plan: daily message cap (paid/trial users are unlimited)
+  const env = serverPaddleEnv();
+  const { data: paid } = await sb.rpc("has_active_subscription", { user_uuid: userId, check_env: env });
+  if (!paid) {
+    const start = new Date(); start.setUTCHours(0, 0, 0, 0);
+    const { count } = await sb.from("messages").select("id", { count: "exact", head: true }).eq("role", "user").gte("created_at", start.toISOString());
+    if ((count ?? 0) >= FREE_DAILY_MESSAGES) return new Response("LIMIT", { status: 402 });
+  }
 
   const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string };
   const { messages, threadId } = body;
@@ -76,6 +87,9 @@ export async function handleChat(request: Request) {
 Your core mission: help the user master TIME and MONEY (most people struggle with both) and take care of their BODY (diet, energy, habits). Act like a coach: give concrete next actions, numbers, and hold them accountable.
 Always answer in ${lang} unless the user writes in another language.
 This is ONE continuous conversation with ONE long-term memory. When the user reveals a durable fact, goal, preference, income, routine, injury, or diet restriction, call the remember tool.
+Be INTERACTIVE and proactive: ask one sharp follow-up question when useful, point out patterns (overspending, overloaded days, missing protein), and propose the next concrete step. Replies are often spoken aloud, so keep them short (2-4 sentences) unless the user asks for detail.
+At the END of every reply, call suggest_replies with 2-4 short options the user would likely tap next (in the user's language).
+When the user asks to be reminded of something, create a task with due_at so the app notifies them.
 When the user mentions spending/earning money, a task/appointment, or a meal, log it with the right tool without asking (confirm briefly after). Use markdown, short lists and tables when helpful.
 Today is ${today}. User name: ${profile.data?.display_name ?? "unknown"}.
 
@@ -138,6 +152,19 @@ ${JSON.stringify(meals.data ?? [])}`;
         return error ? { ok: false, error: error.message } : { ok: true };
       },
     }),
+    suggest_replies: tool({
+      description: "Offer 2-4 short quick-reply buttons the user can tap next. Call once at the end of every reply.",
+      inputSchema: z.object({ options: z.array(z.string()).min(1).max(4) }),
+      execute: async ({ options }) => ({ options }),
+    }),
+    notify: tool({
+      description: "Send the user an in-app/browser notification right now (e.g. a summary or alert).",
+      inputSchema: z.object({ title: z.string(), body: z.string().nullable() }),
+      execute: async ({ title, body }) => {
+        const { error } = await sb.from("notifications").insert({ user_id: userId, title, body, kind: "assistant" });
+        return error ? { ok: false } : { ok: true };
+      },
+    }),
     add_meal: tool({
       description: "Log a meal. Estimate calories and macros yourself from the food and quantity the user gave.",
       inputSchema: z.object({
@@ -164,7 +191,7 @@ ${JSON.stringify(meals.data ?? [])}`;
     instructions,
     messages: await convertToModelMessages(messages),
     tools,
-    stopWhen: stepCountIs(6),
+    stopWhen: stepCountIs(8),
     abortSignal: request.signal,
   });
 

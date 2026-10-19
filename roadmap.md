@@ -11,12 +11,14 @@
 
 ## Fase SaaS
 - [x] Trocar "Jarvis" por "assistente pessoal"
-- [ ] Voz ElevenLabs
-- [ ] IA mais interativa (sugestões rápidas, proatividade)
-- [ ] Notificações: no app, push do navegador, e-mail
-- [ ] Sistema de admin
-- [ ] Planos via Paddle (grátis + 3 planos, mensal/semestral/anual, teste grátis, ancoragem)
-- [ ] Página de apresentação mais bem planejada
-- [ ] Identidade visual mais trabalhada
-- [ ] Abrir o app direto no chat de voz
-- [ ] Teste grátis de 1 mês (30 dias)
+- [x] Voz ElevenLabs
+- [x] IA mais interativa (sugestões rápidas, proatividade)
+- [x] Notificações: no app, push do navegador, e-mail
+- [x] Sistema de admin
+- [x] Planos via Paddle (grátis + 3 planos, mensal/semestral/anual, teste grátis, ancoragem)
+- [x] Página de apresentação mais bem planejada
+- [x] Identidade visual mais trabalhada
+- [x] Abrir o app direto no chat de voz
+- [x] Teste grátis de 1 mês (30 dias)
+- [ ] Páginas de Termos, Privacidade e Reembolso (aguardando nome legal da empresa) — necessário para receber pagamentos reais
+- [ ] Notificações por e-mail (aguardando domínio próprio)
