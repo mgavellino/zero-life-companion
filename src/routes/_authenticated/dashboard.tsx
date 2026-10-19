@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Clock, Wallet, Salad, Dumbbell, Brain, Trash2 } from "lucide-react";
+import { Clock, Wallet, Salad, Brain, Trash2 } from "lucide-react";
 import { Page, Card } from "@/components/Page";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
@@ -14,7 +14,6 @@ function Dashboard() {
   const { data: tasks = [] } = useRows<{ id: string; title: string; done: boolean }>("tasks");
   const { data: tx = [] } = useRows<{ kind: string; amount: number; occurred_on: string }>("transactions", { order: "occurred_on" });
   const { data: meals = [] } = useRows<{ calories: number; eaten_on: string }>("meals");
-  const { data: workouts = [] } = useRows<{ id: string }>("workouts", { select: "id" });
   const { data: mem = [] } = useRows<{ id: string; content: string }>("memories");
   const mm = useTableMutations("memories");
   const month = today().slice(0, 7);
@@ -25,12 +24,11 @@ function Dashboard() {
     { to: "/tempo", icon: Clock, label: t("nav.time"), value: `${tasks.filter((x) => !x.done).length} ${t("pending").toLowerCase()}`, tone: "text-time" },
     { to: "/dinheiro", icon: Wallet, label: t("nav.money"), value: money(bal, i18n.language), tone: "text-money" },
     { to: "/dieta", icon: Salad, label: t("nav.diet"), value: `${kcal} kcal`, tone: "text-body" },
-    { to: "/academia", icon: Dumbbell, label: t("nav.gym"), value: `${workouts.length} ${t("workouts").toLowerCase()}`, tone: "text-body" },
   ] as const;
 
   return (
     <Page kicker={t("slogan")} title={t("overview")}>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((x) => (
           <Link key={x.to} to={x.to} className="rounded-2xl border bg-card p-5 hover:border-ring">
             <x.icon className={`size-6 ${x.tone}`} />

@@ -1,8 +1,10 @@
 # Zero — roadmap
 - [x] Auth: email/senha, Google, Apple (sem marca Lovable visível)
-- [x] Chat Jarvis: várias conversas + memória única compartilhada
-- [x] Tempo, Dinheiro, Dieta, Academia (fichas)
+- [x] Tempo, Dinheiro
 - [x] Tema claro/escuro + 6 idiomas
 - [x] Slogan melhorado
 - [x] IA grátis Groq
-- [x] Demonstrações ExerciseDB
+- [ ] Remover Academia
+- [ ] Dieta automática: refeição + quantidade → IA calcula macros
+- [ ] Chat de voz (sem gateway Lovable: voz do navegador)
+- [ ] Chat único contínuo (sem lista de conversas)
