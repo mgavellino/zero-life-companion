@@ -28,6 +28,11 @@ export default {
       "authDescription": "Entre ou crie sua conta no Zero."
     },
     "chat2": {
+      "export": "Exportar conversa",
+      "exportFirst": "Exportar antes",
+      "you": "Você",
+      "zero": "Zero",
+      "exported": "Conversa exportada",
       "select": "Selecionar",
       "cancelSelect": "Cancelar",
       "deleteSelected": "Apagar selecionadas ({{count}})",
@@ -219,6 +224,11 @@ export default {
       "authDescription": "Sign in or create your Zero account."
     },
     "chat2": {
+      "export": "Export conversation",
+      "exportFirst": "Export first",
+      "you": "You",
+      "zero": "Zero",
+      "exported": "Conversation exported",
       "select": "Select",
       "cancelSelect": "Cancel",
       "deleteSelected": "Delete selected ({{count}})",
@@ -410,6 +420,11 @@ export default {
       "authDescription": "Inicia sesión o crea tu cuenta en Zero."
     },
     "chat2": {
+      "export": "Exportar conversación",
+      "exportFirst": "Exportar antes",
+      "you": "Tú",
+      "zero": "Zero",
+      "exported": "Conversación exportada",
       "select": "Seleccionar",
       "cancelSelect": "Cancelar",
       "deleteSelected": "Borrar seleccionados ({{count}})",
@@ -601,6 +616,11 @@ export default {
       "authDescription": "Connectez-vous ou créez votre compte Zero."
     },
     "chat2": {
+      "export": "Exporter la conversation",
+      "exportFirst": "Exporter d'abord",
+      "you": "Vous",
+      "zero": "Zero",
+      "exported": "Conversation exportée",
       "select": "Sélectionner",
       "cancelSelect": "Annuler",
       "deleteSelected": "Supprimer la sélection ({{count}})",
@@ -792,6 +812,11 @@ export default {
       "authDescription": "Melde dich an oder erstelle dein Zero-Konto."
     },
     "chat2": {
+      "export": "Unterhaltung exportieren",
+      "exportFirst": "Zuerst exportieren",
+      "you": "Du",
+      "zero": "Zero",
+      "exported": "Unterhaltung exportiert",
       "select": "Auswählen",
       "cancelSelect": "Abbrechen",
       "deleteSelected": "Auswahl löschen ({{count}})",
@@ -983,6 +1008,11 @@ export default {
       "authDescription": "Accedi o crea il tuo account Zero."
     },
     "chat2": {
+      "export": "Esporta conversazione",
+      "exportFirst": "Esporta prima",
+      "you": "Tu",
+      "zero": "Zero",
+      "exported": "Conversazione esportata",
       "select": "Seleziona",
       "cancelSelect": "Annulla",
       "deleteSelected": "Elimina selezionati ({{count}})",

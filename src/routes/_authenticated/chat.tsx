@@ -5,7 +5,7 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Keyboard, AudioLines, Bell, Trash2, ListChecks, X } from "lucide-react";
+import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Keyboard, AudioLines, Bell, Trash2, ListChecks, X, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
@@ -170,6 +170,19 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       setSelecting(true);
     } catch { toast.error(t("chat2.deleteError")); }
   }
+  // Saves a readable text copy of the conversation (or only the selected messages) on this device.
+  function exportConversation(onlySelected = false) {
+    const list = onlySelected && selected.size ? messages.filter((m) => selected.has(m.id)) : messages;
+    const lines = list.map((m) => `${m.role === "user" ? t("chat2.you") : t("chat2.zero")}:\n${plainText(m)}`).filter((l) => !l.endsWith(":\n"));
+    const blob = new Blob([lines.join("\n\n")], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `zero-conversa-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    toast.success(t("chat2.exported"));
+  }
   async function removeMessages(all: boolean) {
     setDeleting(true);
     try {
@@ -277,16 +290,18 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
           {selecting ? (
             <>
               <Button size="sm" variant="destructive" disabled={!selected.size || deleting} onClick={() => removeMessages(false)}><Trash2 className="size-3.5" />{t("chat2.deleteSelected", { count: selected.size })}</Button>
+              <Button size="sm" variant="outline" disabled={!selected.size} onClick={() => exportConversation(true)}><Download className="size-3.5" />{t("chat2.exportFirst")}</Button>
               <Button size="sm" variant="ghost" onClick={() => { setSelecting(false); setSelected(new Set()); }}><X className="size-3.5" />{t("chat2.cancelSelect")}</Button>
             </>
           ) : messages.length > 0 && (
             <>
               <Button size="sm" variant="ghost" disabled={busy} onClick={startSelecting}><ListChecks className="size-3.5" />{t("chat2.select")}</Button>
+              <Button size="sm" variant="ghost" onClick={() => exportConversation()}><Download className="size-3.5" />{t("chat2.export")}</Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild><Button size="sm" variant="ghost" disabled={busy || deleting}><Trash2 className="size-3.5" />{t("chat2.clear")}</Button></AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader><AlertDialogTitle>{t("chat2.clearTitle")}</AlertDialogTitle><AlertDialogDescription>{t("chat2.clearBody")}</AlertDialogDescription></AlertDialogHeader>
-                  <AlertDialogFooter><AlertDialogCancel>{t("chat2.cancelSelect")}</AlertDialogCancel><AlertDialogAction onClick={() => removeMessages(true)}>{t("chat2.clearConfirm")}</AlertDialogAction></AlertDialogFooter>
+                  <AlertDialogFooter><Button variant="outline" onClick={() => exportConversation()}><Download className="size-4" />{t("chat2.exportFirst")}</Button><AlertDialogCancel>{t("chat2.cancelSelect")}</AlertDialogCancel><AlertDialogAction onClick={() => removeMessages(true)}>{t("chat2.clearConfirm")}</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             </>
