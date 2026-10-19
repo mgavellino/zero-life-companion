@@ -8,6 +8,7 @@ import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
 import { estimateAndLogActivity } from "@/lib/activity.server";
 import { dailyTimeSummary, type TimeSession } from "@/lib/time-tracking";
+import { automaticCategory, billSchema } from "@/lib/bills";
 
 
 export function userClient(token: string) {
@@ -102,6 +103,7 @@ This is ONE continuous conversation with ONE long-term memory. When the user rev
 Be INTERACTIVE and proactive: ask one sharp follow-up question when useful, point out patterns (overspending, overloaded days, missing protein), and propose the next concrete step. Replies are often spoken aloud, so keep them short (2-4 sentences) unless the user asks for detail.
 At the END of every reply, call suggest_replies with 2-4 short options the user would likely tap next (in the user's language).
 When the user asks to be reminded of something, create a task with due_at so the app notifies them.
+For MONTHLY bills or subscriptions explicitly described as recurring, use add_monthly_bill instead of a one-off task. Ask for the missing amount or due day before saving. Categorize financial entries automatically from the description. A future bill is not a paid expense: only record transactions when the user says they paid/spent. Never claim a bank payment was executed. Monthly reminders appear in the app; closed-app push is not configured.
 When the user mentions spending/earning money, a task/appointment, or a meal, log it with the right tool without asking (confirm briefly after). Use markdown, short lists and tables when helpful.
 Today is ${today}. User name: ${preferences.data?.display_name || profile.data?.display_name || "unknown"}.
 
@@ -127,6 +129,15 @@ ${JSON.stringify(meals.data ?? [])}
 ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Never invent a breakdown."}`;
 
   const tools = {
+    add_monthly_bill: tool({
+      description: "Register an explicitly recurring monthly bill with known amount and due day. Do not create a paid transaction.",
+      inputSchema: z.object({title:z.string().trim().min(1).max(120),amount:z.number().positive().max(100000000),due_day:z.number().int().min(1).max(31),reminder_days:z.number().int().min(0).max(14)}),
+      execute: async i => {
+        const values=billSchema.parse({...i,starts_on:today});
+        const {error}=await sb.from("recurring_bills").insert({...values,category:automaticCategory(i.title),user_id:userId});
+        return error?{ok:false}:{ok:true,title:i.title};
+      },
+    }),
     log_activity: tool({
       description: "Estimate and save a completed physical activity from the user's exact natural-language description. Weight and height are optional.",
       inputSchema: z.object({ text: z.string().min(3).max(500), occurred_on: z.string().date().nullable() }),
@@ -167,7 +178,7 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         occurred_on: z.string().nullable().describe("YYYY-MM-DD or null for today"),
       }),
       execute: async (i) => {
-        const { error } = await sb.from("transactions").insert({ ...i, occurred_on: i.occurred_on ?? today, user_id: userId });
+        const { error } = await sb.from("transactions").insert({ ...i, category:automaticCategory(i.description ?? "",i.category), occurred_on: i.occurred_on ?? today, user_id: userId });
         return error ? { ok: false, error: error.message } : { ok: true };
       },
     }),
