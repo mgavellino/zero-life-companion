@@ -17,7 +17,7 @@
 - Google Calendar uses per-user connector OAuth with single-use owner-bound attempts, encrypted server-only connection handles, and authenticated provider calls; no shared builder calendar is used.
 - Monthly bills are owner-scoped definitions with date-scoped payments; an atomic owner-invoker function records payment and expense once, while an authenticated hourly job deduplicates reminders by bill, due date and stage.
 - Automatic financial categories share one browser-safe classifier across manual entry, quick capture, chat and monthly bills; explicit user categories take precedence.
-- Time tracking stores owner-only start/end sessions, uses server timestamps and a unique running session per owner, and splits daily percentages at local midnight; this preserves timers across reloads without guessing untracked activity.
+- Time tracking stores owner-only categorised duration entries (stacked inside the chosen local day, capped at 24h) and percentages are shares of categorised time; the user logs how time was spent rather than running a stopwatch.
 - Personal metrics render only after corresponding saved inputs exist; zero-filled empty states must not imply recorded activity.
 - Onboarding is enforced at the authenticated shell using persisted owner-only preferences, with optional measurements and explicit health consent; this covers email and social signups without editing the managed auth gate.
 - Activity logging uses one authenticated server-only Groq estimator shared by chat and diet; this keeps consent, ownership and uncertainty rules consistent.
