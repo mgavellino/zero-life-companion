@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
@@ -62,8 +63,8 @@ function AuthPage() {
   }
 
   async function social(provider: "google" | "apple") {
-    const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin + "/auth" } });
-    if (error) toast.error(error.message);
+    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin + "/auth" });
+    if (r.error) toast.error(String((r.error as Error).message ?? r.error));
   }
 
   return (

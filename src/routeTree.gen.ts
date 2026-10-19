@@ -14,6 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
+import { Route as AuthenticatedDietaRouteImport } from './routes/_authenticated/dieta'
+import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticated/dinheiro'
+import { Route as AuthenticatedTempoRouteImport } from './routes/_authenticated/tempo'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedChatIndexRouteImport } from './routes/_authenticated/chat.index'
 import { Route as AuthenticatedChatThreadIdRouteImport } from './routes/_authenticated/chat.$threadId'
@@ -42,6 +45,21 @@ const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDietaRoute = AuthenticatedDietaRouteImport.update({
+  id: '/dieta',
+  path: '/dieta',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDinheiroRoute = AuthenticatedDinheiroRouteImport.update({
+  id: '/dinheiro',
+  path: '/dinheiro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTempoRoute = AuthenticatedTempoRouteImport.update({
+  id: '/tempo',
+  path: '/tempo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -64,6 +82,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/chat': typeof AuthenticatedChatRouteWithChildren
+  '/dieta': typeof AuthenticatedDietaRoute
+  '/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
   '/chat/': typeof AuthenticatedChatIndexRoute
@@ -72,6 +93,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/dieta': typeof AuthenticatedDietaRoute
+  '/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
   '/chat': typeof AuthenticatedChatIndexRoute
@@ -83,6 +107,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/chat': typeof AuthenticatedChatRouteWithChildren
+  '/_authenticated/dieta': typeof AuthenticatedDietaRoute
+  '/_authenticated/dinheiro': typeof AuthenticatedDinheiroRoute
+  '/_authenticated/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
   '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
@@ -94,6 +121,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/chat'
+    | '/dieta'
+    | '/dinheiro'
+    | '/tempo'
     | '/api/chat'
     | '/chat/$threadId'
     | '/chat/'
@@ -102,6 +132,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/dieta'
+    | '/dinheiro'
+    | '/tempo'
     | '/api/chat'
     | '/chat/$threadId'
     | '/chat'
@@ -112,6 +145,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/chat'
+    | '/_authenticated/dieta'
+    | '/_authenticated/dinheiro'
+    | '/_authenticated/tempo'
     | '/api/chat'
     | '/_authenticated/chat/$threadId'
     | '/_authenticated/chat/'
@@ -162,6 +198,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dieta': {
+      id: '/_authenticated/dieta'
+      path: '/dieta'
+      fullPath: '/dieta'
+      preLoaderRoute: typeof AuthenticatedDietaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dinheiro': {
+      id: '/_authenticated/dinheiro'
+      path: '/dinheiro'
+      fullPath: '/dinheiro'
+      preLoaderRoute: typeof AuthenticatedDinheiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tempo': {
+      id: '/_authenticated/tempo'
+      path: '/tempo'
+      fullPath: '/tempo'
+      preLoaderRoute: typeof AuthenticatedTempoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -201,10 +258,16 @@ const AuthenticatedChatRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedChatRoute: typeof AuthenticatedChatRouteWithChildren
+  AuthenticatedDietaRoute: typeof AuthenticatedDietaRoute
+  AuthenticatedDinheiroRoute: typeof AuthenticatedDinheiroRoute
+  AuthenticatedTempoRoute: typeof AuthenticatedTempoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatRoute: AuthenticatedChatRouteWithChildren,
+  AuthenticatedDietaRoute: AuthenticatedDietaRoute,
+  AuthenticatedDinheiroRoute: AuthenticatedDinheiroRoute,
+  AuthenticatedTempoRoute: AuthenticatedTempoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
