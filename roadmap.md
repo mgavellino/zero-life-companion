@@ -4,5 +4,5 @@
 - [x] Tempo, Dinheiro, Dieta, Academia (fichas)
 - [x] Tema claro/escuro + 6 idiomas
 - [x] Slogan melhorado
-- [ ] IA Google Gemini grátis — aguardando chave GEMINI_API_KEY
+- [ ] IA grátis — Gemini sem chave válida; alternativa Groq (aguardando escolha + chave)
 - [ ] Demonstrações ExerciseDB — aguardando chave EXERCISEDB_API_KEY (RapidAPI)
