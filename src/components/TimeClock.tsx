@@ -10,9 +10,11 @@ import { Progress } from "./ui/progress";
 import { getTimeSessions, startTimeSession, stopTimeSession } from "@/lib/time.functions";
 import { dailyTimeSummary, durationLabel, startTimeSchema, TIME_LABELS, type TimeSession } from "@/lib/time-tracking";
 import { today } from "@/lib/data";
+import { useUnits } from "@/lib/units";
 
 export function TimeClock() {
   const { t, i18n } = useTranslation();
+  const units = useUnits();
   const [now, setNow] = useState<Date | null>(null);
   const [category, setCategory] = useState<TimeSession["category"]>("work");
   const [date, setDate] = useState(today());
