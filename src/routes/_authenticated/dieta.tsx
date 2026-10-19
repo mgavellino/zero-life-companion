@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { logMealAuto } from "@/lib/meals.functions";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { Page, Card, Stat } from "@/components/Page";
@@ -18,8 +22,10 @@ function DietPage() {
   const { t } = useTranslation();
   const { data = [] } = useRows<Meal>("meals");
   const m = useTableMutations("meals");
-  const empty = { name: "", meal_type: "almoco", calories: "", protein: "", carbs: "", fat: "" };
-  const [f, setF] = useState(empty);
+  const qc = useQueryClient();
+  const auto = useServerFn(logMealAuto);
+  const [f, setF] = useState({ text: "", meal_type: "almoco" });
+  const [busy, setBusy] = useState(false);
   const td = data.filter((x) => x.eaten_on === today());
   const sum = (k: keyof Meal) => td.reduce((a, x) => a + Number(x[k]), 0);
   const types: Record<string, string> = { cafe: t("breakfast"), almoco: t("lunch"), lanche: t("snack"), jantar: t("dinner") };
@@ -34,22 +40,27 @@ function DietPage() {
       </div>
       <Card className="mb-6">
         <form
-          className="grid gap-2 md:grid-cols-[1fr_140px_90px_90px_90px_90px_auto]"
-          onSubmit={(e) => {
+          className="grid gap-2 md:grid-cols-[1fr_160px_auto]"
+          onSubmit={async (e) => {
             e.preventDefault();
-            if (!f.name) return;
-            m.insert.mutate({ name: f.name, meal_type: f.meal_type, calories: Number(f.calories || 0), protein: Number(f.protein || 0), carbs: Number(f.carbs || 0), fat: Number(f.fat || 0) });
-            setF(empty);
+            if (!f.text.trim()) return;
+            setBusy(true);
+            try {
+              await auto({ data: f });
+              setF({ ...f, text: "" });
+              qc.invalidateQueries({ queryKey: ["meals"] });
+            } catch (err) {
+              toast.error((err as Error).message);
+            } finally {
+              setBusy(false);
+            }
           }}
         >
-          <Input placeholder={t("meal")} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
+          <Input placeholder={t("mealInput")} value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} />
           <select className="h-9 rounded-md border bg-background px-2 text-sm" value={f.meal_type} onChange={(e) => setF({ ...f, meal_type: e.target.value })}>
             {Object.entries(types).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
-          {(["calories", "protein", "carbs", "fat"] as const).map((k) => (
-            <Input key={k} type="number" placeholder={t(k)} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} />
-          ))}
-          <Button type="submit">{t("add")}</Button>
+          <Button type="submit" disabled={busy}>{busy ? t("calculating") : t("add")}</Button>
         </form>
       </Card>
       <div className="space-y-2">
