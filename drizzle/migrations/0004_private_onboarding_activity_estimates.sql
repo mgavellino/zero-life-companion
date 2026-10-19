@@ -1,0 +1,9 @@
+CREATE TABLE public.user_preferences (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL DEFAULT auth.uid() UNIQUE, display_name text CHECK(length(display_name)<=80), goals text[] NOT NULL DEFAULT '{}', language text NOT NULL DEFAULT 'pt', currency text NOT NULL DEFAULT 'BRL', timezone text NOT NULL DEFAULT 'America/Sao_Paulo', weight_kg numeric CHECK(weight_kg BETWEEN 20 AND 350), height_cm numeric CHECK(height_cm BETWEEN 80 AND 250), age integer CHECK(age BETWEEN 18 AND 100), sex text CHECK(sex IN ('male','female')), health_consent_at timestamptz, privacy_version text NOT NULL DEFAULT '2026-10-19', onboarding_completed_at timestamptz, created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.user_preferences TO authenticated;
+GRANT ALL ON public.user_preferences TO service_role;
+ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
+CREATE POLICY preferences_owner ON public.user_preferences FOR ALL TO authenticated USING(user_id=auth.uid()) WITH CHECK(user_id=auth.uid());
+ALTER TABLE public.energy_activities ADD COLUMN calories_low numeric, ADD COLUMN calories_high numeric, ADD COLUMN estimate_note text, ADD COLUMN personalized boolean NOT NULL DEFAULT true;
+ALTER POLICY "own rows" ON public.messages USING(auth.uid()=user_id AND EXISTS(SELECT 1 FROM public.threads t WHERE t.id=thread_id AND t.user_id=auth.uid())) WITH CHECK(auth.uid()=user_id AND EXISTS(SELECT 1 FROM public.threads t WHERE t.id=thread_id AND t.user_id=auth.uid()));
+ALTER POLICY "own rows" ON public.workout_exercises USING(auth.uid()=user_id AND EXISTS(SELECT 1 FROM public.workouts w WHERE w.id=workout_id AND w.user_id=auth.uid())) WITH CHECK(auth.uid()=user_id AND EXISTS(SELECT 1 FROM public.workouts w WHERE w.id=workout_id AND w.user_id=auth.uid()));
+DROP POLICY "Admins read all profiles" ON public.profiles;

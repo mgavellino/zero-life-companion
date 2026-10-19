@@ -29,6 +29,13 @@
       "when": 1792421709023,
       "tag": "0003_habits_energy_financial_goals",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792422244745,
+      "tag": "0004_private_onboarding_activity_estimates",
+      "breakpoints": true
     }
   ]
 }
