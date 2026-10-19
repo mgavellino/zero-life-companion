@@ -52,10 +52,10 @@ export function OnboardingRecovery({ onRetry }: { onRetry: () => void }) {
 }
 
 class OnboardingBoundary extends Component<{ children: ReactNode; onReset: () => void }, { failed: boolean }> {
-  state = { failed: false };
+  override state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch(error: unknown) { console.error("Onboarding failed to render", error); }
-  render() {
+  override componentDidCatch(error: unknown) { console.error("Onboarding failed to render", error); }
+  override render() {
     if (this.state.failed) return <OnboardingRecovery onRetry={() => { this.setState({ failed: false }); this.props.onReset(); }} />;
     return this.props.children;
   }
