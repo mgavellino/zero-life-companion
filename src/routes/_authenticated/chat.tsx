@@ -269,7 +269,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
         silence = setTimeout(() => { committed += sessionFinal + tmp; sessionFinal = ""; finish(); }, SILENCE_MS);
       };
       rec.onerror = (e) => {
-        if (e.error === "not-allowed" || e.error === "service-not-allowed") { manualStopRef.current = true; toast.error(t("chat2.micError")); }
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") { manualStopRef.current = true; handsFreeRef.current = false; setHandsFree(false); toast.error(t("chat2.micError")); }
         else if (!["no-speech", "aborted", "network"].includes(e.error)) toast.error(t("chat2.hearingError"));
       };
       rec.onend = () => {
