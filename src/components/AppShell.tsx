@@ -1,3 +1,4 @@
+import { useRouterState } from "@tanstack/react-router";
 import { Bot } from "lucide-react";
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -32,6 +33,7 @@ export function AppShell() {
       return !!data;
     },
   });
+  const pathname = useRouterState({ select: (st) => st.location.pathname });
   const items = [
     { to: "/chat", icon: MessageSquare, label: t("nav.chat") },
     { to: "/dashboard", icon: LayoutGrid, label: t("nav.dashboard") },
@@ -114,12 +116,14 @@ export function AppShell() {
           </div>
         </aside>
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <Outlet />
+          <div key={pathname} className="zero-page-enter min-h-full">
+            <Outlet />
+          </div>
         </main>
       </div>
       <nav aria-label={t("shell.mainNav")} className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
-        {items.filter(i => ["/chat", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"text-primary bg-accent/40"}}><i.icon className="size-5" /><span className="max-w-full truncate">{i.label}</span></Link>)}
-        <Button variant="ghost" className="h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label={t("shell.moreOptions")} onClick={() => setMenuOpen(true)}><Menu className="size-5" />{t("shell.more")}</Button>
+        {items.filter(i => ["/chat", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="zero-tab group relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"zero-tab-active text-primary"}}><span className="zero-tab-pill absolute inset-x-3 top-1.5 bottom-1.5 rounded-2xl bg-accent/50" aria-hidden /><i.icon className="zero-tab-icon relative size-5" /><span className="relative max-w-full truncate">{i.label}</span></Link>)}
+        <Button variant="ghost" className="zero-tab h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label={t("shell.moreOptions")} onClick={() => setMenuOpen(true)}><Menu className="size-5" />{t("shell.more")}</Button>
       </nav>
     </div>
     </OnboardingGate>

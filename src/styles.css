@@ -222,3 +222,26 @@
   .app-shell table td:last-child { display: flex; flex-wrap: wrap; gap: 8px; }
   .app-shell [class*="overflow-x-auto"] { overflow-x: visible; }
 }
+
+/* Mobile motion: page entrance, tab press feedback and active pill. */
+@keyframes zero-page-in { from { opacity: 0; transform: translateY(10px) scale(0.995); } to { opacity: 1; transform: none; } }
+@keyframes zero-pop { 0% { transform: scale(1); } 40% { transform: scale(1.22) translateY(-2px); } 100% { transform: scale(1) translateY(-1px); } }
+@keyframes zero-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.zero-page-enter { animation: zero-page-in 320ms cubic-bezier(.2,.8,.2,1) both; }
+.zero-page-enter :where(.rounded-lg.border, .rounded-xl.border, .rounded-2xl.border) { animation: zero-rise 420ms cubic-bezier(.2,.8,.2,1) both; }
+.zero-page-enter :where(.rounded-lg.border, .rounded-xl.border, .rounded-2xl.border):nth-child(2) { animation-delay: 50ms; }
+.zero-page-enter :where(.rounded-lg.border, .rounded-xl.border, .rounded-2xl.border):nth-child(3) { animation-delay: 100ms; }
+.zero-page-enter :where(.rounded-lg.border, .rounded-xl.border, .rounded-2xl.border):nth-child(n+4) { animation-delay: 150ms; }
+.zero-tab { transition: color 200ms ease, transform 120ms ease; -webkit-tap-highlight-color: transparent; }
+.zero-tab:active { transform: scale(0.92); }
+.zero-tab-pill { opacity: 0; transform: scale(0.6); transition: opacity 220ms ease, transform 260ms cubic-bezier(.3,1.5,.5,1); }
+.zero-tab-active .zero-tab-pill { opacity: 1; transform: scale(1); }
+.zero-tab-active .zero-tab-icon { animation: zero-pop 380ms cubic-bezier(.3,1.5,.5,1) both; }
+@media (max-width: 1023px) {
+  button:not(:disabled):active, a[href]:active { transition: transform 100ms ease; }
+  :where(button, [role="button"]):not(:disabled):active { transform: scale(0.97); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zero-page-enter, .zero-page-enter *, .zero-tab-icon { animation: none !important; }
+  .zero-tab, .zero-tab-pill { transition: none !important; }
+}
