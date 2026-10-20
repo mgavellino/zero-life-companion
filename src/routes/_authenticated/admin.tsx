@@ -9,6 +9,9 @@ import { Page, Card, Stat } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getPaddleEnvironment } from "@/lib/paddle";
+import { useServerFn } from "@tanstack/react-start";
+import { listAllUsers, setUserBlocked, deleteUserAccount } from "@/lib/admin.functions";
+import { AdminBroadcast, AdminPromotions, AdminCoupons } from "@/components/AdminTools";
 import { brl, planFromProduct, PRICES, CYCLE_MONTHS, type Cycle } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -64,7 +67,9 @@ function Admin() {
       return { users: [...accounts.values()], subs: (s.data ?? []) as S[], roles: r.data ?? [], grants: (g.data ?? []) as unknown as G[] };
     },
   });
-  const users = data?.users ?? [];
+  const loadUsers = useServerFn(listAllUsers), block = useServerFn(setUserBlocked), remove = useServerFn(deleteUserAccount);
+  const all = useQuery({ queryKey: ["admin-users"], queryFn: () => loadUsers() });
+  const users = all.data ?? [];
   const subs = data?.subs ?? [];
   const latest = new Map<string, S>();
   for (const s of subs) if (!latest.has(s.user_id)) latest.set(s.user_id, s);
@@ -73,7 +78,7 @@ function Admin() {
   const grantOf = new Map<string, G>();
   for (const g of data?.grants ?? []) if (!grantOf.has(g.user_id) && (!g.expires_at || new Date(g.expires_at) > new Date())) grantOf.set(g.user_id, g);
   const [grant, setGrant] = useState<{ to: string; name: string; plan: string; days: string; note: string; trial?: boolean } | null>(null);
-  const [tab, setTab] = useState<"users" | "finance">("users");
+  const [tab, setTab] = useState<"users" | "finance" | "broadcast" | "promos" | "coupons">("users");
   const paying = live.filter((s) => s.status !== "trialing");
   const totalMrr = live.reduce((a, s) => a + mrr(s), 0);
   const byPlan = (["essencial", "pro", "max"] as const).map((pl) => {
@@ -111,14 +116,28 @@ function Admin() {
     qc.invalidateQueries({ queryKey: ["admin"] });
   }
 
-  const filtered = users.filter((u) => !q || (u.display_name ?? "").toLowerCase().includes(q.toLowerCase()) || u.id.startsWith(q));
+  const [planFilter, setPlanFilter] = useState("all");
+  const filtered = users.filter((u) => (planFilter === "all" || u.plan === planFilter) && (!q || (u.display_name ?? "").toLowerCase().includes(q.toLowerCase()) || (u.email ?? "").toLowerCase().includes(q.toLowerCase()) || u.id.startsWith(q)));
+  const newWeek = users.filter((u) => Date.now() - new Date(u.created_at).getTime() < 7 * 86400000).length;
+  const activeWeek = users.filter((u) => u.last_sign_in_at && Date.now() - new Date(u.last_sign_in_at).getTime() < 7 * 86400000).length;
+
+  async function toggleBlock(id: string, blocked: boolean) {
+    try { await block({ data: { userId: id, blocked } }); toast.success(t(blocked ? "adminx.blocked" : "adminx.unblocked")); qc.invalidateQueries({ queryKey: ["admin-users"] }); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("adminx.error")); }
+  }
+  async function removeUser(id: string, label: string) {
+    if (!window.confirm(t("adminx.deleteConfirm", { value: label }))) return;
+    try { await remove({ data: { userId: id } }); toast.success(t("adminx.deleted")); qc.invalidateQueries({ queryKey: ["admin-users"] }); }
+    catch (e) { toast.error(e instanceof Error ? e.message : t("adminx.error")); }
+  }
 
   async function toggleAdmin(id: string) {
-    const res = admins.has(id)
+    const res = users.find((u) => u.id === id)?.admin
       ? await supabase.from("user_roles").delete().eq("user_id", id).eq("role", "admin")
       : await supabase.from("user_roles").insert({ user_id: id, role: "admin" });
     if (res.error) { toast.error(res.error.message); return; }
     qc.invalidateQueries({ queryKey: ["admin"] });
+    qc.invalidateQueries({ queryKey: ["admin-users"] });
     qc.invalidateQueries({ queryKey: ["is-admin"] });
   }
 
@@ -132,18 +151,20 @@ function Admin() {
 
   return (
     <Page title={t("admin.title")} kicker={env === "sandbox" ? t("admin.sandbox") : t("admin.live")}>
-      <div className="mb-8 grid gap-4 md:grid-cols-4">
+      <div className="mb-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label={t("admin.users")} value={String(users.length)} />
         <Stat label={t("admin.active")} value={String(live.filter((s) => s.status !== "trialing").length)} />
+        <Stat label={t("adminx.newWeek")} value={String(newWeek)} />
+        <Stat label={t("adminx.activeWeek")} value={String(activeWeek)} />
         <Stat label={t("admin.trial")} value={String(live.filter((s) => s.status === "trialing").length)} />
         <Stat label={t("admin.monthlyRevenue")} value={brl(totalMrr)} tone="text-money" />
       </div>
-      <div className="mb-4 inline-flex rounded-full border bg-card p-0.5 text-sm">
-        {([["users", t("admin.users")], ["finance", t("admin.finance")]] as const).map(([v, l]) => (
+      <div className="mb-4 flex flex-wrap gap-1 rounded-2xl border bg-card p-1 text-sm">
+        {([["users", t("admin.users")], ["finance", t("admin.finance")], ["broadcast", t("adminx.broadcast")], ["promos", t("adminx.promos")], ["coupons", t("adminx.coupons")]] as const).map(([v, l]) => (
           <button key={v} onClick={() => setTab(v)} className={`rounded-full px-4 py-1.5 ${tab === v ? "bg-primary text-primary-foreground" : ""}`}>{l}</button>
         ))}
       </div>
-      {tab === "finance" ? (
+      {tab === "broadcast" ? <AdminBroadcast /> : tab === "promos" ? <AdminPromotions /> : tab === "coupons" ? <AdminCoupons /> : tab === "finance" ? (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-4">
             <Stat label={t("admin.annualRevenue")} value={brl(totalMrr * 12)} tone="text-money" />
@@ -186,7 +207,13 @@ function Admin() {
       ) : (
       <Card className="p-0">
         <div className="border-b p-4">
-          <Input placeholder={t("admin.search")} value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
+          <div className="flex flex-wrap gap-2">
+            <Input placeholder={t("adminx.searchEmail")} value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
+            <select aria-label={t("admin.plan")} className="h-9 rounded-md border bg-background px-2 text-sm" value={planFilter} onChange={(e) => setPlanFilter(e.target.value)}>
+              <option value="all">{t("adminx.allPlans")}</option><option value="free">{t("pricing.freeName")}</option><option value="essencial">Essencial</option><option value="pro">Pro</option><option value="max">Max</option>
+            </select>
+          </div>
+          {all.isError && <p className="mt-2 text-sm text-destructive">{t("adminx.loadError")}</p>}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -199,11 +226,12 @@ function Admin() {
                 return (
                   <tr key={u.id} className="border-t">
                     <td className="p-4">
-                      <p className="font-medium">{u.display_name ?? t("admin.unnamed")} {admins.has(u.id) && <span className="ml-1 rounded bg-signal px-1.5 text-[10px] font-bold text-signal-foreground">{t("admin.badge")}</span>}</p>
-                      <p className="font-mono text-[10px] text-muted-foreground">{u.id}</p>
+                      <p className="font-medium">{u.display_name ?? t("admin.unnamed")} {u.banned && <span className="ml-1 rounded bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">{t("adminx.blockedBadge")}</span>} {!u.onboarded && <span className="ml-1 rounded bg-muted px-1.5 text-[10px]">{t("adminx.noOnboarding")}</span>} {u.admin && <span className="ml-1 rounded bg-signal px-1.5 text-[10px] font-bold text-signal-foreground">{t("admin.badge")}</span>}</p>
+                      <p className="text-xs text-muted-foreground">{u.email ?? "—"}{u.providers.length ? ` · ${u.providers.join(", ")}` : ""}</p>
+                      <p className="text-[10px] text-muted-foreground">{t("adminx.lastSeen")}: {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : "—"}</p>
                     </td>
                     <td className="capitalize">
-                      {s && ["active", "trialing", "past_due"].includes(s.status) ? planFromProduct(s.product_id) : t("pricing.freeName")}
+                      {u.plan === "free" ? t("pricing.freeName") : u.plan}
                       {grantOf.get(u.id) && <span className="ml-1 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">+{grantOf.get(u.id)?.plan}{grantOf.get(u.id)?.is_trial ? ` · ${t("admin.grantTrial")}` : ""}</span>}
                     </td>
                     <td>{s?.status ? t(`admin.statuses.${s.status}`, { defaultValue: s.status }) : "—"}</td>
@@ -212,7 +240,9 @@ function Admin() {
                       <Button size="sm" variant="outline" onClick={() => setGrant({ to: u.id, name: u.display_name ?? t("admin.userFallback"), plan: "pro", days: "30", note: "" })}>{t("admin.give")}</Button>
                       {grantOf.get(u.id) && <Button size="sm" variant="ghost" onClick={() => { const activeGrant = grantOf.get(u.id); if (activeGrant) void revoke(activeGrant.id); }}>{t("admin.take")}</Button>}
                       <Button size="sm" variant="ghost" onClick={() => setMsg({ to: u.id, title: "", body: "" })}>{t("admin.notify")}</Button>
-                      <Button size="sm" variant="ghost" onClick={() => toggleAdmin(u.id)}>{admins.has(u.id) ? t("admin.removeAdmin") : t("admin.makeAdmin")}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => toggleAdmin(u.id)}>{u.admin ? t("admin.removeAdmin") : t("admin.makeAdmin")}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => toggleBlock(u.id, !u.banned)}>{u.banned ? t("adminx.unblock") : t("adminx.block")}</Button>
+                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => removeUser(u.id, u.email ?? u.id)}>{t("adminx.delete")}</Button>
                     </td>
                   </tr>
                 );
