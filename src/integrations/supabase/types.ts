@@ -486,6 +486,48 @@ export type Database = {
         }
         Relationships: []
       }
+      promotions: {
+        Row: {
+          active: boolean
+          body: string | null
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_url: string | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          active?: boolean
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       push_configuration: {
         Row: {
           id: string
@@ -776,55 +818,88 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          activity_level: string | null
           age: number | null
           created_at: string
           currency: string
+          diet_goal: string | null
+          dietary_restrictions: string[]
           display_name: string | null
+          free_days: number[]
           goals: string[]
           health_consent_at: string | null
           height_cm: number | null
           id: string
           language: string
+          monthly_budget: number | null
+          monthly_income: number | null
           onboarding_completed_at: string | null
+          priorities: string[]
           privacy_version: string
           sex: string | null
+          sleep_time: string | null
           timezone: string
           user_id: string
+          wake_time: string | null
           weight_kg: number | null
+          work_end: string | null
+          work_start: string | null
         }
         Insert: {
+          activity_level?: string | null
           age?: number | null
           created_at?: string
           currency?: string
+          diet_goal?: string | null
+          dietary_restrictions?: string[]
           display_name?: string | null
+          free_days?: number[]
           goals?: string[]
           health_consent_at?: string | null
           height_cm?: number | null
           id?: string
           language?: string
+          monthly_budget?: number | null
+          monthly_income?: number | null
           onboarding_completed_at?: string | null
+          priorities?: string[]
           privacy_version?: string
           sex?: string | null
+          sleep_time?: string | null
           timezone?: string
           user_id?: string
+          wake_time?: string | null
           weight_kg?: number | null
+          work_end?: string | null
+          work_start?: string | null
         }
         Update: {
+          activity_level?: string | null
           age?: number | null
           created_at?: string
           currency?: string
+          diet_goal?: string | null
+          dietary_restrictions?: string[]
           display_name?: string | null
+          free_days?: number[]
           goals?: string[]
           health_consent_at?: string | null
           height_cm?: number | null
           id?: string
           language?: string
+          monthly_budget?: number | null
+          monthly_income?: number | null
           onboarding_completed_at?: string | null
+          priorities?: string[]
           privacy_version?: string
           sex?: string | null
+          sleep_time?: string | null
           timezone?: string
           user_id?: string
+          wake_time?: string | null
           weight_kg?: number | null
+          work_end?: string | null
+          work_start?: string | null
         }
         Relationships: []
       }

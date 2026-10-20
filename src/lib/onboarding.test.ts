@@ -10,3 +10,9 @@ describe("optional measurements and consent", () => {
     expect(activityEstimateSchema.safeParse({ activity: "Corrida", minutes: 15, calories: 130, calories_low: 160, calories_high: 100, estimate_note: "Estimativa" }).success).toBe(false);
   });
 });
+describe("expanded onboarding", () => {
+  const base = { display_name: "", goals: ["time"], language: "pt", currency: "BRL", timezone: "America/Sao_Paulo", health_consent: false, weight_kg: null, height_cm: null, age: null, sex: null };
+  it("allows at most 3 priorities", () => { expect(preferencesSchema.safeParse({ ...base, priorities: ["save_money", "invest", "routine", "eat_better"] }).success).toBe(false); });
+  it("rejects diet goal without health consent", () => { expect(preferencesSchema.safeParse({ ...base, diet_goal: "lose" }).success).toBe(false); });
+  it("rejects invalid routine time", () => { expect(preferencesSchema.safeParse({ ...base, wake_time: "25:00" }).success).toBe(false); });
+});

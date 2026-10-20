@@ -112,6 +112,24 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   usePrefsBootstrap();
+  // After an update, old page files can disappear; reload once instead of showing a blank screen.
+  useEffect(() => {
+    const recover = (event: Event) => {
+      const key = "zero-chunk-reload";
+      const last = Number(sessionStorage.getItem(key) ?? 0);
+      if (Date.now() - last < 30_000) return;
+      event.preventDefault?.();
+      sessionStorage.setItem(key, String(Date.now()));
+      window.location.reload();
+    };
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const msg = String((e.reason as Error | undefined)?.message ?? e.reason ?? "");
+      if (/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i.test(msg)) recover(e);
+    };
+    window.addEventListener("vite:preloadError", recover);
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => { window.removeEventListener("vite:preloadError", recover); window.removeEventListener("unhandledrejection", onRejection); };
+  }, []);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
