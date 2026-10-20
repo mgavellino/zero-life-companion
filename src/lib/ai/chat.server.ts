@@ -265,7 +265,9 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
     instructions,
     messages: await convertToModelMessages(messages),
     tools,
-    stopWhen: stepCountIs(8),
+    stopWhen: stepCountIs(5),
+    maxRetries: 1,
+    onError: ({ error }) => { console.error("chat stream error", error instanceof Error ? error.message.slice(0, 300) : error); },
   });
 
   // Finish (and save) the reply even if the user leaves the page mid-answer.

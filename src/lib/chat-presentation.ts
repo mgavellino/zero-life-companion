@@ -1,10 +1,12 @@
 export function customerText(text: string): string {
   return text
+    .replace(/<\|[a-z_]+\|>[\s\S]*$/gi, "")
+    .replace(/\n\s*-{3,}\s*$/g, "")
     .replace(/(?:suggest_replies|remember|add_task|add_transaction|add_monthly_bill|set_budget|add_meal|log_activity|notify)\s*(?:<[^>]*>)?\s*(?:\{|\[|\(|\|)[\s\S]*$/gi, "")
     .replace(/```[^\n]*\n[\s\S]*?(?:```|$)/g, "")
     .split("\n")
     .filter(line => !/(?:<\/?(?:script|div|span|button)|\b(?:const|let|var|import|export)\s|\b(?:JSON\.stringify|process\.env|supabase\.|tool_call|GROQ_API_KEY|suggest_replies|add_transaction|add_task|set_budget|add_meal)\b|^\s*\{\s*"|^\s*at\s+.*:\d+:\d+)/i.test(line))
-    .join("\n").trim();
+    .join("\n").replace(/\n\s*-{3,}\s*$/g, "").trim();
 }
 const ACTIONS: Record<string, string> = {
   add_monthly_bill: "Conta mensal salva",
