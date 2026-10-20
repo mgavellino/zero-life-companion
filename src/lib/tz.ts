@@ -18,6 +18,9 @@ export function localToUtcIso(value: string, tz: string): string | null {
   const first = guess - offsetMinutes(new Date(guess), tz) * 60000;
   return new Date(guess - offsetMinutes(new Date(first), tz) * 60000).toISOString();
 }
+/** "YYYY-MM-DDTHH:mm (Weekday)" in the user's timezone. */
 export function localNow(tz: string, now = new Date()) {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "long" }).format(now);
+  const p: Record<string, string> = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "long" }).formatToParts(now).map((x) => [x.type, x.value]));
+  return `${p["year"]}-${p["month"]}-${p["day"]}T${p["hour"]}:${p["minute"]} (${p["weekday"]})`;
 }
+export function localDate(tz: string, now = new Date()) { return localNow(tz, now).slice(0, 10); }

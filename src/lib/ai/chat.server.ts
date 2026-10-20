@@ -1,4 +1,4 @@
-import { localNow, localToUtcIso, validTz } from "@/lib/tz";
+import { localDate, localNow, localToUtcIso, validTz } from "@/lib/tz";
 import { createGroq } from "@ai-sdk/groq";
 import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
@@ -82,11 +82,11 @@ export async function handleChat(request: Request) {
   }
 
   // Shared memory across all threads
-  const today = new Date().toISOString().slice(0, 10);
-  const monthStart = today.slice(0, 8) + "01";
   const { data: preferenceData } = await sb.from("user_preferences").select("display_name,timezone,goals,currency,language,health_consent_at,priorities,wake_time,sleep_time,work_start,work_end,free_days,monthly_income,monthly_budget,diet_goal,activity_level,dietary_restrictions").eq("user_id", userId).maybeSingle();
   const preferences = { data: preferenceData };
   const tz = validTz(preferenceData?.timezone) ?? "America/Sao_Paulo";
+  const today = localDate(tz);
+  const monthStart = today.slice(0, 8) + "01";
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
   const localDay = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
   const { data: timeSessions } = await sb.from("time_sessions").select("id,category,started_at,ended_at").eq("user_id", userId).gte("started_at", `${localDay}T00:00:00`).limit(200);
@@ -123,7 +123,7 @@ At the END of every reply, call suggest_replies with 2-4 short options the user 
 When the user asks to be reminded of something, create a task with due_at so the app notifies them.
 For MONTHLY bills or subscriptions explicitly described as recurring, use add_monthly_bill instead of a one-off task. Ask for the missing amount or due day before saving. Categorize financial entries automatically from the description. A future bill is not a paid expense: only record transactions when the user says they paid/spent. Never claim a bank payment was executed. Reminders arrive as in-app and phone notifications when the user enabled alerts in Settings.
 When the user mentions spending/earning money, a task/appointment, or a meal, log it with the right tool without asking (confirm briefly after). Use markdown, short lists and tables when helpful.
-Current local date/time for the user: ${localNow(tz)} (timezone ${tz}). Interpret every time the user says in THIS timezone; send due_at as local "YYYY-MM-DDTHH:mm" without offset. "Remind me in 5 minutes" means now + 5 minutes. User name: ${preferences.data?.display_name || profile.data?.display_name || "unknown"}.
+Current local date/time for the user: ${localNow(tz)} (timezone ${tz}). Interpret every time the user says in THIS timezone; send due_at as local "YYYY-MM-DDTHH:mm" without offset. For relative times ("in 5 minutes", "daqui 2 min", "em 1 hora") ALWAYS use minutes_from_now instead of due_at. Today is ${today}; "today" means this date, not tomorrow. User name: ${preferences.data?.display_name || profile.data?.display_name || "unknown"}.
 ## Onboarding profile (user-provided; use it to personalise advice)
 ${(() => { const p = preferences.data; if (!p) return "(none)"; const lines = [
   p.goals?.length ? `Focus areas: ${p.goals.join(", ")}` : "",
@@ -190,12 +190,14 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       description: "Create a task or appointment for the user.",
       inputSchema: z.object({
         title: z.string(),
-        due_at: z.string().nullable().describe("user-local datetime YYYY-MM-DDTHH:mm, or null"),
+        due_at: z.string().nullable().describe("user-local datetime YYYY-MM-DDTHH:mm for absolute times, or null"),
+        minutes_from_now: z.number().int().min(1).max(60 * 24 * 60).nullable().optional().describe("for relative reminders like 'in 10 minutes'"),
         minutes: z.number().nullable().describe("estimated duration in minutes"),
         priority: z.enum(["alta", "media", "baixa"]),
       }),
       execute: async (raw) => {
-        const i = { ...raw, due_at: raw.due_at ? localToUtcIso(raw.due_at, tz) : null };
+        const { minutes_from_now, ...rest } = raw;
+        const i = { ...rest, due_at: minutes_from_now ? new Date(Date.now() + minutes_from_now * 60_000).toISOString() : rest.due_at ? localToUtcIso(rest.due_at, tz) : null };
         const { data: ins, error } = await sb.from("tasks").insert({ ...i, user_id: userId }).select("id").single();
         if (!error && ins && i.due_at) { const { syncTaskToCalendar } = await import("@/lib/calendar.server"); await syncTaskToCalendar(userId, { id: ins.id, title: i.title, due_at: i.due_at, minutes: i.minutes }); }
         return error ? { ok: false, error: error.message } : { ok: true, task: i.title };
