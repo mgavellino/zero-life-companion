@@ -161,7 +161,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     },
   });
 
-  useEffect(() => () => stopSpeaking(), []);
+  useEffect(() => () => { stopSpeaking(); manualStopRef.current = true; recRef.current?.stop(); }, []);
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
