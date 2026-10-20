@@ -37,7 +37,7 @@
 - [x] Sistema de admin
 - [x] Planos via Paddle (grátis + 3 planos, mensal/semestral/anual, teste grátis, ancoragem)
 - [x] Página de apresentação mais bem planejada
-- [x] Abrir o app direto no chat de voz
+- [x] Abrir o chat em texto silencioso com voz opcional; troca voz/texto verificada na conta conectada em tela de celular.
 - [x] Teste grátis de 1 mês (30 dias)
 - [x] Páginas públicas de Termos, Privacidade e Reembolso com nome legal, e-mail de contato e links na apresentação e nos planos
 - [ ] Pagamentos reais — aguardam publicação, verificação do vendedor e aprovação da Paddle
