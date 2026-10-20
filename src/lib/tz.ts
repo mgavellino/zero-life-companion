@@ -4,8 +4,8 @@ export function validTz(tz: unknown): string | null {
   try { new Intl.DateTimeFormat("en", { timeZone: tz }); return tz; } catch { return null; }
 }
 function offsetMinutes(at: Date, tz: string) {
-  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(at).map((p) => [p.type, p.value]));
-  const asUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+  const parts: Record<string, string> = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(at).map((p) => [p.type, p.value]));
+  const asUtc = Date.UTC(Number(parts["year"]), Number(parts["month"]) - 1, Number(parts["day"]), Number(parts["hour"]), Number(parts["minute"]), Number(parts["second"]));
   return Math.round((asUtc - at.getTime()) / 60000);
 }
 /** "YYYY-MM-DD HH:mm" in the user's timezone → UTC ISO. Strings with an explicit offset or Z are kept as given. */
