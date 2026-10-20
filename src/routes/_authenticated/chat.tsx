@@ -432,6 +432,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               recRef.current?.stop();
               setHandsFree(false);
               setMode("text");
+              // Focus inside the tap so phones open the keyboard right away.
+              requestAnimationFrame(() => inputRef.current?.focus());
             }}
             className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
           >
@@ -501,7 +503,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               ))}
             </div>
             <PromptInput onSubmit={(msg) => send(msg.text ?? "")}>
-              <PromptInputTextarea ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
+              <PromptInputTextarea autoFocus ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
                   {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); listen(); } }}>

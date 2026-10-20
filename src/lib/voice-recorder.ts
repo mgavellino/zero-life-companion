@@ -74,9 +74,7 @@ export class VadRecorder {
   }
 }
 
+/** Every phone/browser that can record uses Groq transcription; browser recognition is only a fallback. */
 export function prefersRecorder() {
-  if (typeof navigator === "undefined") return false;
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /macintosh/i.test(navigator.userAgent));
-  const W = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown };
-  return typeof MediaRecorder !== "undefined" && (ios || !(W.SpeechRecognition ?? W.webkitSpeechRecognition));
+  return typeof navigator !== "undefined" && typeof MediaRecorder !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
 }
