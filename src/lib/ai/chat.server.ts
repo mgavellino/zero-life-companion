@@ -1,6 +1,7 @@
 import { localDate, localNow, localToUtcIso, validTz } from "@/lib/tz";
 import { createGroq } from "@ai-sdk/groq";
-import { convertToModelMessages, stepCountIs, streamText, tool, type UIMessage } from "ai";
+import { convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, stepCountIs, streamText, tool, type UIMessage } from "ai";
+import { confirmActions } from "@/lib/chat-confirmations";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
@@ -81,6 +82,9 @@ export async function handleChat(request: Request) {
   } catch {
     return new Response("Não consegui recuperar sua conversa. Tente novamente.", { status: 503 });
   }
+  // Only recent turns go to the model: the full history overflows the free Groq token budget and stalls replies.
+  let modelMessages = messages.slice(-24);
+  while (modelMessages.length > 1 && modelMessages[0]?.role !== "user") modelMessages = modelMessages.slice(1);
 
   // Shared memory across all threads
   const { data: preferenceData } = await sb.from("user_preferences").select("display_name,timezone,goals,currency,language,health_consent_at,priorities,wake_time,sleep_time,work_start,work_end,free_days,monthly_income,monthly_budget,diet_goal,activity_level,dietary_restrictions").eq("user_id", userId).maybeSingle();
@@ -167,7 +171,7 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       execute: async i => {
         const values=billSchema.parse({...i,starts_on:today});
         const {error}=await sb.from("recurring_bills").insert({...values,category:automaticCategory(i.title),user_id:userId});
-        return error?{ok:false}:{ok:true,title:i.title};
+        return error?{ok:false}:{ok:true,title:i.title,amount:i.amount,due_day:i.due_day};
       },
     }),
     log_activity: tool({
@@ -201,7 +205,7 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         const i = { ...rest, due_at: minutes_from_now ? new Date(Date.now() + minutes_from_now * 60_000).toISOString() : rest.due_at ? localToUtcIso(rest.due_at, tz) : null };
         const { data: ins, error } = await sb.from("tasks").insert({ ...i, user_id: userId }).select("id").single();
         if (!error && ins && i.due_at) { const { syncTaskToCalendar } = await import("@/lib/calendar.server"); await syncTaskToCalendar(userId, { id: ins.id, title: i.title, due_at: i.due_at, minutes: i.minutes }); }
-        return error ? { ok: false, error: error.message } : { ok: true, task: i.title };
+        return error ? { ok: false } : { ok: true, task: i.title, due_at: i.due_at };
       },
     }),
     add_transaction: tool({
@@ -223,7 +227,7 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       inputSchema: z.object({ category: z.string(), monthly_limit: z.number() }),
       execute: async (i) => {
         const { error } = await sb.from("budgets").upsert({ ...i, user_id: userId }, { onConflict: "user_id,category" });
-        return error ? { ok: false, error: error.message } : { ok: true };
+        return error ? { ok: false } : { ok: true, category: i.category, monthly_limit: i.monthly_limit };
       },
     }),
     notify: tool({
@@ -247,7 +251,7 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       execute: async (i) => {
         if (!preferences.data?.health_consent_at) return { ok: false, message: "Autorize os dados de saúde em Privacidade antes de registrar refeições." };
         const { error } = await sb.from("meals").insert({ ...i, calories: Math.round(i.calories), user_id: userId });
-        return error ? { ok: false, error: error.message } : { ok: true };
+        return error ? { ok: false } : { ok: true, name: i.name, calories: i.calories, protein: i.protein, carbs: i.carbs, fat: i.fat };
       },
     }),
   };
@@ -259,38 +263,45 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
   const result = streamText({
     model: provider(modelFor(plan)),
     instructions: instructions + (body.retry ? "\nThis is a recovery request: answer the latest user request using saved records. Do not perform any new writes or duplicate actions. Clearly state if a requested action cannot be confirmed as saved." : ""),
-    messages: await convertToModelMessages(messages),
+    messages: await convertToModelMessages(modelMessages),
     tools,
     abortSignal: request.signal,
-    stopWhen: stepCountIs(5),
+    // Saved actions are confirmed instantly by the server; no second model round-trip.
+    stopWhen: [stepCountIs(5), ({ steps }) => (steps.at(-1)?.toolResults.length ?? 0) > 0],
     prepareStep: ({ stepNumber, steps }) => chatStepPolicy(stepNumber, steps.some((step) => step.toolResults.length > 0), body.retry === true),
     providerOptions: { groq: { reasoningEffort: "low" } },
     maxRetries: 1,
     onError: ({ error }) => { console.error("chat stream error", error instanceof Error ? error.message.slice(0, 300) : error); },
   });
 
+  const streamError = (error: unknown) => String(error).includes("Rate limit") || String(error).includes("429") ? "429" : "Não consegui responder agora. Tente novamente em instantes.";
+  const stream = createUIMessageStream({
+    originalMessages: messages,
+    onError: streamError,
+    execute: async ({ writer }) => {
+      for await (const chunk of result.toUIMessageStream({ sendReasoning: false, sendFinish: false, onError: streamError })) writer.write(chunk);
+      let actions: { toolName: string; output: unknown }[] = [];
+      try { actions = (await result.steps).flatMap((step) => step.toolResults.map((r) => ({ toolName: r.toolName, output: r.output }))); } catch { /* error already streamed */ }
+      if (actions.length) {
+        const text = confirmActions(actions, { lang: body.lang, currency: preferenceData?.currency ?? "BRL", tz });
+        if (text) { writer.write({ type: "text-start", id: "confirm" }); writer.write({ type: "text-delta", id: "confirm", delta: text }); writer.write({ type: "text-end", id: "confirm" }); }
+      }
+      writer.write({ type: "finish", finishReason: "stop" });
+    },
+    onEnd: async ({ responseMessage, isAborted }) => {
+      if (isAborted || !responseMessage.parts.length) return;
+      const { error } = await sb.from("messages").insert({ thread_id: threadId, user_id: userId, role: "assistant", parts: responseMessage.parts as never });
+      if (error) console.error("save assistant msg", error);
+    },
+  });
+
   // Finish (and save) the reply even if the user leaves the page mid-answer.
-  return result.toUIMessageStreamResponse({
-      originalMessages: messages,
-      consumeSseStream: async ({ stream }) => {
-        const reader = stream.getReader();
-        try { while (!(await reader.read()).done) { /* Drain the UI stream so its save callback completes. */ } }
-        finally { reader.releaseLock(); }
-      },
-      sendReasoning: false,
-      onError: (error) => String(error).includes("Rate limit") || String(error).includes("429") ? "429" : "Não consegui responder agora. Tente novamente em instantes.",
-      onFinish: async ({ responseMessage, isAborted }) => {
-        if (isAborted || !responseMessage.parts.length) return;
-        const { error } = await sb.from("messages").insert({
-          thread_id: threadId,
-          user_id: userId,
-          role: "assistant",
-          parts: responseMessage.parts as never,
-        });
-        if (error) {
-          console.error("save assistant msg", error);
-          throw new Error("Não consegui guardar a resposta. Tente novamente.");
-        }
-      },
-    });
+  return createUIMessageStreamResponse({
+    stream,
+    consumeSseStream: async ({ stream: copy }) => {
+      const reader = copy.getReader();
+      try { while (!(await reader.read()).done) { /* Drain the UI stream so its save callback completes. */ } }
+      finally { reader.releaseLock(); }
+    },
+  });
 }
