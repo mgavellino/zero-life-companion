@@ -111,11 +111,14 @@ export function AdminCoupons() {
   const qc = useQueryClient();
   const load = useServerFn(listCoupons), make = useServerFn(createCoupon), archive = useServerFn(archiveCoupon);
   const list = useQuery({ queryKey: ["admin-coupons"], queryFn: () => load() });
-  const empty = { code: "", description: "", percent: "20", usage: "", days: "30", months: "3" };
+  const empty = { code: "", description: "", kind: "percentage" as "percentage" | "flat", amount: "20", currency: "BRL" as "BRL" | "USD" | "EUR", usage: "", days: "30", months: "3" };
   const [f, setF] = useState(empty);
+  const amountNum = Number(f.amount.replace(",", "."));
+  const validAmount = amountNum > 0 && (f.kind === "flat" || amountNum <= 100);
+  const off$ = f.kind === "percentage" ? `${f.amount || 0}%` : new Intl.NumberFormat(undefined, { style: "currency", currency: f.currency }).format(amountNum || 0);
   const create = useMutation({
     mutationFn: () => make({ data: {
-      code: f.code, description: f.description || f.code, percent: Number(f.percent),
+      code: f.code, description: f.description || f.code, kind: f.kind, amount: amountNum, currency: f.currency,
       usage_limit: f.usage ? Number(f.usage) : null, expires_days: f.days !== "0" ? Number(f.days) : null, months: f.months !== "0" ? Number(f.months) : null,
     } }),
     onSuccess: () => { toast.success(t("adminx.couponSaved")); setF(empty); void qc.invalidateQueries({ queryKey: ["admin-coupons"] }); },
@@ -126,24 +129,41 @@ export function AdminCoupons() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["admin-coupons"] }),
     onError: (e) => err(e, t("adminx.error")),
   });
+  const Field = ({ label, help, children }: { label: string; help: string; children: React.ReactNode }) => <label className="block min-w-0 space-y-1"><span className="text-sm font-medium">{label}</span>{children}<span className="block text-xs text-muted-foreground">{help}</span></label>;
   return (
     <div className="space-y-4">
-      <Card className="space-y-3">
+      <Card className="space-y-4">
         <p className="font-display font-semibold">{t("adminx.couponNew")}</p>
         <p className="text-sm text-muted-foreground">{t("adminx.couponHint")}</p>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Input placeholder={t("adminx.couponCode")} maxLength={16} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") })} />
-          <Input placeholder={t("adminx.couponDesc")} maxLength={100} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
-          <label className="flex items-center gap-2 text-sm"><span className="shrink-0">{t("adminx.couponPercent")}</span><Input type="number" min={1} max={100} value={f.percent} onChange={(e) => setF({ ...f, percent: e.target.value })} /></label>
-          <label className="flex items-center gap-2 text-sm"><span className="shrink-0">{t("adminx.couponUsage")}</span><Input type="number" min={1} placeholder="∞" value={f.usage} onChange={(e) => setF({ ...f, usage: e.target.value })} /></label>
-          <select aria-label={t("adminx.couponValid")} className={sel} value={f.days} onChange={(e) => setF({ ...f, days: e.target.value })}>
-            <option value="7">{t("adminx.validFor", { value: 7 })}</option><option value="30">{t("adminx.validFor", { value: 30 })}</option><option value="90">{t("adminx.validFor", { value: 90 })}</option><option value="0">{t("admin.noExpiry")}</option>
-          </select>
-          <select aria-label={t("adminx.couponMonths")} className={sel} value={f.months} onChange={(e) => setF({ ...f, months: e.target.value })}>
-            <option value="1">{t("adminx.months", { count: 1 })}</option><option value="3">{t("adminx.months", { count: 3 })}</option><option value="6">{t("adminx.months", { count: 6 })}</option><option value="12">{t("adminx.months", { count: 12 })}</option><option value="0">{t("adminx.forever")}</option>
-          </select>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t("coupon.code")} help={t("coupon.codeHelp")}><Input placeholder="ZERO20" maxLength={16} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") })} /></Field>
+          <Field label={t("coupon.desc")} help={t("coupon.descHelp")}><Input maxLength={100} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></Field>
+          <div className="space-y-1 sm:col-span-2"><span className="text-sm font-medium">{t("coupon.kind")}</span>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant={f.kind === "percentage" ? "default" : "outline"} onClick={() => setF({ ...f, kind: "percentage", amount: "20" })}>{t("coupon.percent")}</Button>
+              <Button type="button" size="sm" variant={f.kind === "flat" ? "default" : "outline"} onClick={() => setF({ ...f, kind: "flat", amount: "5" })}>{t("coupon.flat")}</Button>
+            </div>
+          </div>
+          <Field label={f.kind === "percentage" ? t("coupon.percentLabel") : t("coupon.flatLabel")} help={f.kind === "percentage" ? t("coupon.percentHelp") : t("coupon.flatHelp")}>
+            <div className="flex gap-2">
+              {f.kind === "flat" && <select aria-label={t("coupon.currency")} className={sel + " w-24"} value={f.currency} onChange={(e) => setF({ ...f, currency: e.target.value as typeof f.currency })}><option>BRL</option><option>USD</option><option>EUR</option></select>}
+              <Input type="number" inputMode="decimal" min={0.01} max={f.kind === "percentage" ? 100 : undefined} step={f.kind === "percentage" ? 1 : 0.01} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
+            </div>
+          </Field>
+          <Field label={t("coupon.months")} help={t("coupon.monthsHelp")}>
+            <select className={sel} value={f.months} onChange={(e) => setF({ ...f, months: e.target.value })}>
+              <option value="1">{t("adminx.months", { count: 1 })}</option><option value="3">{t("adminx.months", { count: 3 })}</option><option value="6">{t("adminx.months", { count: 6 })}</option><option value="12">{t("adminx.months", { count: 12 })}</option><option value="0">{t("adminx.forever")}</option>
+            </select>
+          </Field>
+          <Field label={t("coupon.usage")} help={t("coupon.usageHelp")}><Input type="number" min={1} placeholder="∞" value={f.usage} onChange={(e) => setF({ ...f, usage: e.target.value })} /></Field>
+          <Field label={t("coupon.valid")} help={t("coupon.validHelp")}>
+            <select className={sel} value={f.days} onChange={(e) => setF({ ...f, days: e.target.value })}>
+              <option value="7">{t("adminx.validFor", { value: 7 })}</option><option value="30">{t("adminx.validFor", { value: 30 })}</option><option value="90">{t("adminx.validFor", { value: 90 })}</option><option value="365">{t("adminx.validFor", { value: 365 })}</option><option value="0">{t("admin.noExpiry")}</option>
+            </select>
+          </Field>
         </div>
-        <Button disabled={f.code.length < 3 || create.isPending} onClick={() => create.mutate()}>{create.isPending ? t("shell.saving") : t("adminx.couponCreate")}</Button>
+        <p className="rounded-xl border bg-muted/40 p-3 text-sm">{t("coupon.summary", { code: f.code || "…", off: off$, months: f.months === "0" ? t("coupon.always") : t("adminx.months", { count: Number(f.months) }), uses: f.usage || "∞", days: f.days === "0" ? t("admin.noExpiry") : t("adminx.validFor", { value: Number(f.days) }) })}</p>
+        <Button disabled={f.code.length < 3 || !validAmount || create.isPending} onClick={() => create.mutate()}>{create.isPending ? t("shell.saving") : t("adminx.couponCreate")}</Button>
       </Card>
       <Card>
         <p className="mb-3 font-display font-semibold">{t("adminx.couponList")}</p>
@@ -152,7 +172,7 @@ export function AdminCoupons() {
           {(list.data ?? []).map((c) => (
             <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
               <div className="min-w-0">
-                <p className="font-mono font-semibold">{c.code ?? "—"} <span className="font-sans text-sm font-normal">· {c.type === "percentage" ? `${c.amount}%` : c.amount}</span></p>
+                <p className="font-mono font-semibold">{c.code ?? "—"} <span className="font-sans text-sm font-normal">· {c.type === "percentage" ? `${c.amount}%` : new Intl.NumberFormat(undefined, { style: "currency", currency: c.currency ?? "BRL" }).format(Number(c.amount) / 100)}</span></p>
                 <p className="text-xs text-muted-foreground">{c.description} · {t("adminx.used", { value: c.times_used, limit: c.usage_limit ?? "∞" })}{c.expires_at ? ` · ${t("admin.until", { value: new Date(c.expires_at).toLocaleDateString() })}` : ""}</p>
               </div>
               <Button size="sm" variant="ghost" className="text-destructive" disabled={off.isPending} onClick={() => off.mutate(c.id)}>{t("adminx.couponArchive")}</Button>
