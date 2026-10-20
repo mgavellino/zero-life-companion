@@ -11,6 +11,6 @@ const all = {
 };
 for (const [lang, v] of Object.entries({"pt": ["Voz e orbe", "Voz do assistente", "Ouvir", "Cor da orbe", "Estilo", "Brilho", "Minimalista", "A voz premium está disponível nos planos Pro e Max."], "en": ["Voice and orb", "Assistant voice", "Preview", "Orb colour", "Style", "Glow", "Minimal", "The premium voice is available on Pro and Max."], "es": ["Voz y orbe", "Voz del asistente", "Escuchar", "Color del orbe", "Estilo", "Brillo", "Minimalista", "La voz premium está disponible en Pro y Max."], "fr": ["Voix et orbe", "Voix de l'assistant", "Écouter", "Couleur de l'orbe", "Style", "Lumineux", "Minimaliste", "La voix premium est disponible avec Pro et Max."], "de": ["Stimme und Orb", "Stimme des Assistenten", "Anhören", "Orb-Farbe", "Stil", "Leuchtend", "Minimal", "Die Premium-Stimme gibt es mit Pro und Max."], "it": ["Voce e sfera", "Voce dell'assistente", "Ascolta", "Colore della sfera", "Stile", "Luminoso", "Minimale", "La voce premium è disponibile con Pro e Max."]})) {
   const [title, voice, preview, color, style, glow, minimal, premium] = v;
-  (all as Record<string, Record<string, unknown>>)[lang].voicePrefs = { title, voice, preview, color, style, glow, minimal, premium };
+  Object.assign((all as unknown as Record<string, object>)[lang] ?? {}, { voicePrefs: { title, voice, preview, color, style, glow, minimal, premium } });
 }
 export default all;
