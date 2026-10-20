@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { OnboardingGate } from "./Onboarding";
 import { ShellClock } from "./ShellClock";
 import { InstallZero } from "./InstallZero";
+import { cn } from "@/lib/utils";
 
 export function AppShell() {
   const { t } = useTranslation();

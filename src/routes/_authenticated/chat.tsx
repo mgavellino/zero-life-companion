@@ -12,7 +12,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
-import { Shimmer } from "@/components/ai-elements/shimmer";
 import { actionLabel, customerText, savedTransaction } from "@/lib/chat-presentation";
 import { TransactionConfirmation } from "@/components/TransactionConfirmation";
 import { Button } from "@/components/ui/button";
