@@ -56,9 +56,10 @@
 - [x] Impedir conteúdo técnico e código visível no chat
 
 ## Pendente
-- [ ] Chat único de texto com microfone integrado; corrigir respostas travadas e tornar respostas pela Groq mais diretas.
-- [ ] Abrir chat nas últimas mensagens e verificar confirmações após tarefas, dieta, atividade, relatórios e lançamentos financeiros.
-- [ ] Manter progresso, cancelar e tentar novamente junto à caixa de mensagem; não exigir busca no início do histórico.
+- [x] Chat único de texto com microfone integrado, sem tela ou abas separadas de voz.
+- [ ] Confirmar respostas rápidas após todos os registros — tarefa foi salva, mas a confirmação escrita ainda demorou no teste; limite temporário da Groq também observado.
+- [x] Abrir chat nas últimas mensagens; resposta de relatório e recuperação verificadas na conta conectada.
+- [x] Manter progresso, cancelar e tentar novamente junto à caixa de mensagem; cancelamento e recuperação verificados sem rolar o histórico.
 - [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
 
 ## Novas tarefas (19/10)
