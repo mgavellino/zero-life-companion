@@ -31,6 +31,7 @@ import { Route as AuthenticatedDinheiroRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTempoRouteImport } from './routes/_authenticated/tempo'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiSttRouteImport } from './routes/api/stt'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicJobsBillRemindersRouteImport } from './routes/api/public/jobs/bill-reminders'
@@ -150,6 +151,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSttRoute = ApiSttRouteImport.update({
+  id: '/api/stt',
+  path: '/api/stt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTtsRoute = ApiTtsRouteImport.update({
   id: '/api/tts',
   path: '/api/tts',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/stt': typeof ApiSttRoute
   '/api/tts': typeof ApiTtsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/stt': typeof ApiSttRoute
   '/api/tts': typeof ApiTtsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/tempo': typeof AuthenticatedTempoRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/stt': typeof ApiSttRoute
   '/api/tts': typeof ApiTtsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/jobs/bill-reminders': typeof ApiPublicJobsBillRemindersRoute
@@ -298,6 +307,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/tempo'
     | '/api/chat'
+    | '/api/stt'
     | '/api/tts'
     | '/.lovable/oauth/consent'
     | '/api/public/jobs/bill-reminders'
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/tempo'
     | '/api/chat'
+    | '/api/stt'
     | '/api/tts'
     | '/.lovable/oauth/consent'
     | '/api/public/jobs/bill-reminders'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/_authenticated/tempo'
     | '/api/chat'
+    | '/api/stt'
     | '/api/tts'
     | '/.lovable/oauth/consent'
     | '/api/public/jobs/bill-reminders'
@@ -378,6 +390,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiSttRoute: typeof ApiSttRoute
   ApiTtsRoute: typeof ApiTtsRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicJobsBillRemindersRoute: typeof ApiPublicJobsBillRemindersRoute
@@ -542,6 +555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stt': {
+      id: '/api/stt'
+      path: '/api/stt'
+      fullPath: '/api/stt'
+      preLoaderRoute: typeof ApiSttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tts': {
       id: '/api/tts'
       path: '/api/tts'
@@ -630,6 +650,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiSttRoute: ApiSttRoute,
   ApiTtsRoute: ApiTtsRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicJobsBillRemindersRoute: ApiPublicJobsBillRemindersRoute,

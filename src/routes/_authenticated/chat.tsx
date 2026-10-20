@@ -1,3 +1,6 @@
+import { flushSync } from "react-dom";
+import { VadRecorder, prefersRecorder } from "@/lib/voice-recorder";
+import { transcribe } from "@/lib/transcribe";
 import { DEFAULT_VOICE, orbColorValue, readVoicePrefs, type VoicePrefs } from "@/lib/voice-prefs";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
@@ -224,7 +227,25 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   // In voice mode ONE recognition session stays open for the whole conversation: phones (iOS above all)
   // refuse to reopen the mic without a tap, which made voice stop after the first reply.
   // While the assistant thinks or speaks, heard results are ignored so it doesn't hear itself.
+  const vadRef = useRef<VadRecorder | null>(null);
   const listen = useCallback(() => {
+    if (modeRef.current === "voice" && prefersRecorder()) {
+      // iPhone: record and transcribe on the server; the browser recogniser stops after the first reply there.
+      if (!vadRef.current) {
+        vadRef.current = new VadRecorder(async (audio) => {
+          vadRef.current?.pause();
+          setVoice("thinking");
+          const heard = await transcribe(audio, i18n.language);
+          if (heard) send(heard); else setVoice("idle");
+        });
+      }
+      const vad = vadRef.current;
+      setNeedsTap(false);
+      vad.open().then(() => { vad.resume(); setVoice("listening"); }).catch(() => {
+        handsFreeRef.current = false; setHandsFree(false); setVoice("idle"); toast.error(t("chat2.micError"));
+      });
+      return;
+    }
     if (recRef.current) { setNeedsTap(false); setVoice("listening"); return; }
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
@@ -301,6 +322,18 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   }, [send, t]);
   listenRef.current = listen;
 
+  // The recorder only listens while the orb says "listening" (never while the assistant thinks or speaks).
+  useEffect(() => { if (voice !== "listening") vadRef.current?.pause(); }, [voice]);
+  useEffect(() => { if (mode !== "voice") { vadRef.current?.close(); vadRef.current = null; } }, [mode]);
+  useEffect(() => () => { vadRef.current?.close(); }, []);
+
+  // Never leave the user stuck on "thinking": give up on a reply that hasn't started after 40s.
+  useEffect(() => {
+    if (status !== "submitted") return;
+    const id = setTimeout(() => { stop(); setVoice("idle"); toast.error(t("chat2.replyError")); }, 40_000);
+    return () => clearTimeout(id);
+  }, [status, stop, t]);
+
   // Hands-free loop: whenever the assistant is idle in voice mode, open the mic again.
   // This also recovers after errors, blocked sends or audio that never reported its end.
   useEffect(() => {
@@ -310,6 +343,11 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   }, [mode, handsFree, voice, busy, needsTap]);
 
   function toggleVoice() {
+    if (voice === "listening" && vadRef.current?.active) {
+      setHandsFree(false); handsFreeRef.current = false;
+      vadRef.current.pause(); setVoice("idle");
+      return;
+    }
     if (voice === "listening") {
       setHandsFree(false); handsFreeRef.current = false;
       manualStopRef.current = true;
@@ -394,7 +432,9 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               manualStopRef.current = true;
               recRef.current?.stop();
               setHandsFree(false);
-              setMode("text");
+              // Render text mode and focus inside the same tap so phones (iPhone too) open the keyboard.
+              flushSync(() => setMode("text"));
+              inputRef.current?.focus();
             }}
             className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
           >
@@ -464,7 +504,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               ))}
             </div>
             <PromptInput onSubmit={(msg) => send(msg.text ?? "")}>
-              <PromptInputTextarea ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
+              <PromptInputTextarea autoFocus ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
                   {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); listen(); } }}>

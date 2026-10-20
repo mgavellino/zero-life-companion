@@ -73,3 +73,6 @@
 
 - [x] Onboarding: obrigatório instalar app e ativar avisos
 - [x] Escolher a voz do assistente
+- [x] Chat preso em "pensando" (stream morre após ferramenta)
+- [x] Microfone (iPhone e Android): gravar + transcrever via Groq Whisper
+- [x] Teclado abre ao ir para modo texto

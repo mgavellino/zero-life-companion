@@ -137,7 +137,7 @@ async function listAllUsersInternal() {
 
 // ---------- Coupons (payment-provider discounts) ----------
 
-type Discount = { id: string; code: string | null; description: string; type: string; amount: string; status: string; usage_limit: number | null; times_used: number; expires_at: string | null; recur: boolean; maximum_recurring_intervals: number | null };
+type Discount = { id: string; code: string | null; description: string; type: string; amount: string; currency_code: string | null; status: string; usage_limit: number | null; times_used: number; expires_at: string | null; recur: boolean; maximum_recurring_intervals: number | null };
 
 export const listCoupons = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -147,7 +147,7 @@ export const listCoupons = createServerFn({ method: "POST" })
     const res = await gatewayFetch(await paddleEnv(), "/discounts?status=active&per_page=100&order_by=created_at[DESC]");
     if (!res.ok) throw new Error("Não foi possível carregar os cupons.");
     const json = (await res.json()) as { data: Discount[] };
-    return json.data.map((d) => ({ id: d.id, code: d.code, description: d.description, type: d.type, amount: d.amount, usage_limit: d.usage_limit, times_used: d.times_used, expires_at: d.expires_at, recur: d.recur, months: d.maximum_recurring_intervals }));
+    return json.data.map((d) => ({ id: d.id, code: d.code, description: d.description, type: d.type, amount: d.amount, currency: d.currency_code, usage_limit: d.usage_limit, times_used: d.times_used, expires_at: d.expires_at, recur: d.recur, months: d.maximum_recurring_intervals }));
   });
 
 export const createCoupon = createServerFn({ method: "POST" })
@@ -155,7 +155,9 @@ export const createCoupon = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({
     code: z.string().trim().toUpperCase().regex(/^[A-Z0-9]{3,16}$/),
     description: z.string().trim().min(1).max(100),
-    percent: z.number().int().min(1).max(100),
+    kind: z.enum(["percentage", "flat"]),
+    amount: z.number().positive().max(100000),
+    currency: z.enum(["BRL", "USD", "EUR"]),
     usage_limit: z.number().int().min(1).max(100000).nullable(),
     expires_days: z.number().int().min(1).max(3650).nullable(),
     months: z.number().int().min(1).max(36).nullable(),
@@ -166,7 +168,10 @@ export const createCoupon = createServerFn({ method: "POST" })
     const res = await gatewayFetch(await paddleEnv(), "/discounts", {
       method: "POST",
       body: JSON.stringify({
-        type: "percentage", amount: String(data.percent), description: data.description, code: data.code,
+        type: data.kind,
+        amount: data.kind === "percentage" ? String(Math.min(100, Math.round(data.amount))) : String(Math.round(data.amount * 100)),
+        ...(data.kind === "flat" ? { currency_code: data.currency } : {}),
+        description: data.description, code: data.code,
         enabled_for_checkout: true, recur: true, maximum_recurring_intervals: data.months,
         usage_limit: data.usage_limit,
         expires_at: data.expires_days ? new Date(Date.now() + data.expires_days * 86400000).toISOString() : null,
