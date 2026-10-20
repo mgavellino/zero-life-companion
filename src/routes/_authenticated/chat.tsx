@@ -146,7 +146,12 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       if (isAbort && !cancelSaved.current && message.parts.length) {
         cancelSaved.current = true;
         const { data: auth } = await supabase.auth.getUser();
-        if (auth.user) await supabase.from("messages").insert({ thread_id: threadId, user_id: auth.user.id, role: "assistant", parts: [...message.parts, { type: "text", text: `\n\n_${t("chatProgress.stopped")}_` }] as never });
+        if (auth.user) {
+          const parts = [...message.parts, { type: "text" as const, text: `\n\n_${t("chatProgress.stopped")}_` }];
+          setMessages((current) => current.map((item) => item.id === message.id ? { ...item, parts } : item));
+          const { error } = await supabase.from("messages").insert({ thread_id: threadId, user_id: auth.user.id, role: "assistant", parts: parts as never });
+          if (error) toast.error(t("chat2.messagesError"));
+        }
       }
       if (isAbort || isError) { setVoice("idle"); return; }
       const shouldSpeak = speakTextRef.current;
@@ -304,12 +309,6 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     recRef.current?.stop();
   }, []);
 
-  useEffect(() => {
-    if (status !== "submitted") return;
-    const id = setTimeout(() => { stop(); setVoice("idle"); setRecovery("failed"); }, 40_000);
-    return () => clearTimeout(id);
-  }, [status, stop, t]);
-
   useWebMCP({
     name: "read_conversation",
     description: "Read the latest messages shown in the Zero chat on this page.",
@@ -393,7 +392,6 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
                 </div>
                 </div>
               ))}
-              {status === "submitted" && <Shimmer className="text-sm">{t("thinking")}</Shimmer>}
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
