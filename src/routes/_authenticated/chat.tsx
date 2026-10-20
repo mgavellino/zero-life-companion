@@ -334,7 +334,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
           )}
         </div>
       </div>
-          <Conversation className="flex-1">
+          <Conversation initial="instant" className="min-h-0 flex-1">
             <ConversationContent className="mx-auto w-full min-w-0 max-w-2xl px-4 py-6">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center py-8 text-center">
