@@ -72,6 +72,6 @@
 - [x] Login persistente
 - [x] Interface animada no celular
 
-- [ ] Onboarding: obrigatório instalar app e ativar avisos
-- [ ] Personalizar cor/aparência da orbe de voz + identidade gerada por IA (confirmar provedor: dono proibiu gateway Lovable)
-- [ ] Escolher a voz do assistente
+- [x] Onboarding: obrigatório instalar app e ativar avisos
+- [ ] (cor/estilo da orbe feito) Identidade gerada por IA (confirmar provedor: dono proibiu gateway Lovable)
+- [x] Escolher a voz do assistente
