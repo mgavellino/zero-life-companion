@@ -6,9 +6,11 @@ export const Route = createFileRoute("/_authenticated")({
   staticData: { sitemap: "exclude-subtree" },
   ssr: false,
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    // Read the saved session locally so a slow or offline network never signs people out;
+    // every protected server call still re-validates the token.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session?.user) throw redirect({ to: "/auth" });
+    return { user: data.session.user };
   },
   component: AppShell,
 });

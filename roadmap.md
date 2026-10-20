@@ -68,3 +68,6 @@
 - [x] Admin mais completo
 - [x] Admin: cupons
 - [x] Admin: promoções na home
+- [x] Voz contínua e mais precisa
+- [x] Login persistente
+- [x] Interface animada no celular

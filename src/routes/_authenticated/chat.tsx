@@ -153,7 +153,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
         await speak(plainText(message), i18n.language);
       }
       setVoice("idle");
-      if (modeRef.current === "voice" && handsFreeRef.current) listenRef.current();
+      if (modeRef.current === "voice" && handsFreeRef.current) setTimeout(() => listenRef.current(), 350);
       else inputRef.current?.focus();
     },
   });
@@ -213,6 +213,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     [busy, sendMessage],
   );
 
+  const manualStopRef = useRef(false);
   const listen = useCallback(() => {
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
@@ -222,45 +223,81 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       return;
     }
     stopSpeaking();
-    const rec = new Ctor();
-    rec.lang = LOCALES[i18n.language] ?? "pt-BR";
-    rec.interimResults = true;
-    rec.continuous = false;
-    let finalText = "";
-    rec.onresult = (e) => {
-      let tmp = "";
-      for (let i = 0; i < e.results.length; i++) {
-        const r = e.results[i];
-        const transcript = r?.[0]?.transcript;
-        if (!r || !transcript) continue;
-        if (r.isFinal) finalText += transcript;
-        else tmp += transcript;
-      }
-      setInterim(finalText + tmp);
-    };
-    rec.onerror = (e) => {
-      if (e.error === "not-allowed") toast.error(t("chat2.micError"));
-      else if (e.error !== "no-speech" && e.error !== "aborted") toast.error(t("chat2.hearingError"));
-    };
-    rec.onend = () => {
+    manualStopRef.current = false;
+    // Text heard so far survives the browser's own restarts until we send it.
+    let committed = "";
+    let silence: ReturnType<typeof setTimeout> | undefined;
+    let sent = false;
+    let restarts = 0;
+    const SILENCE_MS = 1800;
+    const finish = () => {
+      if (sent) return;
+      const text = committed.trim();
+      if (!text) return;
+      sent = true;
+      clearTimeout(silence);
+      recRef.current?.stop();
       recRef.current = null;
       setInterim("");
-      if (finalText.trim()) {
-        if (modeRef.current === "voice") send(finalText);
-        else {
-          setText(finalText);
-          send(finalText);
-        }
-      } else setVoice("idle");
+      if (modeRef.current === "voice") send(text);
+      else { setText(text); send(text); }
     };
-    recRef.current = rec;
+    const start = () => {
+      const rec = new Ctor();
+      rec.lang = LOCALES[i18n.language] ?? "pt-BR";
+      rec.interimResults = true;
+      // Continuous keeps the mic open through short pauses; we decide when the sentence ended.
+      rec.continuous = true;
+      (rec as unknown as { maxAlternatives: number }).maxAlternatives = 1;
+      let sessionFinal = "";
+      rec.onresult = (e) => {
+        let tmp = "";
+        sessionFinal = "";
+        for (let i = 0; i < e.results.length; i++) {
+          const r = e.results[i];
+          const transcript = r?.[0]?.transcript;
+          if (!r || !transcript) continue;
+          if (r.isFinal) sessionFinal += transcript + " ";
+          else tmp += transcript;
+        }
+        setInterim((committed + sessionFinal + tmp).trim());
+        clearTimeout(silence);
+        silence = setTimeout(() => { committed += sessionFinal + tmp; sessionFinal = ""; finish(); }, SILENCE_MS);
+      };
+      rec.onerror = (e) => {
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") { manualStopRef.current = true; toast.error(t("chat2.micError")); }
+        else if (!["no-speech", "aborted", "network"].includes(e.error)) toast.error(t("chat2.hearingError"));
+      };
+      rec.onend = () => {
+        committed += sessionFinal;
+        if (sent) return;
+        if (manualStopRef.current) {
+          recRef.current = null;
+          setInterim("");
+          if (committed.trim()) finish(); else setVoice("idle");
+          return;
+        }
+        // Browsers end recognition on their own after silence; reopen to stay continuous.
+        if (restarts++ < 30 && (handsFreeRef.current || committed.trim())) {
+          if (committed.trim()) { finish(); return; }
+          setTimeout(() => { if (!manualStopRef.current && !sent) start(); }, 150);
+          return;
+        }
+        recRef.current = null;
+        setInterim("");
+        if (committed.trim()) finish(); else setVoice("idle");
+      };
+      recRef.current = rec;
+      try { rec.start(); } catch { /* already started */ }
+    };
     setVoice("listening");
-    rec.start();
+    start();
   }, [send, t]);
   listenRef.current = listen;
 
   function toggleVoice() {
     if (voice === "listening") {
+      manualStopRef.current = true;
       recRef.current?.stop();
       return;
     }
@@ -351,7 +388,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       {mode === "voice" && (
         <div className="flex shrink-0 items-center justify-center gap-4 border-b bg-card/50 px-4 py-3">
           <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} className={cn("voice-orb relative grid size-16 shrink-0 place-items-center rounded-full p-0", `is-${voice}`)}><ZeroRing className="size-7" /></Button>
-          <div className="min-w-0"><p className="text-sm font-medium">{voiceLabel[voice]}</p><p className="mt-1 max-w-lg break-words text-xs text-muted-foreground">{voice === "listening" ? interim || "…" : t("chat2.assistant")}</p>{handsFree && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => {setHandsFree(false); recRef.current?.stop();}}>{t("chat2.pause")}</Button>}</div>
+          <div className="min-w-0"><p className="text-sm font-medium">{voiceLabel[voice]}</p><p className="mt-1 max-w-lg break-words text-xs text-muted-foreground">{voice === "listening" ? interim || "…" : t("chat2.assistant")}</p>{handsFree && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => {setHandsFree(false); manualStopRef.current = true; recRef.current?.stop();}}>{t("chat2.pause")}</Button>}</div>
         </div>
       )}
       <>
@@ -405,7 +442,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               <PromptInputTextarea ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
-                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => (voice === "listening" ? recRef.current?.stop() : listen())}>
+                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else listen(); }}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                   </Button>}
                   <Button
