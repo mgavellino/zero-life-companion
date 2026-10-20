@@ -1,4 +1,5 @@
 import i18n from "@/lib/i18n";
+import { PromoBanner } from "@/components/PromoBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Download, Monitor, Apple, Smartphone, Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check } from "lucide-react";
@@ -112,6 +113,7 @@ const FAQ: [string, string][] = [
       </section>
 
       {/* Pillars */}
+      <PromoBanner />
       <section className="border-y bg-card/50">
         <div className="mx-auto grid max-w-6xl md:grid-cols-3">
           {pillars.map((p) => (
