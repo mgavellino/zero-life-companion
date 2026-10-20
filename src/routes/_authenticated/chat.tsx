@@ -161,7 +161,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     },
   });
 
-  useEffect(() => () => stopSpeaking(), []);
+  useEffect(() => () => { stopSpeaking(); manualStopRef.current = true; recRef.current?.stop(); }, []);
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
@@ -218,7 +218,14 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   );
 
   const manualStopRef = useRef(false);
+  const voiceRef = useRef(voice);
+  voiceRef.current = voice;
+  const [needsTap, setNeedsTap] = useState(false);
+  // In voice mode ONE recognition session stays open for the whole conversation: phones (iOS above all)
+  // refuse to reopen the mic without a tap, which made voice stop after the first reply.
+  // While the assistant thinks or speaks, heard results are ignored so it doesn't hear itself.
   const listen = useCallback(() => {
+    if (recRef.current) { setNeedsTap(false); setVoice("listening"); return; }
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
     if (!Ctor) {
@@ -228,84 +235,79 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     }
     stopSpeaking();
     manualStopRef.current = false;
-    // Text heard so far survives the browser's own restarts until we send it.
+    setNeedsTap(false);
     let committed = "";
     let silence: ReturnType<typeof setTimeout> | undefined;
-    let sent = false;
-    let restarts = 0;
-    const SILENCE_MS = 1800;
+    let heardOnce = false;
+    const SILENCE_MS = 1600;
+    const persistent = () => modeRef.current === "voice";
     const finish = () => {
-      if (sent) return;
-      const text = committed.trim();
-      if (!text) return;
-      sent = true;
       clearTimeout(silence);
-      recRef.current?.stop();
-      recRef.current = null;
+      const text = committed.trim();
+      committed = "";
       setInterim("");
-      if (modeRef.current === "voice") send(text);
-      else { setText(text); send(text); }
+      if (!text) return;
+      if (persistent()) { send(text); return; }
+      manualStopRef.current = true;
+      recRef.current?.stop();
+      setText(text); send(text);
     };
     const start = () => {
       const rec = new Ctor();
       rec.lang = LOCALES[i18n.language] ?? "pt-BR";
       rec.interimResults = true;
-      // Continuous keeps the mic open through short pauses; we decide when the sentence ended.
       rec.continuous = true;
       (rec as unknown as { maxAlternatives: number }).maxAlternatives = 1;
-      let sessionFinal = "";
+      let base = 0;
       rec.onresult = (e) => {
-        let tmp = "";
-        sessionFinal = "";
-        for (let i = 0; i < e.results.length; i++) {
+        heardOnce = true;
+        if (voiceRef.current !== "listening") { base = e.results.length; committed = ""; clearTimeout(silence); return; }
+        let finals = "", tmp = "";
+        for (let i = base; i < e.results.length; i++) {
           const r = e.results[i];
           const transcript = r?.[0]?.transcript;
           if (!r || !transcript) continue;
-          if (r.isFinal) sessionFinal += transcript + " ";
-          else tmp += transcript;
+          if (r.isFinal) finals += transcript + " "; else tmp += transcript;
         }
-        setInterim((committed + sessionFinal + tmp).trim());
+        const heard = (finals + tmp).trim();
+        setInterim(heard);
         clearTimeout(silence);
-        silence = setTimeout(() => { committed += sessionFinal + tmp; sessionFinal = ""; finish(); }, SILENCE_MS);
+        silence = setTimeout(() => { committed = heard; base = e.results.length; finish(); }, SILENCE_MS);
       };
       rec.onerror = (e) => {
-        if (e.error === "not-allowed" || e.error === "service-not-allowed") { manualStopRef.current = true; handsFreeRef.current = false; setHandsFree(false); toast.error(t("chat2.micError")); }
-        else if (!["no-speech", "aborted", "network"].includes(e.error)) toast.error(t("chat2.hearingError"));
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+          manualStopRef.current = true;
+          // Denied before ever hearing anything = real permission problem; otherwise the phone just wants a tap.
+          if (!heardOnce) { handsFreeRef.current = false; setHandsFree(false); toast.error(t("chat2.micError")); }
+          else setNeedsTap(true);
+        } else if (!["no-speech", "aborted", "network", "audio-capture"].includes(e.error)) toast.error(t("chat2.hearingError"));
       };
       rec.onend = () => {
-        committed += sessionFinal;
-        if (sent) return;
-        if (manualStopRef.current) {
-          recRef.current = null;
-          setInterim("");
-          if (committed.trim()) finish(); else setVoice("idle");
-          return;
-        }
-        // Browsers end recognition on their own after silence; reopen to stay continuous.
-        if ((handsFreeRef.current && restarts++ < 200) || committed.trim()) {
-          if (committed.trim()) { finish(); return; }
-          setTimeout(() => { if (!manualStopRef.current && !sent) start(); }, 150);
-          return;
+        if (recRef.current !== rec) return;
+        if (!manualStopRef.current && (handsFreeRef.current || committed.trim())) {
+          // Browsers close the session on their own; reopen it quietly.
+          try { const next = start(); recRef.current = next; return; } catch { setNeedsTap(true); }
         }
         recRef.current = null;
         setInterim("");
-        if (committed.trim()) finish(); else setVoice("idle");
+        if (committed.trim()) finish();
+        else if (voiceRef.current === "listening") setVoice("idle");
       };
-      recRef.current = rec;
-      try { rec.start(); } catch { /* already started */ }
+      rec.start();
+      return rec;
     };
     setVoice("listening");
-    start();
+    try { recRef.current = start(); } catch { recRef.current = null; setNeedsTap(true); setVoice("idle"); }
   }, [send, t]);
   listenRef.current = listen;
 
   // Hands-free loop: whenever the assistant is idle in voice mode, open the mic again.
   // This also recovers after errors, blocked sends or audio that never reported its end.
   useEffect(() => {
-    if (mode !== "voice" || !handsFree || voice !== "idle" || busy || recRef.current) return;
-    const id = setTimeout(() => { if (!recRef.current && handsFreeRef.current && modeRef.current === "voice") listenRef.current(); }, 450);
+    if (mode !== "voice" || !handsFree || voice !== "idle" || busy || needsTap) return;
+    const id = setTimeout(() => { if (handsFreeRef.current && modeRef.current === "voice") listenRef.current(); }, 450);
     return () => clearTimeout(id);
-  }, [mode, handsFree, voice, busy]);
+  }, [mode, handsFree, voice, busy, needsTap]);
 
   function toggleVoice() {
     if (voice === "listening") {
@@ -389,6 +391,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
           </Button>
           <Button variant="ghost" size="sm"
             onClick={() => {
+              manualStopRef.current = true;
               recRef.current?.stop();
               setHandsFree(false);
               setMode("text");
