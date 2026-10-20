@@ -76,4 +76,5 @@
 - [x] Chat preso em "pensando" (stream morre após ferramenta)
 - [x] Microfone (iPhone e Android): gravar + transcrever via Groq Whisper
 - [x] Teclado abre ao ir para modo texto
-- [ ] Corrigir volume baixo da voz: volume de reprodução e alternância microfone/alto-falante; validar com testes, confirmação física no iPhone pendente.
+- [x] Ajustar volume da voz e alternância microfone/alto-falante; dois testes de reprodução passaram.
+- [ ] Confirmar volume audível no iPhone real — depende de teste no aparelho, indisponível no ambiente automatizado.
