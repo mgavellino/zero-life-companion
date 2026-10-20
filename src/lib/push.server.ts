@@ -24,7 +24,7 @@ export async function sendDevicePush(subscriptionCiphertext: string, origin: str
   if (!isPushEndpoint(subscription.endpoint)) throw new Error("Destino inválido.");
   const keys = await getPushKeys();
   const payload = await buildPushPayload({ data: JSON.stringify({ title: "Zero", body: "Você tem um novo aviso. Abra o Zero para conferir.", path: "/chat" }), options: { ttl: 3600 } }, subscription, { ...keys, subject: origin.startsWith("https://") && !origin.includes("localhost") ? origin : "mailto:miguels.avelin@gmail.com" });
-  return fetch(subscription.endpoint, { ...payload, redirect: "error" });
+  return fetch(subscription.endpoint, { ...payload, redirect: "manual" });
 }
 
 export async function dispatchPendingPush(origin: string) {
