@@ -387,13 +387,20 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
         </div>
       </div>
 
-      {mode === "voice" && (
-        <div className="flex shrink-0 items-center justify-center gap-4 border-b bg-card/50 px-4 py-3">
-          <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} className={cn("voice-orb relative grid size-16 shrink-0 place-items-center rounded-full p-0", `is-${voice}`)}><ZeroRing className="size-7" /></Button>
-          <div className="min-w-0"><p className="text-sm font-medium">{voiceLabel[voice]}</p><p className="mt-1 max-w-lg break-words text-xs text-muted-foreground">{voice === "listening" ? interim || "…" : t("chat2.assistant")}</p>{handsFree && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => {setHandsFree(false); manualStopRef.current = true; recRef.current?.stop();}}>{t("chat2.pause")}</Button>}</div>
-        </div>
-      )}
-      <>
+      {mode === "voice" && (() => {
+        const last = [...messages].reverse().find((m) => m.role === "assistant");
+        const lastText = last ? customerText(last.parts.filter((p) => p.type === "text").map((p) => (p as { text: string }).text).join(" ")) : "";
+        const caption = voice === "listening" ? interim : voice === "thinking" || status === "submitted" ? "" : lastText;
+        return (
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 px-6 text-center">
+            <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} className={cn("voice-orb relative grid size-48 shrink-0 place-items-center rounded-full p-0 sm:size-56", `is-${voice}`)}><ZeroRing className="size-14" /></Button>
+            <p className="text-sm font-medium tracking-wide text-muted-foreground">{voiceLabel[voice]}</p>
+            <p className="line-clamp-3 min-h-[3.75rem] max-w-sm break-words text-base">{caption}</p>
+            {handsFree && <Button variant="ghost" size="sm" className="rounded-full" onClick={() => { setHandsFree(false); manualStopRef.current = true; recRef.current?.stop(); }}>{t("chat2.pause")}</Button>}
+          </div>
+        );
+      })()}
+      {mode === "text" && <>
           <Conversation className="flex-1">
             <ConversationContent className="mx-auto w-full min-w-0 max-w-2xl px-4 py-6">
               {messages.length === 0 && (
@@ -444,7 +451,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               <PromptInputTextarea ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
-                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); if (mode === "voice") { setHandsFree(true); handsFreeRef.current = true; } listen(); } }}>
+                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); listen(); } }}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                   </Button>}
                   <Button
@@ -465,7 +472,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               </PromptInputFooter>
             </PromptInput>
           </div>
-        </>
+        </>}
     </div>
   );
 }
