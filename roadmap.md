@@ -71,3 +71,6 @@
 - [x] Voz contínua e mais precisa
 - [x] Login persistente
 - [x] Interface animada no celular
+
+- [ ] Onboarding: obrigatório instalar app e ativar avisos
+- [ ] Personalizar cor/aparência da orbe de voz + identidade gerada por IA (confirmar provedor: dono proibiu gateway Lovable)
