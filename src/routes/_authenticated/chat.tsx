@@ -1,3 +1,4 @@
+import { DEFAULT_VOICE, orbColorValue, readVoicePrefs, type VoicePrefs } from "@/lib/voice-prefs";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
@@ -102,6 +103,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const { plan, loading: subLoading } = useSubscription();
   const voiceAllowed = hasVoiceChat(plan);
   const [mode, setMode] = useState<"voice" | "text">("voice");
+  const [orb, setOrb] = useState<VoicePrefs>({ voice: DEFAULT_VOICE, orbColor: "signal", orbStyle: "glow" });
+  useEffect(() => { const sync = () => setOrb(readVoicePrefs()); sync(); window.addEventListener("zero-voice-prefs", sync); return () => window.removeEventListener("zero-voice-prefs", sync); }, []);
   useEffect(() => {
     if (!subLoading && !voiceAllowed) setMode("text");
   }, [subLoading, voiceAllowed]);
@@ -393,7 +396,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
         const caption = voice === "listening" ? interim : voice === "thinking" || status === "submitted" ? "" : lastText;
         return (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 px-6 text-center">
-            <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} className={cn("voice-orb relative grid size-48 shrink-0 place-items-center rounded-full p-0 sm:size-56", `is-${voice}`)}><ZeroRing className="size-14" /></Button>
+            <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} style={{ "--signal": orbColorValue(orb.orbColor) } as React.CSSProperties} className={cn("voice-orb relative grid size-48 shrink-0 place-items-center rounded-full p-0 sm:size-56", `is-${voice}`, orb.orbStyle === "minimal" && "orb-minimal")}><ZeroRing className="size-14" /></Button>
             <p className="text-sm font-medium tracking-wide text-muted-foreground">{voiceLabel[voice]}</p>
             <p className="line-clamp-3 min-h-[3.75rem] max-w-sm break-words text-base">{caption}</p>
             {handsFree && <Button variant="ghost" size="sm" className="rounded-full" onClick={() => { setHandsFree(false); manualStopRef.current = true; recRef.current?.stop(); }}>{t("chat2.pause")}</Button>}

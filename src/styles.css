@@ -57,6 +57,8 @@
 :root {
   --radius: 0.9rem;
   --signal: oklch(0.88 0.21 128);
+  --orb-rose: oklch(0.68 0.19 10);
+  --orb-violet: oklch(0.62 0.2 295);
   --signal-foreground: oklch(0.18 0.03 140);
   --ink: oklch(0.16 0.012 150);
   --background: oklch(0.975 0.008 95);
@@ -196,6 +198,8 @@
   &.is-thinking::before { animation-duration: 3s; }
   &.is-speaking::before { animation-duration: 7s; }
   &.is-speaking { animation: orb-breathe 4s ease-in-out infinite; }
+  &.orb-minimal { background: var(--card); box-shadow: 0 0 0 2px var(--signal); }
+  &.orb-minimal::after { display: none; }
 }
 
 @keyframes orb-breathe {

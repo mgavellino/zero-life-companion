@@ -18,10 +18,11 @@ function sameKey(a: ArrayBuffer | null | undefined, b: Uint8Array) {
   return x.length === b.length && x.every((v, i) => v === b[i]);
 }
 
-export function PushSettings() {
+export function PushSettings({ embedded = false, onEnabledChange }: { embedded?: boolean; onEnabledChange?: (enabled: boolean) => void } = {}) {
   const { t } = useTranslation();
   const [enabled, setEnabled] = useState(false), [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  useEffect(() => { onEnabledChange?.(enabled); }, [enabled, onEnabledChange]);
   const getKey = useServerFn(getPushPublicKey), register = useServerFn(registerPushDevice), remove = useServerFn(disablePushDevice), test = useServerFn(testPushDevice);
   useEffect(() => { if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistration("/").then(async reg => setEnabled(!!(await reg?.pushManager?.getSubscription()))).catch(() => {}); }, []);
 
@@ -64,5 +65,5 @@ export function PushSettings() {
     } catch { toast.error(t("push.testError")); }
     finally { setBusy(false); }
   }
-  return <section className="mt-8 border-y py-6"><h2 className="flex items-center gap-2 text-lg font-semibold"><BellRing className="size-5" />{t("push.title")}</h2><div className="mt-4 flex flex-wrap gap-2"><Button disabled={busy} onClick={enabled ? disable : enable}>{enabled ? t("push.disable") : t("push.enable")}</Button>{enabled && <Button variant="outline" disabled={busy} onClick={sendTest}><Send className="size-4" />{t("push.test")}</Button>}</div>{note && <p role="status" className="mt-3 text-sm text-muted-foreground">{note}</p>}</section>;
+  return <section className={embedded ? "" : "mt-8 border-y py-6"}>{!embedded && <h2 className="flex items-center gap-2 text-lg font-semibold"><BellRing className="size-5" />{t("push.title")}</h2>}<div className="mt-4 flex flex-wrap gap-2"><Button disabled={busy} onClick={enabled ? disable : enable}>{enabled ? t("push.disable") : t("push.enable")}</Button>{enabled && <Button variant="outline" disabled={busy} onClick={sendTest}><Send className="size-4" />{t("push.test")}</Button>}</div>{note && <p role="status" className="mt-3 text-sm text-muted-foreground">{note}</p>}</section>;
 }

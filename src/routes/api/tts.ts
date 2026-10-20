@@ -1,8 +1,8 @@
+import { DEFAULT_VOICE, isVoiceId } from "@/lib/voice-prefs";
 import { createFileRoute } from "@tanstack/react-router";
 import { userClient } from "@/lib/ai/chat.server";
 
 // Premium voice (ElevenLabs) for Pro/Max subscribers and trial users.
-const VOICE_ID = "EXAVITQu4vr4xnSDxMaL"; // Sarah — warm, multilingual
 
 export const Route = createFileRoute("/api/tts")({
   staticData: { sitemap: false },
@@ -20,7 +20,8 @@ export const Route = createFileRoute("/api/tts")({
         const premium = plan === "pro" || plan === "max";
         if (!premium) return new Response("UPGRADE", { status: 402 });
 
-        const { text } = (await request.json()) as { text?: string };
+        const { text, voiceId } = (await request.json()) as { text?: string; voiceId?: unknown };
+        const VOICE_ID = isVoiceId(voiceId) ? voiceId : DEFAULT_VOICE;
         const clean = (text ?? "").slice(0, 2500).trim();
         if (!clean) return new Response("Empty", { status: 400 });
 

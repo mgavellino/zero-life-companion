@@ -7,6 +7,7 @@ import { PushSettings } from "@/components/PushSettings";
 import { CalendarConnection } from "@/components/CalendarConnection";
 import { InstallZero } from "@/components/InstallZero";
 import { PrivacyControls } from "@/components/PrivacyControls";
+import { VoiceSettings } from "@/components/VoiceSettings";
 import { UnitsSettings } from "@/components/UnitsSettings";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
@@ -33,6 +34,7 @@ function Configuracoes() {
         <div className="mt-4"><Prefs /></div>
       </Card>
       <div className="mb-6"><UnitsSettings /></div>
+      <VoiceSettings />
       <PushSettings />
       <CalendarConnection />
       <div className="my-4"><InstallZero /></div>
