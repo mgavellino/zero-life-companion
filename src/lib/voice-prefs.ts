@@ -37,7 +37,7 @@ export function saveVoicePrefs(p: VoicePrefs) {
   localStorage.setItem(KEY, JSON.stringify(p));
   window.dispatchEvent(new Event("zero-voice-prefs"));
 }
-/** CSS colour for the orb accent. Custom hues use fixed oklch values, theme hues use tokens. */
+/** CSS colour for the orb accent. */
 export function orbColorValue(c: OrbColor) {
-  return c === "rose" ? "oklch(0.68 0.19 10)" : c === "violet" ? "oklch(0.62 0.2 295)" : `var(--${c})`;
+  return c === "rose" || c === "violet" ? `var(--orb-${c})` : `var(--${c})`;
 }

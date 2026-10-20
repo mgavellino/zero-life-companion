@@ -1,3 +1,4 @@
+import { readVoicePrefs } from "./voice-prefs";
 import { supabase } from "@/integrations/supabase/client";
 
 const LOCALES: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE", it: "it-IT" };
@@ -87,7 +88,7 @@ export async function speak(text: string, lang: string): Promise<"premium" | "ba
     const r = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session?.access_token ?? ""}` },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, voiceId: readVoicePrefs().voice }),
     });
     if (r.ok && my === token) {
       const url = URL.createObjectURL(await r.blob());
