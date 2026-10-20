@@ -451,7 +451,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               <PromptInputTextarea ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
-                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); if (mode === "voice") { setHandsFree(true); handsFreeRef.current = true; } listen(); } }}>
+                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); listen(); } }}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                   </Button>}
                   <Button
