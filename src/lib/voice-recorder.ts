@@ -62,9 +62,22 @@ export class VadRecorder {
     rec.onstop = () => { if (keep && this.chunks.length) this.onUtterance(new Blob(this.chunks, { type: rec.mimeType || "audio/mp4" })); };
     try { rec.stop(); } catch { /* already stopped */ }
   }
-  resume() { if (this.ctx?.state === "suspended") void this.ctx.resume(); this.active = true; }
+  resume() {
+    try {
+      const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+      if (session) session.type = "play-and-record";
+    } catch { /* Older browsers select their own recording route. */ }
+    this.stream?.getAudioTracks().forEach((track) => { track.enabled = true; });
+    if (this.ctx?.state === "suspended") void this.ctx.resume().catch(() => {});
+    this.active = true;
+  }
   /** Stops listening (assistant thinking/speaking) without closing the mic. */
-  pause() { this.active = false; if (this.speaking) this.end(false); }
+  pause() {
+    this.active = false;
+    if (this.speaking) this.end(false);
+    this.stream?.getAudioTracks().forEach((track) => { track.enabled = false; });
+    if (this.ctx?.state === "running") void this.ctx.suspend().catch(() => {});
+  }
   close() {
     this.pause();
     cancelAnimationFrame(this.raf);

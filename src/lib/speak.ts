@@ -12,7 +12,17 @@ const SILENT = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2Lj
 
 function getPlayer() {
   if (!player) { player = new Audio(); player.setAttribute("playsinline", ""); player.preload = "auto"; }
+  player.volume = 1;
+  player.muted = false;
   return player;
+}
+
+/** iOS otherwise keeps replies on the quiet call/recording audio route while the mic is open. */
+function usePlaybackSession() {
+  try {
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = "playback";
+  } catch { /* Older browsers use their default audio route. */ }
 }
 
 /** Call from a tap (mic button, voice mode). Unlocks sound so replies can be spoken later without another tap. */
@@ -66,11 +76,13 @@ async function browserSpeak(text: string, lang: string, my: number) {
   window.speechSynthesis.cancel();
   for (const part of parts) {
     if (my !== token) return;
+    usePlaybackSession();
     await new Promise<void>((resolve) => {
       const u = new SpeechSynthesisUtterance(part);
       u.lang = locale;
       if (voice) u.voice = voice;
       u.rate = 1.05;
+      u.volume = 1;
       const guard = setTimeout(resolve, Math.max(4000, part.length * 120));
       u.onend = () => { clearTimeout(guard); resolve(); };
       u.onerror = () => { clearTimeout(guard); resolve(); };
@@ -84,6 +96,7 @@ async function browserSpeak(text: string, lang: string, my: number) {
 /** Speaks with the premium voice when the plan allows, otherwise the browser voice. Resolves when done. */
 export async function speak(text: string, lang: string): Promise<"premium" | "basic"> {
   stopSpeaking();
+  usePlaybackSession();
   const my = token;
   if (!text.trim()) return "basic";
   try {
@@ -96,6 +109,7 @@ export async function speak(text: string, lang: string): Promise<"premium" | "ba
     if (r.ok && my === token) {
       const url = URL.createObjectURL(await r.blob());
       const a = getPlayer();
+      usePlaybackSession();
       a.src = url;
       const played = await new Promise<boolean>((resolve) => {
         let guard: ReturnType<typeof setTimeout> | undefined;
