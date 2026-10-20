@@ -64,7 +64,7 @@
 - [x] Consertar notificações: lembretes de tarefas pelo servidor + envio a cada minuto + teste que se autorrepara
 - [x] Verificar isolamento entre contas (só existe 1 conta; Google e Apple com mesmo e-mail viram a mesma conta)
 
-- [ ] Onboarding mais completa (aguardando detalhes do usuário)
-- [ ] Admin mais completo e funcional (aguardando detalhes do usuário)
-- [ ] Admin: criar cupons de desconto (Paddle)
-- [ ] Admin: promoções/cartazes na tela inicial
+- [x] Onboarding mais completa
+- [x] Admin mais completo
+- [x] Admin: cupons
+- [x] Admin: promoções na home
