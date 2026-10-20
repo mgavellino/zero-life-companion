@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { userClient } from "@/lib/ai/chat.server";
-import { serverPaddleEnv } from "@/lib/paddle.server";
 
 // Premium voice (ElevenLabs) for Pro/Max subscribers and trial users.
 const VOICE_ID = "EXAVITQu4vr4xnSDxMaL"; // Sarah — warm, multilingual
@@ -16,16 +15,9 @@ export const Route = createFileRoute("/api/tts")({
         const { data: u } = await sb.auth.getUser(token);
         if (!u.user) return new Response("Unauthorized", { status: 401 });
 
-        const { data: sub } = await sb
-          .from("subscriptions")
-          .select("product_id,status,current_period_end")
-          .eq("user_id", u.user.id)
-          .eq("environment", serverPaddleEnv())
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        const live = sub && ["active", "trialing", "past_due", "canceled"].includes(sub.status) && (!sub.current_period_end || new Date(sub.current_period_end) > new Date());
-        const premium = live && (sub.product_id === "pro_plan" || sub.product_id === "max_plan");
+        const { getUserPlan } = await import("@/lib/plan.server");
+        const plan = await getUserPlan(sb, u.user.id);
+        const premium = plan === "pro" || plan === "max";
         if (!premium) return new Response("UPGRADE", { status: 402 });
 
         const { text } = (await request.json()) as { text?: string };

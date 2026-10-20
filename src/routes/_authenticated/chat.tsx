@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ZeroRing } from "@/components/Logo";
-import { speak, stopSpeaking } from "@/lib/speak";
+import { speak, stopSpeaking, unlockAudio } from "@/lib/speak";
 import { cn } from "@/lib/utils";
 import i18n from "@/lib/i18n";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -307,7 +307,9 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       return;
     }
     if (voice === "thinking") return;
+    unlockAudio();
     setHandsFree(true);
+    handsFreeRef.current = true;
     listen();
   }
 
@@ -369,7 +371,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
           )}
         </div>
         <div className="inline-flex rounded-full border bg-card p-0.5 text-xs">
-          <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? setMode("voice") : toast(t("chat2.voicePlan"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
+          <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? (unlockAudio(), setMode("voice")) : toast(t("chat2.voicePlan"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
             <AudioLines className="size-3.5" /> {t("chat2.voice")}
           </Button>
           <Button variant="ghost" size="sm"
@@ -442,7 +444,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               <PromptInputTextarea ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
-                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else listen(); }}>
+                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); if (mode === "voice") { setHandsFree(true); handsFreeRef.current = true; } listen(); } }}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                   </Button>}
                   <Button
