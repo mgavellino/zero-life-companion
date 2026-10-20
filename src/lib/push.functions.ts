@@ -28,7 +28,9 @@ export const testPushDevice = createServerFn({ method: "POST" }).middleware([req
   const { data: device } = await supabaseAdmin.from("push_devices").select("subscription_ciphertext").eq("endpoint", data.endpoint).eq("user_id", context.userId).maybeSingle();
   if (!device) throw new Error("Ative os avisos primeiro.");
   const { sendDevicePush } = await import("./push.server");
-  const response = await sendDevicePush(device.subscription_ciphertext, new URL(getRequest().url).origin);
+  let response: Response;
+  try { response = await sendDevicePush(device.subscription_ciphertext, new URL(getRequest().url).origin); }
+  catch (e) { console.error("Push test error", e instanceof Error ? e.message : e); throw new Error("Não foi possível enviar o teste agora."); }
   if (!response.ok) { console.error("Push test failed", response.status, await response.text().catch(() => "")); if (response.status === 404 || response.status === 410) await supabaseAdmin.from("push_devices").delete().eq("endpoint", data.endpoint).eq("user_id", context.userId); throw new Error("Não foi possível enviar o teste agora."); }
   return { ok: true };
 });
