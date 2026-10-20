@@ -57,6 +57,7 @@
 
 ## Pendente
 - [ ] Chat único de texto com microfone integrado; corrigir respostas travadas e tornar respostas pela Groq mais diretas.
+- [ ] Abrir chat nas últimas mensagens e verificar confirmações após tarefas, dieta, atividade, relatórios e lançamentos financeiros.
 - [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
 
 ## Novas tarefas (19/10)
