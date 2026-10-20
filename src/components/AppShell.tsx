@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { OnboardingGate } from "./Onboarding";
 import { ShellClock } from "./ShellClock";
 import { InstallZero } from "./InstallZero";
+import { cn } from "@/lib/utils";
 
 export function AppShell() {
   const { t } = useTranslation();
@@ -115,8 +116,8 @@ export function AppShell() {
             </div>
           </div>
         </aside>
-        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-          <div key={pathname} className="zero-page-enter min-h-full">
+        <main className={cn("min-h-0 min-w-0 flex-1", pathname === "/chat" ? "overflow-hidden" : "overflow-y-auto")}>
+          <div key={pathname} className={cn("zero-page-enter", pathname === "/chat" ? "h-full min-h-0" : "min-h-full")}>
             <Outlet />
           </div>
         </main>

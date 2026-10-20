@@ -16,6 +16,9 @@ import "@/lib/i18n";
 import { THEME_SCRIPT, usePrefsBootstrap } from "@/components/Prefs";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { claimModuleReload, isModuleLoadError } from "@/lib/module-recovery";
 
 function NotFoundComponent() {
   return (
@@ -38,25 +41,31 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
+  const { t } = useTranslation();
   const router = useRouter();
   useEffect(() => {
+    if (isModuleLoadError(error) && claimModuleReload(window.sessionStorage)) {
+      window.location.reload();
+      return;
+    }
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
+        <h1 className="text-xl font-semibold text-foreground">{t("onboarding.recoveryTitle")}</h1>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
             onClick={() => {
+              if (isModuleLoadError(error)) { window.location.reload(); return; }
               router.invalidate();
               reset();
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Try again
-          </button>
+            {t("onboarding.recoveryRetry")}
+          </Button>
         </div>
       </div>
     </div>
@@ -115,16 +124,13 @@ function RootComponent() {
   // After an update, old page files can disappear; reload once instead of showing a blank screen.
   useEffect(() => {
     const recover = (event: Event) => {
-      const key = "zero-chunk-reload";
-      const last = Number(sessionStorage.getItem(key) ?? 0);
-      if (Date.now() - last < 30_000) return;
+      if (!claimModuleReload(window.sessionStorage)) return;
       event.preventDefault?.();
-      sessionStorage.setItem(key, String(Date.now()));
       window.location.reload();
     };
     const onRejection = (e: PromiseRejectionEvent) => {
       const msg = String((e.reason as Error | undefined)?.message ?? e.reason ?? "");
-      if (/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i.test(msg)) recover(e);
+      if (isModuleLoadError(msg)) recover(e);
     };
     window.addEventListener("vite:preloadError", recover);
     window.addEventListener("unhandledrejection", onRejection);

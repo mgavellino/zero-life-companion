@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Module-load failures recover through both global preload events and the router error boundary with a shared reload guard; caught route-import failures must not strand users on a blank page.
 - Seller policies use public leaf routes with a shared legal layout; refunds defer to the merchant's authoritative policy.
 - Mobile/tablet use a full drawer menu plus bottom shortcuts; layouts use shrinkable grids, never horizontal-scroll navigation.
 - Home-screen install uses manifest metadata and a shared dialog; the only service worker is messaging-only (no offline cache).
@@ -27,7 +28,9 @@
 - Energy and financial projections are tested pure functions in `src/lib/planning.ts` fed by owner-scoped tables.
 - AI runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` with the owner's Groq key; never the Lovable AI Gateway (owner requirement).
 - Chat is one continuous conversation per user (single `threads` row) at `/chat`; history is owner-scoped and paginated, model context comes from saved messages, and the stream is drained through its save callback.
-- Voice: ElevenLabs TTS at `/api/tts` (plan checked server-side) with speechSynthesis fallback; recorder input with Web Speech fallback; chat opens in silent text mode, with optional voice and synchronous text switching that closes recording and playback.
+- Voice: ElevenLabs TTS at `/api/tts` (plan checked server-side) with speechSynthesis fallback; a single text chat includes optional one-utterance microphone dictation for review before sending, with recorder input and Web Speech fallback; no separate voice screen.
+- Chat generation ends tool selection after saved actions and reserves its final step for written confirmations; recovery requests cannot execute tools or duplicate the user message, and Groq reasoning uses low effort without changing plan models.
+- Chat uses a height-constrained shell with progress and cancellation beside its composer; explicit cancellation propagates to generation and partial replies are saved by the browser because edge disconnect callbacks are unreliable.
 - Voice playback explicitly uses full application volume and the playback audio session where supported; paused recording disables mic tracks and suspends analysis, then restores recording on resume to avoid quiet iOS call routing.
 - All user-facing strings use i18n keys in `src/locales/*` (6 languages) merged by `src/lib/i18n.ts`; unit prefs live in `src/lib/units.ts`, money display uses `money()` in `src/lib/data.ts`.
 - Billing: Paddle (`src/lib/paddle*.ts`), webhook writes `subscriptions`; prices/limits in `src/lib/plans.ts` must match the catalog. Effective plan = highest of live subscription and active `plan_grants`, resolved server-side by `getUserPlan`.

@@ -56,6 +56,11 @@
 - [x] Impedir conteúdo técnico e código visível no chat
 
 ## Pendente
+- [x] Verificar falha de importação: apresentação e chat carregam sem erros; recuperação após falha simulada e três testes passaram, incluindo erros capturados pela navegação.
+- [x] Chat único de texto com microfone integrado, sem tela ou abas separadas de voz.
+- [ ] Confirmar respostas rápidas após todos os registros — tarefa foi salva, mas a confirmação escrita ainda demorou no teste; limite temporário da Groq também observado.
+- [x] Abrir chat nas últimas mensagens; resposta de relatório e recuperação verificadas na conta conectada.
+- [x] Manter progresso, cancelar e tentar novamente junto à caixa de mensagem; cancelamento e recuperação verificados sem rolar o histórico.
 - [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
 
 ## Novas tarefas (19/10)

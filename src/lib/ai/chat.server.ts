@@ -11,6 +11,7 @@ import { estimateAndLogActivity } from "@/lib/activity.server";
 import { dailyTimeSummary, type TimeSession } from "@/lib/time-tracking";
 import { automaticCategory, billSchema } from "@/lib/bills";
 import { readChatHistory } from "@/lib/chat-history";
+import { chatStepPolicy } from "@/lib/chat-generation";
 
 
 export function userClient(token: string) {
@@ -49,7 +50,7 @@ export async function handleChat(request: Request) {
     if ((count ?? 0) >= cap) return new Response("LIMIT", { status: 402 });
   }
 
-  const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string };
+  const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string; retry?: boolean };
   const { messages: clientMessages, threadId } = body;
   const { data: thread, error: threadError } = await sb.from("threads").select("id,title").eq("user_id", userId).eq("id", threadId).maybeSingle();
   if (threadError) return new Response("Não consegui abrir sua conversa.", { status: 503 });
@@ -57,7 +58,7 @@ export async function handleChat(request: Request) {
 
   // Persist the latest user message
   const last = clientMessages[clientMessages.length - 1];
-  if (last?.role === "user") {
+  if (last?.role === "user" && !body.retry) {
     const { error } = await sb.from("messages").insert({ thread_id: threadId, user_id: userId, role: "user", parts: last.parts as never });
     if (error) {
       console.error("save user msg", error);
@@ -119,7 +120,7 @@ When the user describes a COMPLETED physical activity (e.g. ran for 15 minutes),
 User priorities: ${JSON.stringify(preferences.data?.goals ?? [])}. Financial records currency: ${preferences.data?.currency ?? "BRL"}. Do not assume a different currency.
 This is ONE continuous conversation with ONE long-term memory. When the user reveals a durable fact, goal, preference, income, routine, injury, or diet restriction, call the remember tool.
 Be INTERACTIVE and proactive: ask one sharp follow-up question when useful, point out patterns (overspending, overloaded days, missing protein), and propose the next concrete step. Replies are often spoken aloud, so keep them short (2-4 sentences) unless the user asks for detail.
-At the END of every reply, call suggest_replies with 2-4 short options the user would likely tap next (in the user's language).
+Answer the user's need directly. Do not call tools for greetings, explanations or reports that can be answered from the saved context. After executing requested actions, ALWAYS write a short useful confirmation based on their saved results. Never end a turn with tools alone. Do not repeatedly execute an action already completed in this turn. Ask only for information genuinely required to perform it.
 When the user asks to be reminded of something, create a task with due_at so the app notifies them.
 For MONTHLY bills or subscriptions explicitly described as recurring, use add_monthly_bill instead of a one-off task. Ask for the missing amount or due day before saving. Categorize financial entries automatically from the description. A future bill is not a paid expense: only record transactions when the user says they paid/spent. Never claim a bank payment was executed. Reminders arrive as in-app and phone notifications when the user enabled alerts in Settings.
 When the user mentions spending/earning money, a task/appointment, or a meal, log it with the right tool without asking (confirm briefly after). Use markdown, short lists and tables when helpful.
@@ -225,11 +226,6 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         return error ? { ok: false, error: error.message } : { ok: true };
       },
     }),
-    suggest_replies: tool({
-      description: "Offer 2-4 short quick-reply buttons the user can tap next. Call once at the end of every reply.",
-      inputSchema: z.object({ options: z.array(z.string()).min(1).max(4) }),
-      execute: async ({ options }) => ({ options }),
-    }),
     notify: tool({
       description: "Send the user an in-app/browser notification right now (e.g. a summary or alert).",
       inputSchema: z.object({ title: z.string(), body: z.string().nullable() }),
@@ -262,10 +258,13 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
 
   const result = streamText({
     model: provider(modelFor(plan)),
-    instructions,
+    instructions: instructions + (body.retry ? "\nThis is a recovery request: answer the latest user request using saved records. Do not perform any new writes or duplicate actions. Clearly state if a requested action cannot be confirmed as saved." : ""),
     messages: await convertToModelMessages(messages),
     tools,
+    abortSignal: request.signal,
     stopWhen: stepCountIs(5),
+    prepareStep: ({ stepNumber, steps }) => chatStepPolicy(stepNumber, steps.some((step) => step.toolResults.length > 0), body.retry === true),
+    providerOptions: { groq: { reasoningEffort: "low" } },
     maxRetries: 1,
     onError: ({ error }) => { console.error("chat stream error", error instanceof Error ? error.message.slice(0, 300) : error); },
   });
@@ -279,8 +278,9 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         finally { reader.releaseLock(); }
       },
       sendReasoning: false,
-      onError: () => "Não consegui responder agora. Tente novamente em instantes.",
-      onFinish: async ({ responseMessage }) => {
+      onError: (error) => String(error).includes("Rate limit") || String(error).includes("429") ? "429" : "Não consegui responder agora. Tente novamente em instantes.",
+      onFinish: async ({ responseMessage, isAborted }) => {
+        if (isAborted || !responseMessage.parts.length) return;
         const { error } = await sb.from("messages").insert({
           thread_id: threadId,
           user_id: userId,

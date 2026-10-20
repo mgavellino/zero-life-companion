@@ -1,0 +1,9 @@
+const make = (working: string, writing: string, slow: string, cancel: string, retry: string, cancelled: string, failed: string, limited: string, stopped: string) => ({ chatProgress: { working, writing, slow, cancel, retry, cancelled, failed, limited, stopped } });
+export default {
+  pt: make("Zero está preparando a resposta", "Zero está respondendo", "Está demorando mais que o normal", "Cancelar", "Tentar novamente", "Resposta interrompida", "Não foi possível concluir a resposta", "A Groq atingiu o limite temporário. Aguarde um pouco antes de tentar novamente.", "Interrompido"),
+  en: make("Zero is preparing a reply", "Zero is replying", "Taking longer than usual", "Cancel", "Try again", "Reply stopped", "Could not finish the reply", "Groq reached its temporary limit. Wait a little before trying again.", "Stopped"),
+  es: make("Zero está preparando la respuesta", "Zero está respondiendo", "Está tardando más de lo normal", "Cancelar", "Intentar de nuevo", "Respuesta interrumpida", "No se pudo completar la respuesta", "Groq alcanzó su límite temporal. Espera un poco antes de reintentar.", "Interrumpido"),
+  fr: make("Zero prépare la réponse", "Zero répond", "Cela prend plus de temps que prévu", "Annuler", "Réessayer", "Réponse interrompue", "Impossible de terminer la réponse", "Groq a atteint sa limite temporaire. Patientez avant de réessayer.", "Interrompu"),
+  de: make("Zero bereitet die Antwort vor", "Zero antwortet", "Es dauert länger als üblich", "Abbrechen", "Erneut versuchen", "Antwort abgebrochen", "Antwort konnte nicht abgeschlossen werden", "Groq hat sein vorübergehendes Limit erreicht. Warte vor dem nächsten Versuch.", "Abgebrochen"),
+  it: make("Zero sta preparando la risposta", "Zero sta rispondendo", "Sta impiegando più tempo del solito", "Annulla", "Riprova", "Risposta interrotta", "Impossibile completare la risposta", "Groq ha raggiunto il limite temporaneo. Attendi prima di riprovare.", "Interrotto"),
+};
