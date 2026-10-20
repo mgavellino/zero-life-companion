@@ -37,7 +37,6 @@
 - [x] Sistema de admin
 - [x] Planos via Paddle (grátis + 3 planos, mensal/semestral/anual, teste grátis, ancoragem)
 - [x] Página de apresentação mais bem planejada
-- [x] Identidade visual mais trabalhada
 - [x] Abrir o app direto no chat de voz
 - [x] Teste grátis de 1 mês (30 dias)
 - [x] Páginas públicas de Termos, Privacidade e Reembolso com nome legal, e-mail de contato e links na apresentação e nos planos
@@ -73,5 +72,4 @@
 - [x] Interface animada no celular
 
 - [x] Onboarding: obrigatório instalar app e ativar avisos
-- [ ] (cor/estilo da orbe feito) Identidade gerada por IA (confirmar provedor: dono proibiu gateway Lovable)
 - [x] Escolher a voz do assistente
