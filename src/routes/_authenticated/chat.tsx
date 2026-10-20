@@ -143,6 +143,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     onError: (e) => {
       const m = e.message || "";
       setVoice("idle");
+      if (m.includes("LIMIT")) { setHandsFree(false); handsFreeRef.current = false; }
       if (m.includes("LIMIT")) toast.error(t("chat2.limit"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } });
       else toast.error(m.includes("429") ? t("chat2.rateError") : t("chat2.replyError"));
     },
@@ -308,6 +309,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
 
   function toggleVoice() {
     if (voice === "listening") {
+      setHandsFree(false); handsFreeRef.current = false;
       manualStopRef.current = true;
       recRef.current?.stop();
       return;
