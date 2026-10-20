@@ -55,18 +55,18 @@ export function AdminPromotions() {
       title: f.title.trim(), body: f.body.trim() || null, cta_label: f.cta_label.trim() || null, cta_url: f.cta_url.trim() || null,
       image_url: f.image_url.trim() || null, ends_at: f.ends_at ? new Date(`${f.ends_at}T23:59:59`).toISOString() : null, created_by: u.user?.id ?? null,
     });
-    if (error) return err(null, t("adminx.promoInvalid"));
+    if (error) { err(null, t("adminx.promoInvalid")); return; }
     toast.success(t("adminx.promoSaved")); setF(empty); refresh();
   }
   async function setActive(p: Promo, active: boolean) {
     const { error } = await supabase.from("promotions").update({ active }).eq("id", p.id);
-    if (error) return err(null, t("adminx.error"));
+    if (error) { err(null, t("adminx.error")); return; }
     refresh();
   }
   async function del(p: Promo) {
     if (!window.confirm(t("adminx.promoDeleteConfirm"))) return;
     const { error } = await supabase.from("promotions").delete().eq("id", p.id);
-    if (error) return err(null, t("adminx.error"));
+    if (error) { err(null, t("adminx.error")); return; }
     refresh();
   }
   return (
