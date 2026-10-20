@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Module-load failures recover through both global preload events and the router error boundary with a shared reload guard; caught route-import failures must not strand users on a blank page.
 - Seller policies use public leaf routes with a shared legal layout; refunds defer to the merchant's authoritative policy.
 - Mobile/tablet use a full drawer menu plus bottom shortcuts; layouts use shrinkable grids, never horizontal-scroll navigation.
 - Home-screen install uses manifest metadata and a shared dialog; the only service worker is messaging-only (no offline cache).

@@ -56,6 +56,7 @@
 - [x] Impedir conteúdo técnico e código visível no chat
 
 ## Pendente
+- [ ] Verificar falha de importação que deixa tela em branco e recuperar também erros capturados pela navegação.
 - [x] Chat único de texto com microfone integrado, sem tela ou abas separadas de voz.
 - [ ] Confirmar respostas rápidas após todos os registros — tarefa foi salva, mas a confirmação escrita ainda demorou no teste; limite temporário da Groq também observado.
 - [x] Abrir chat nas últimas mensagens; resposta de relatório e recuperação verificadas na conta conectada.
