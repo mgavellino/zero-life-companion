@@ -83,7 +83,7 @@ export async function handleChat(request: Request) {
   // Shared memory across all threads
   const today = new Date().toISOString().slice(0, 10);
   const monthStart = today.slice(0, 8) + "01";
-  const { data: preferenceData } = await sb.from("user_preferences").select("display_name,goals,currency,language,health_consent_at").eq("user_id", userId).maybeSingle();
+  const { data: preferenceData } = await sb.from("user_preferences").select("display_name,goals,currency,language,health_consent_at,priorities,wake_time,sleep_time,work_start,work_end,free_days,monthly_income,monthly_budget,diet_goal,activity_level,dietary_restrictions").eq("user_id", userId).maybeSingle();
   const preferences = { data: preferenceData };
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
   const localDay = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
@@ -122,6 +122,19 @@ When the user asks to be reminded of something, create a task with due_at so the
 For MONTHLY bills or subscriptions explicitly described as recurring, use add_monthly_bill instead of a one-off task. Ask for the missing amount or due day before saving. Categorize financial entries automatically from the description. A future bill is not a paid expense: only record transactions when the user says they paid/spent. Never claim a bank payment was executed. Monthly reminders appear in the app; closed-app push is not configured.
 When the user mentions spending/earning money, a task/appointment, or a meal, log it with the right tool without asking (confirm briefly after). Use markdown, short lists and tables when helpful.
 Today is ${today}. User name: ${preferences.data?.display_name || profile.data?.display_name || "unknown"}.
+## Onboarding profile (user-provided; use it to personalise advice)
+${(() => { const p = preferences.data; if (!p) return "(none)"; const lines = [
+  p.goals?.length ? `Focus areas: ${p.goals.join(", ")}` : "",
+  p.priorities?.length ? `Top priorities: ${p.priorities.join(", ")}` : "",
+  p.wake_time || p.sleep_time ? `Wakes ${p.wake_time ?? "?"}, sleeps ${p.sleep_time ?? "?"}` : "",
+  p.work_start || p.work_end ? `Works ${p.work_start ?? "?"}-${p.work_end ?? "?"}` : "",
+  p.free_days?.length ? `Free weekdays (0=Sun): ${p.free_days.join(",")}` : "",
+  p.monthly_income != null ? `Monthly income: ${p.monthly_income} ${p.currency}` : "",
+  p.monthly_budget != null ? `Monthly spending limit: ${p.monthly_budget} ${p.currency}` : "",
+  p.health_consent_at && p.diet_goal ? `Diet goal: ${p.diet_goal}` : "",
+  p.health_consent_at && p.activity_level ? `Activity level: ${p.activity_level}` : "",
+  p.health_consent_at && p.dietary_restrictions?.length ? `Dietary restrictions: ${p.dietary_restrictions.join(", ")}` : "",
+].filter(Boolean); return lines.join("\n") || "(none)"; })()}
 
 ## Long-term memory
 ${plan === "pro" || plan === "max" ? (mem.data ?? []).map((m) => `- ${m.content}`).join("\n") || "(empty)" : "(long-term memory is a Pro/Max feature; if the user asks you to remember something, say it is available on Pro)"}
