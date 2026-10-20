@@ -56,6 +56,7 @@
 - [x] Impedir conteúdo técnico e código visível no chat
 
 ## Pendente
+- [ ] Chat único de texto com microfone integrado; corrigir respostas travadas e tornar respostas pela Groq mais diretas.
 - [x] Unidades de medida e moeda nas Configuracoes (peso, altura, distancia, relogio 12/24h, moeda)
 
 ## Novas tarefas (19/10)
