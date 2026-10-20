@@ -1,15 +1,13 @@
-import { flushSync } from "react-dom";
 import { VadRecorder, prefersRecorder } from "@/lib/voice-recorder";
 import { transcribe } from "@/lib/transcribe";
-import { DEFAULT_VOICE, orbColorValue, readVoicePrefs, type VoicePrefs } from "@/lib/voice-prefs";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Keyboard, AudioLines, Bell, Trash2, ListChecks, X, Download } from "lucide-react";
+import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Bell, Trash2, ListChecks, X, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
@@ -103,28 +101,16 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const { t } = useTranslation();
   const qc = useQueryClient();
   const threadId = initial.threadId;
-  const { plan, loading: subLoading } = useSubscription();
+  const { plan } = useSubscription();
   const voiceAllowed = hasVoiceChat(plan);
-  const [mode, setMode] = useState<"voice" | "text">("text");
-  const [orb, setOrb] = useState<VoicePrefs>({ voice: DEFAULT_VOICE, orbColor: "signal", orbStyle: "glow" });
-  useEffect(() => { const sync = () => setOrb(readVoicePrefs()); sync(); window.addEventListener("zero-voice-prefs", sync); return () => window.removeEventListener("zero-voice-prefs", sync); }, []);
-  useEffect(() => {
-    if (!subLoading && !voiceAllowed) setMode("text");
-  }, [subLoading, voiceAllowed]);
   const [text, setText] = useState("");
   const [interim, setInterim] = useState("");
   const [voice, setVoice] = useState<VoiceState>("idle");
-  const [handsFree, setHandsFree] = useState(false);
   const [speakText, setSpeakText] = useState(false);
-  const handsFreeRef = useRef(false);
-  handsFreeRef.current = handsFree;
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
   const speakTextRef = useRef(speakText);
   speakTextRef.current = speakText;
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recRef = useRef<SR | null>(null);
-  const listenRef = useRef<() => void>(() => {});
 
   const transport = useMemo(
     () =>
@@ -146,7 +132,6 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     onError: (e) => {
       const m = e.message || "";
       setVoice("idle");
-      if (m.includes("LIMIT")) { setHandsFree(false); handsFreeRef.current = false; }
       if (m.includes("LIMIT")) toast.error(t("chat2.limit"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } });
       else toast.error(m.includes("429") ? t("chat2.rateError") : t("chat2.replyError"));
     },
@@ -154,13 +139,13 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
       qc.setQueryData(chatQuery.queryKey, { threadId, messages: completedMessages });
       void qc.invalidateQueries({ queryKey: chatQuery.queryKey, refetchType: "none" });
       qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "chat" });
-      const shouldSpeak = modeRef.current === "voice" || speakTextRef.current;
+      const shouldSpeak = speakTextRef.current;
       if (shouldSpeak) {
         setVoice("speaking");
         await speak(plainText(message), i18n.language);
       }
       setVoice("idle");
-      if (modeRef.current !== "voice") inputRef.current?.focus();
+      inputRef.current?.focus();
     },
   });
 
@@ -221,165 +206,84 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   );
 
   const manualStopRef = useRef(false);
-  const voiceRef = useRef(voice);
-  voiceRef.current = voice;
-  const [needsTap, setNeedsTap] = useState(false);
-  // In voice mode ONE recognition session stays open for the whole conversation: phones (iOS above all)
-  // refuse to reopen the mic without a tap, which made voice stop after the first reply.
-  // While the assistant thinks or speaks, heard results are ignored so it doesn't hear itself.
   const vadRef = useRef<VadRecorder | null>(null);
-  const listen = useCallback(() => {
-    if (modeRef.current === "voice" && prefersRecorder()) {
-      // iPhone: record and transcribe on the server; the browser recogniser stops after the first reply there.
-      if (!vadRef.current) {
-        vadRef.current = new VadRecorder(async (audio) => {
-          vadRef.current?.pause();
-          setVoice("thinking");
-          const heard = await transcribe(audio, i18n.language);
-          if (heard) send(heard); else setVoice("idle");
-        });
-      }
-      const vad = vadRef.current;
-      setNeedsTap(false);
-      vad.open().then(() => { vad.resume(); setVoice("listening"); }).catch(() => {
-        handsFreeRef.current = false; setHandsFree(false); setVoice("idle"); toast.error(t("chat2.micError"));
+  const recordingGeneration = useRef(0);
+
+  function stopRecording() {
+    recordingGeneration.current++;
+    manualStopRef.current = true;
+    vadRef.current?.close();
+    vadRef.current = null;
+    recRef.current?.stop();
+    recRef.current = null;
+    setInterim("");
+    setVoice("idle");
+  }
+
+  async function toggleMicrophone() {
+    if (voice === "listening") { stopRecording(); return; }
+    if (busy || voice === "thinking") return;
+    stopSpeaking();
+    unlockAudio();
+    const generation = ++recordingGeneration.current;
+    manualStopRef.current = false;
+    setVoice("listening");
+    if (prefersRecorder()) {
+      const recorder = new VadRecorder(async (audio) => {
+        if (generation !== recordingGeneration.current) return;
+        recorder.close();
+        vadRef.current = null;
+        setVoice("thinking");
+        const heard = await transcribe(audio, i18n.language);
+        if (generation !== recordingGeneration.current) return;
+        setVoice("idle");
+        if (heard) { setText(heard); inputRef.current?.focus(); }
+        else toast.error(t("chat2.hearingError"));
       });
+      vadRef.current = recorder;
+      try {
+        await recorder.open();
+        if (generation !== recordingGeneration.current) { recorder.close(); return; }
+        recorder.resume();
+      } catch { stopRecording(); toast.error(t("chat2.micError")); }
       return;
     }
-    if (recRef.current) { setNeedsTap(false); setVoice("listening"); return; }
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
-    if (!Ctor) {
-      toast.error(t("chat2.browserError"));
-      setMode("text");
-      return;
-    }
-    stopSpeaking();
-    manualStopRef.current = false;
-    setNeedsTap(false);
-    let committed = "";
-    let silence: ReturnType<typeof setTimeout> | undefined;
-    let heardOnce = false;
-    const SILENCE_MS = 1600;
-    const persistent = () => modeRef.current === "voice";
-    const finish = () => {
-      clearTimeout(silence);
-      const text = committed.trim();
-      committed = "";
+    if (!Ctor) { stopRecording(); toast.error(t("chat2.browserError")); return; }
+    const rec = new Ctor();
+    recRef.current = rec;
+    rec.lang = LOCALES[i18n.language] ?? "pt-BR";
+    rec.interimResults = true;
+    rec.continuous = false;
+    let heard = "";
+    rec.onresult = (event) => {
+      if (generation !== recordingGeneration.current) return;
+      heard = Array.from(event.results).map((result) => result[0]?.transcript ?? "").join(" ").trim();
+      setInterim(heard);
+    };
+    rec.onend = () => {
+      if (generation !== recordingGeneration.current) return;
+      recRef.current = null;
       setInterim("");
-      if (!text) return;
-      if (persistent()) { send(text); return; }
-      manualStopRef.current = true;
-      recRef.current?.stop();
-      setText(text); send(text);
+      setVoice("idle");
+      if (heard) { setText(heard); inputRef.current?.focus(); }
     };
-    const start = () => {
-      const rec = new Ctor();
-      rec.lang = LOCALES[i18n.language] ?? "pt-BR";
-      rec.interimResults = true;
-      rec.continuous = true;
-      (rec as unknown as { maxAlternatives: number }).maxAlternatives = 1;
-      let base = 0;
-      rec.onresult = (e) => {
-        heardOnce = true;
-        if (voiceRef.current !== "listening") { base = e.results.length; committed = ""; clearTimeout(silence); return; }
-        let finals = "", tmp = "";
-        for (let i = base; i < e.results.length; i++) {
-          const r = e.results[i];
-          const transcript = r?.[0]?.transcript;
-          if (!r || !transcript) continue;
-          if (r.isFinal) finals += transcript + " "; else tmp += transcript;
-        }
-        const heard = (finals + tmp).trim();
-        setInterim(heard);
-        clearTimeout(silence);
-        silence = setTimeout(() => { committed = heard; base = e.results.length; finish(); }, SILENCE_MS);
-      };
-      rec.onerror = (e) => {
-        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-          manualStopRef.current = true;
-          // Denied before ever hearing anything = real permission problem; otherwise the phone just wants a tap.
-          if (!heardOnce) { handsFreeRef.current = false; setHandsFree(false); toast.error(t("chat2.micError")); }
-          else setNeedsTap(true);
-        } else if (!["no-speech", "aborted", "network", "audio-capture"].includes(e.error)) toast.error(t("chat2.hearingError"));
-      };
-      rec.onend = () => {
-        if (recRef.current !== rec) return;
-        if (!manualStopRef.current && (handsFreeRef.current || committed.trim())) {
-          // Browsers close the session on their own; reopen it quietly.
-          try { const next = start(); recRef.current = next; return; } catch { setNeedsTap(true); }
-        }
-        recRef.current = null;
-        setInterim("");
-        if (committed.trim()) finish();
-        else if (voiceRef.current === "listening") setVoice("idle");
-      };
-      rec.start();
-      return rec;
-    };
-    setVoice("listening");
-    try { recRef.current = start(); } catch { recRef.current = null; setNeedsTap(true); setVoice("idle"); }
-  }, [send, t]);
-  listenRef.current = listen;
+    rec.onerror = () => { stopRecording(); toast.error(t("chat2.hearingError")); };
+    try { rec.start(); } catch { stopRecording(); toast.error(t("chat2.micError")); }
+  }
 
-  // The recorder only listens while the orb says "listening" (never while the assistant thinks or speaks).
-  useEffect(() => { if (voice !== "listening") vadRef.current?.pause(); }, [voice]);
-  useEffect(() => { if (mode !== "voice") { vadRef.current?.close(); vadRef.current = null; } }, [mode]);
-  useEffect(() => () => { vadRef.current?.close(); }, []);
+  useEffect(() => () => {
+    recordingGeneration.current++;
+    vadRef.current?.close();
+    recRef.current?.stop();
+  }, []);
 
-  // Never leave the user stuck on "thinking": give up on a reply that hasn't started after 40s.
   useEffect(() => {
     if (status !== "submitted") return;
     const id = setTimeout(() => { stop(); setVoice("idle"); toast.error(t("chat2.replyError")); }, 40_000);
     return () => clearTimeout(id);
   }, [status, stop, t]);
-
-  // Hands-free loop: whenever the assistant is idle in voice mode, open the mic again.
-  // This also recovers after errors, blocked sends or audio that never reported its end.
-  useEffect(() => {
-    if (mode !== "voice" || !handsFree || voice !== "idle" || busy || needsTap) return;
-    const id = setTimeout(() => { if (handsFreeRef.current && modeRef.current === "voice") listenRef.current(); }, 450);
-    return () => clearTimeout(id);
-  }, [mode, handsFree, voice, busy, needsTap]);
-
-  function toggleVoice() {
-    if (voice === "listening" && vadRef.current?.active) {
-      setHandsFree(false); handsFreeRef.current = false;
-      vadRef.current.pause(); setVoice("idle");
-      return;
-    }
-    if (voice === "listening") {
-      setHandsFree(false); handsFreeRef.current = false;
-      manualStopRef.current = true;
-      recRef.current?.stop();
-      return;
-    }
-    if (voice === "speaking") {
-      stopSpeaking();
-      setVoice("idle");
-      return;
-    }
-    if (voice === "thinking") return;
-    unlockAudio();
-    setHandsFree(true);
-    handsFreeRef.current = true;
-    listen();
-  }
-
-  function openText() {
-    handsFreeRef.current = false;
-    manualStopRef.current = true;
-    setHandsFree(false);
-    recRef.current?.stop();
-    recRef.current = null;
-    vadRef.current?.close();
-    vadRef.current = null;
-    stopSpeaking();
-    setInterim("");
-    setVoice(busy ? "thinking" : "idle");
-    flushSync(() => setMode("text"));
-    inputRef.current?.focus();
-  }
 
   useWebMCP({
     name: "read_conversation",
@@ -397,7 +301,6 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     execute: ({ text: draft }: { text: string }) => runWebMCPTool("draft_message", () => {
       if (typeof draft !== "string" || !draft.trim()) throw new Error("Text is required.");
       if (draft.length > 4000) throw new Error("Text is too long.");
-      setMode("text");
       setText(draft);
       return "Message placed in the box; the user can review and send it.";
     }),
@@ -406,14 +309,6 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const last = messages[messages.length - 1];
   const replies = !busy ? quickReplies(last) : [];
   const suggestions = t("suggestions", { returnObjects: true }) as string[];
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  const voiceLabel: Record<VoiceState, string> = {
-    idle: t("chat2.idle"),
-    listening: t("listening"),
-    thinking: t("thinking"),
-    speaking: t("chat2.speaking"),
-  };
-
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2">
@@ -438,33 +333,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
             </>
           )}
         </div>
-        <div className="inline-flex rounded-full border bg-card p-0.5 text-xs">
-          <Button variant="ghost" size="sm" onClick={() => (voiceAllowed ? (unlockAudio(), setMode("voice")) : toast(t("chat2.voicePlan"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } }))} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "voice" && "bg-primary text-primary-foreground")}>
-            <AudioLines className="size-3.5" /> {t("chat2.voice")}
-          </Button>
-          <Button variant="ghost" size="sm"
-            onClick={openText}
-            className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
-          >
-            <Keyboard className="size-3.5" /> {t("chat2.text")}
-          </Button>
-        </div>
       </div>
-
-      {mode === "voice" && (() => {
-        const last = [...messages].reverse().find((m) => m.role === "assistant");
-        const lastText = last ? customerText(last.parts.filter((p) => p.type === "text").map((p) => (p as { text: string }).text).join(" ")) : "";
-        const caption = voice === "listening" ? interim : voice === "thinking" || status === "submitted" ? "" : lastText;
-        return (
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 px-6 text-center">
-            <Button variant="ghost" onClick={toggleVoice} aria-label={voiceLabel[voice]} style={{ "--signal": orbColorValue(orb.orbColor) } as React.CSSProperties} className={cn("voice-orb relative grid size-48 shrink-0 place-items-center rounded-full p-0 sm:size-56", `is-${voice}`, orb.orbStyle === "minimal" && "orb-minimal")}><ZeroRing className="size-14" /></Button>
-            <p className="text-sm font-medium tracking-wide text-muted-foreground">{voiceLabel[voice]}</p>
-            <p className="line-clamp-3 min-h-[3.75rem] max-w-sm break-words text-base">{caption}</p>
-            {handsFree && <Button variant="ghost" size="sm" className="rounded-full" onClick={() => { setHandsFree(false); manualStopRef.current = true; recRef.current?.stop(); }}>{t("chat2.pause")}</Button>}
-          </div>
-        );
-      })()}
-      {mode === "text" && <>
           <Conversation className="flex-1">
             <ConversationContent className="mx-auto w-full min-w-0 max-w-2xl px-4 py-6">
               {messages.length === 0 && (
@@ -515,7 +384,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               <PromptInputTextarea autoFocus ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
-                  {voiceAllowed && <Button type="button" size="icon-sm" variant="ghost" aria-label={t("voice")} title={t("voice")} onClick={() => { unlockAudio(); modeRef.current = "voice"; flushSync(() => setMode("voice")); toggleVoice(); }}>
+                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} disabled={busy || voice === "thinking"} aria-label={t("voice")} title={t("voice")} onClick={toggleMicrophone}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                   </Button>}
                   <Button
@@ -532,11 +401,10 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
                     {speakText ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
                   </Button>
                 </div>
-                <PromptInputSubmit status={status} onStop={stop} disabled={!busy && !text.trim()} />
+                <PromptInputSubmit status={status} onStop={stop} disabled={!busy && (!text.trim() || voice === "listening" || voice === "thinking")} />
               </PromptInputFooter>
             </PromptInput>
           </div>
-        </>}
     </div>
   );
 }
