@@ -74,3 +74,4 @@
 
 - [ ] Onboarding: obrigatório instalar app e ativar avisos
 - [ ] Personalizar cor/aparência da orbe de voz + identidade gerada por IA (confirmar provedor: dono proibiu gateway Lovable)
+- [ ] Escolher a voz do assistente
