@@ -66,3 +66,5 @@
 
 - [ ] Onboarding mais completa (aguardando detalhes do usuário)
 - [ ] Admin mais completo e funcional (aguardando detalhes do usuário)
+- [ ] Admin: criar cupons de desconto (Paddle)
+- [ ] Admin: promoções/cartazes na tela inicial
