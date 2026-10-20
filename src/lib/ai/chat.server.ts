@@ -84,7 +84,7 @@ export async function handleChat(request: Request) {
   }
   // Only recent turns go to the model: the full history overflows the free Groq token budget and stalls replies.
   let modelMessages = messages.slice(-24);
-  while (modelMessages.length > 1 && modelMessages[0].role !== "user") modelMessages = modelMessages.slice(1);
+  while (modelMessages.length > 1 && modelMessages[0]?.role !== "user") modelMessages = modelMessages.slice(1);
 
   // Shared memory across all threads
   const { data: preferenceData } = await sb.from("user_preferences").select("display_name,timezone,goals,currency,language,health_consent_at,priorities,wake_time,sleep_time,work_start,work_end,free_days,monthly_income,monthly_budget,diet_goal,activity_level,dietary_restrictions").eq("user_id", userId).maybeSingle();
