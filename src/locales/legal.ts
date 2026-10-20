@@ -8,7 +8,7 @@ export default {
       "text4": "Conheça o controlador e como exercer seus direitos sobre os dados do Zero.",
       "title": "Política de privacidade",
       "text5": "1. Controlador e alcance",
-      "text6": "Miguel Augusto Silva Avelino, responsável pelo Zero, atua como controlador dos dados pessoais tratados para oferecer este serviço, determinando suas finalidades e meios. Para assuntos de privacidade, fale com o controlador pelo e-mail ",
+      "text6": "Celia Lourdes da Silva Avelino, responsável pelo Zero, atua como controlador dos dados pessoais tratados para oferecer este serviço, determinando suas finalidades e meios. Para assuntos de privacidade, fale com o controlador pelo e-mail ",
       "text7": "miguels.avelin@gmail.com",
       "text8": ". Este aviso abrange o site e o assistente pessoal Zero. Serviços externos podem também atuar como controladores independentes e ter seus próprios avisos.",
       "text9": "2. Dados e finalidades",
@@ -60,7 +60,7 @@ export default {
       "text4": "Conheça o vendedor, as condições de assinatura e as regras de uso do Zero.",
       "title": "Termos de uso",
       "text5": "1. Quem oferece o Zero",
-      "text6": "O Zero é oferecido por Miguel Augusto Silva Avelino, vendedor responsável pelo serviço. Ao criar uma conta ou continuar utilizando o Zero, você concorda com estes termos e contrata o acesso ao serviço com o vendedor identificado acima, respeitada a atuação da Paddle como revendedora nas compras.",
+      "text6": "O Zero é oferecido por Celia Lourdes da Silva Avelino, vendedor responsável pelo serviço. Ao criar uma conta ou continuar utilizando o Zero, você concorda com estes termos e contrata o acesso ao serviço com o vendedor identificado acima, respeitada a atuação da Paddle como revendedora nas compras.",
       "text7": "O Zero é um assistente pessoal para registrar e organizar tempo, tarefas, hábitos, finanças, refeições e atividades. Recursos e limites dependem do plano escolhido e das autorizações concedidas.",
       "text8": "2. Conta e responsabilidade",
       "text9": "Você deve ter capacidade legal para contratar, fornecer informações corretas e proteger suas credenciais. Se agir em nome de uma organização, deve ter autorização para representá-la. Não compartilhe dados de terceiros sem autorização ou outra base legal válida.",
@@ -102,7 +102,7 @@ export default {
       "text4": "Consulte as condições da Paddle e os canais para solicitar reembolso.",
       "title": "Política de reembolso",
       "text5": "Política aplicável",
-      "text6": "As compras do Zero, oferecido por Miguel Augusto Silva Avelino, são processadas pela Paddle, nossa revendedora e Merchant of Record. Adotamos a ",
+      "text6": "As compras do Zero, oferecido por Celia Lourdes da Silva Avelino, são processadas pela Paddle, nossa revendedora e Merchant of Record. Adotamos a ",
       "text7": "Política de Reembolso da Paddle",
       "text8": ", incluindo seus prazos, regras e direitos aplicáveis à compra. Consulte essa política para o prazo de arrependimento e as condições da sua transação. Seus direitos obrigatórios previstos na legislação local permanecem preservados.",
       "text9": "Como solicitar",
@@ -120,7 +120,7 @@ export default {
     "legalPage": {
       "home": "Zero — início",
       "info": "Zero · Informações legais",
-      "updated": "Atualizado em 19 de outubro de 2026 · Responsável: Miguel Augusto Silva Avelino"
+      "updated": "Atualizado em 19 de outubro de 2026 · Responsável: Celia Lourdes da Silva Avelino"
     }
   },
   "en": {
@@ -131,7 +131,7 @@ export default {
       "text4": "Learn about the controller and how to exercise your rights over your Zero data.",
       "title": "Privacy policy",
       "text5": "1. Controller and scope",
-      "text6": "Miguel Augusto Silva Avelino, responsible for Zero, acts as controller of the personal data processed to provide this service, determining its purposes and means. For privacy matters, contact the controller by email at ",
+      "text6": "Celia Lourdes da Silva Avelino, responsible for Zero, acts as controller of the personal data processed to provide this service, determining its purposes and means. For privacy matters, contact the controller by email at ",
       "text7": "miguels.avelin@gmail.com",
       "text8": ". This notice covers the website and the Zero personal assistant. External services may also act as independent controllers and have their own notices.",
       "text9": "2. Data and purposes",
@@ -183,7 +183,7 @@ export default {
       "text4": "Learn about the seller, subscription conditions and Zero's usage rules.",
       "title": "Terms of use",
       "text5": "1. Who provides Zero",
-      "text6": "Zero is offered by Miguel Augusto Silva Avelino, the seller responsible for the service. By creating an account or continuing to use Zero, you agree to these terms and contract for access to the service with the seller identified above, subject to Paddle's role as reseller for purchases.",
+      "text6": "Zero is offered by Celia Lourdes da Silva Avelino, the seller responsible for the service. By creating an account or continuing to use Zero, you agree to these terms and contract for access to the service with the seller identified above, subject to Paddle's role as reseller for purchases.",
       "text7": "Zero is a personal assistant for recording and organizing time, tasks, habits, finances, meals and activities. Features and limits depend on the chosen plan and the permissions granted.",
       "text8": "2. Account and responsibility",
       "text9": "You must have legal capacity to contract, provide accurate information and protect your credentials. If acting on behalf of an organization, you must be authorized to represent it. Do not share third-party data without authorization or another valid legal basis.",
@@ -225,7 +225,7 @@ export default {
       "text4": "See Paddle's conditions and the channels for requesting a refund.",
       "title": "Refund policy",
       "text5": "Applicable policy",
-      "text6": "Purchases of Zero, offered by Miguel Augusto Silva Avelino, are processed by Paddle, our reseller and Merchant of Record. We adopt the ",
+      "text6": "Purchases of Zero, offered by Celia Lourdes da Silva Avelino, are processed by Paddle, our reseller and Merchant of Record. We adopt the ",
       "text7": "Paddle Refund Policy",
       "text8": ", including its deadlines, rules and rights applicable to the purchase. Consult that policy for the withdrawal period and the conditions of your transaction. Your mandatory rights under local law remain unaffected.",
       "text9": "How to request a refund",
@@ -243,7 +243,7 @@ export default {
     "legalPage": {
       "home": "Zero — home",
       "info": "Zero · Legal information",
-      "updated": "Updated October 19, 2026 · Responsible party: Miguel Augusto Silva Avelino"
+      "updated": "Updated October 19, 2026 · Responsible party: Celia Lourdes da Silva Avelino"
     }
   },
   "es": {
@@ -254,7 +254,7 @@ export default {
       "text4": "Conozca al responsable del tratamiento y cómo ejercer sus derechos sobre los datos de Zero.",
       "title": "Política de privacidad",
       "text5": "1. Responsable del tratamiento y alcance",
-      "text6": "Miguel Augusto Silva Avelino, responsable de Zero, actúa como responsable del tratamiento de los datos personales tratados para ofrecer este servicio, determinando sus finalidades y medios. Para asuntos de privacidad, contacte con el responsable por correo electrónico en ",
+      "text6": "Celia Lourdes da Silva Avelino, responsable de Zero, actúa como responsable del tratamiento de los datos personales tratados para ofrecer este servicio, determinando sus finalidades y medios. Para asuntos de privacidad, contacte con el responsable por correo electrónico en ",
       "text7": "miguels.avelin@gmail.com",
       "text8": ". Este aviso abarca el sitio web y el asistente personal Zero. Los servicios externos también pueden actuar como responsables independientes y tener sus propios avisos.",
       "text9": "2. Datos y finalidades",
@@ -306,7 +306,7 @@ export default {
       "text4": "Conozca al vendedor, las condiciones de suscripción y las normas de uso de Zero.",
       "title": "Términos de uso",
       "text5": "1. Quién ofrece Zero",
-      "text6": "Zero es ofrecido por Miguel Augusto Silva Avelino, vendedor responsable del servicio. Al crear una cuenta o continuar utilizando Zero, usted acepta estos términos y contrata el acceso al servicio con el vendedor identificado anteriormente, respetando la actuación de Paddle como revendedora en las compras.",
+      "text6": "Zero es ofrecido por Celia Lourdes da Silva Avelino, vendedor responsable del servicio. Al crear una cuenta o continuar utilizando Zero, usted acepta estos términos y contrata el acceso al servicio con el vendedor identificado anteriormente, respetando la actuación de Paddle como revendedora en las compras.",
       "text7": "Zero es un asistente personal para registrar y organizar tiempo, tareas, hábitos, finanzas, comidas y actividades. Las funciones y los límites dependen del plan elegido y de las autorizaciones concedidas.",
       "text8": "2. Cuenta y responsabilidad",
       "text9": "Debe tener capacidad legal para contratar, proporcionar información correcta y proteger sus credenciales. Si actúa en nombre de una organización, debe estar autorizado para representarla. No comparta datos de terceros sin autorización u otra base jurídica válida.",
@@ -348,7 +348,7 @@ export default {
       "text4": "Consulte las condiciones de Paddle y los canales para solicitar un reembolso.",
       "title": "Política de reembolso",
       "text5": "Política aplicable",
-      "text6": "Las compras de Zero, ofrecido por Miguel Augusto Silva Avelino, son procesadas por Paddle, nuestra revendedora y Merchant of Record. Adoptamos la ",
+      "text6": "Las compras de Zero, ofrecido por Celia Lourdes da Silva Avelino, son procesadas por Paddle, nuestra revendedora y Merchant of Record. Adoptamos la ",
       "text7": "Política de Reembolso de Paddle",
       "text8": ", incluidos sus plazos, normas y derechos aplicables a la compra. Consulte esa política para conocer el plazo de desistimiento y las condiciones de su transacción. Sus derechos imperativos previstos en la legislación local permanecen intactos.",
       "text9": "Cómo solicitarlo",
@@ -366,7 +366,7 @@ export default {
     "legalPage": {
       "home": "Zero — inicio",
       "info": "Zero · Información legal",
-      "updated": "Actualizado el 19 de octubre de 2026 · Responsable: Miguel Augusto Silva Avelino"
+      "updated": "Actualizado el 19 de octubre de 2026 · Responsable: Celia Lourdes da Silva Avelino"
     }
   },
   "fr": {
@@ -377,7 +377,7 @@ export default {
       "text4": "Découvrez le responsable du traitement et comment exercer vos droits sur les données de Zero.",
       "title": "Politique de confidentialité",
       "text5": "1. Responsable du traitement et champ d’application",
-      "text6": "Miguel Augusto Silva Avelino, responsable de Zero, agit en qualité de responsable du traitement des données personnelles traitées pour fournir ce service, dont il détermine les finalités et les moyens. Pour toute question de confidentialité, contactez le responsable du traitement par courriel à ",
+      "text6": "Celia Lourdes da Silva Avelino, responsable de Zero, agit en qualité de responsable du traitement des données personnelles traitées pour fournir ce service, dont il détermine les finalités et les moyens. Pour toute question de confidentialité, contactez le responsable du traitement par courriel à ",
       "text7": "miguels.avelin@gmail.com",
       "text8": ". Le présent avis couvre le site et l’assistant personnel Zero. Les services externes peuvent également agir en tant que responsables de traitement indépendants et disposer de leurs propres avis.",
       "text9": "2. Données et finalités",
@@ -429,7 +429,7 @@ export default {
       "text4": "Découvrez le vendeur, les conditions d’abonnement et les règles d’utilisation de Zero.",
       "title": "Conditions d’utilisation",
       "text5": "1. Qui propose Zero",
-      "text6": "Zero est proposé par Miguel Augusto Silva Avelino, vendeur responsable du service. En créant un compte ou en continuant à utiliser Zero, vous acceptez ces conditions et concluez un contrat d’accès au service avec le vendeur identifié ci-dessus, sous réserve du rôle de Paddle en tant que revendeur lors des achats.",
+      "text6": "Zero est proposé par Celia Lourdes da Silva Avelino, vendeur responsable du service. En créant un compte ou en continuant à utiliser Zero, vous acceptez ces conditions et concluez un contrat d’accès au service avec le vendeur identifié ci-dessus, sous réserve du rôle de Paddle en tant que revendeur lors des achats.",
       "text7": "Zero est un assistant personnel permettant d’enregistrer et d’organiser le temps, les tâches, les habitudes, les finances, les repas et les activités. Les fonctionnalités et limites dépendent de l’offre choisie et des autorisations accordées.",
       "text8": "2. Compte et responsabilité",
       "text9": "Vous devez avoir la capacité juridique de contracter, fournir des informations exactes et protéger vos identifiants. Si vous agissez au nom d’une organisation, vous devez être autorisé à la représenter. Ne partagez pas de données de tiers sans autorisation ou autre base légale valable.",
@@ -471,7 +471,7 @@ export default {
       "text4": "Consultez les conditions de Paddle et les canaux de demande de remboursement.",
       "title": "Politique de remboursement",
       "text5": "Politique applicable",
-      "text6": "Les achats de Zero, proposé par Miguel Augusto Silva Avelino, sont traités par Paddle, notre revendeur et Merchant of Record. Nous adoptons la ",
+      "text6": "Les achats de Zero, proposé par Celia Lourdes da Silva Avelino, sont traités par Paddle, notre revendeur et Merchant of Record. Nous adoptons la ",
       "text7": "Politique de remboursement de Paddle",
       "text8": ", y compris ses délais, règles et droits applicables à l’achat. Consultez cette politique pour connaître le délai de rétractation et les conditions de votre transaction. Vos droits impératifs prévus par la législation locale demeurent préservés.",
       "text9": "Comment faire une demande",
@@ -489,7 +489,7 @@ export default {
     "legalPage": {
       "home": "Zero — accueil",
       "info": "Zero · Informations légales",
-      "updated": "Mis à jour le 19 octobre 2026 · Responsable : Miguel Augusto Silva Avelino"
+      "updated": "Mis à jour le 19 octobre 2026 · Responsable : Celia Lourdes da Silva Avelino"
     }
   },
   "de": {
@@ -500,7 +500,7 @@ export default {
       "text4": "Erfahren Sie, wer verantwortlich ist und wie Sie Ihre Rechte an Ihren Zero-Daten ausüben können.",
       "title": "Datenschutzerklärung",
       "text5": "1. Verantwortlicher und Geltungsbereich",
-      "text6": "Miguel Augusto Silva Avelino, zuständig für Zero, ist Verantwortlicher für die personenbezogenen Daten, die zur Bereitstellung dieses Dienstes verarbeitet werden, und bestimmt deren Zwecke und Mittel. Bei Datenschutzfragen erreichen Sie den Verantwortlichen per E-Mail unter ",
+      "text6": "Celia Lourdes da Silva Avelino, zuständig für Zero, ist Verantwortlicher für die personenbezogenen Daten, die zur Bereitstellung dieses Dienstes verarbeitet werden, und bestimmt deren Zwecke und Mittel. Bei Datenschutzfragen erreichen Sie den Verantwortlichen per E-Mail unter ",
       "text7": "miguels.avelin@gmail.com",
       "text8": ". Dieser Hinweis umfasst die Website und den persönlichen Assistenten Zero. Externe Dienste können ebenfalls als eigenständige Verantwortliche handeln und eigene Datenschutzhinweise haben.",
       "text9": "2. Daten und Zwecke",
@@ -552,7 +552,7 @@ export default {
       "text4": "Informieren Sie sich über den Verkäufer, die Abonnementbedingungen und die Nutzungsregeln von Zero.",
       "title": "Nutzungsbedingungen",
       "text5": "1. Wer Zero anbietet",
-      "text6": "Zero wird von Miguel Augusto Silva Avelino angeboten, dem für den Dienst verantwortlichen Verkäufer. Durch das Anlegen eines Kontos oder die weitere Nutzung von Zero stimmen Sie diesen Bedingungen zu und schließen mit dem oben genannten Verkäufer einen Vertrag über den Zugang zum Dienst, unter Berücksichtigung der Rolle von Paddle als Wiederverkäufer bei Käufen.",
+      "text6": "Zero wird von Celia Lourdes da Silva Avelino angeboten, dem für den Dienst verantwortlichen Verkäufer. Durch das Anlegen eines Kontos oder die weitere Nutzung von Zero stimmen Sie diesen Bedingungen zu und schließen mit dem oben genannten Verkäufer einen Vertrag über den Zugang zum Dienst, unter Berücksichtigung der Rolle von Paddle als Wiederverkäufer bei Käufen.",
       "text7": "Zero ist ein persönlicher Assistent zum Erfassen und Organisieren von Zeit, Aufgaben, Gewohnheiten, Finanzen, Mahlzeiten und Aktivitäten. Funktionen und Grenzen hängen vom gewählten Tarif und den erteilten Berechtigungen ab.",
       "text8": "2. Konto und Verantwortung",
       "text9": "Sie müssen rechtlich befugt sein, Verträge zu schließen, richtige Angaben machen und Ihre Zugangsdaten schützen. Wenn Sie im Namen einer Organisation handeln, müssen Sie zu deren Vertretung befugt sein. Teilen Sie keine Daten Dritter ohne Erlaubnis oder eine andere gültige Rechtsgrundlage.",
@@ -594,7 +594,7 @@ export default {
       "text4": "Informieren Sie sich über die Bedingungen von Paddle und die Wege zur Beantragung einer Rückerstattung.",
       "title": "Rückerstattungsrichtlinie",
       "text5": "Anwendbare Richtlinie",
-      "text6": "Käufe von Zero, angeboten von Miguel Augusto Silva Avelino, werden von Paddle, unserem Wiederverkäufer und Merchant of Record, abgewickelt. Wir übernehmen die ",
+      "text6": "Käufe von Zero, angeboten von Celia Lourdes da Silva Avelino, werden von Paddle, unserem Wiederverkäufer und Merchant of Record, abgewickelt. Wir übernehmen die ",
       "text7": "Rückerstattungsrichtlinie von Paddle",
       "text8": " einschließlich ihrer Fristen, Regeln und auf den Kauf anwendbaren Rechte. Informieren Sie sich dort über die Widerrufsfrist und die Bedingungen Ihrer Transaktion. Ihre zwingenden Rechte nach örtlichem Recht bleiben unberührt.",
       "text9": "So stellen Sie einen Antrag",
@@ -612,7 +612,7 @@ export default {
     "legalPage": {
       "home": "Zero — Startseite",
       "info": "Zero · Rechtliche Informationen",
-      "updated": "Aktualisiert am 19. Oktober 2026 · Verantwortlicher: Miguel Augusto Silva Avelino"
+      "updated": "Aktualisiert am 19. Oktober 2026 · Verantwortlicher: Celia Lourdes da Silva Avelino"
     }
   },
   "it": {
@@ -623,7 +623,7 @@ export default {
       "text4": "Scopri chi è il titolare del trattamento e come esercitare i tuoi diritti sui dati di Zero.",
       "title": "Informativa sulla privacy",
       "text5": "1. Titolare e ambito di applicazione",
-      "text6": "Miguel Augusto Silva Avelino, responsabile di Zero, agisce come titolare del trattamento dei dati personali trattati per offrire questo servizio, determinandone finalità e mezzi. Per questioni di privacy, contatta il titolare tramite e-mail all’indirizzo ",
+      "text6": "Celia Lourdes da Silva Avelino, responsabile di Zero, agisce come titolare del trattamento dei dati personali trattati per offrire questo servizio, determinandone finalità e mezzi. Per questioni di privacy, contatta il titolare tramite e-mail all’indirizzo ",
       "text7": "miguels.avelin@gmail.com",
       "text8": ". Questa informativa riguarda il sito e l’assistente personale Zero. I servizi esterni possono anche agire come titolari autonomi e avere proprie informative.",
       "text9": "2. Dati e finalità",
@@ -675,7 +675,7 @@ export default {
       "text4": "Scopri il venditore, le condizioni di abbonamento e le regole di utilizzo di Zero.",
       "title": "Termini di utilizzo",
       "text5": "1. Chi offre Zero",
-      "text6": "Zero è offerto da Miguel Augusto Silva Avelino, venditore responsabile del servizio. Creando un account o continuando a utilizzare Zero, accetti questi termini e stipuli il contratto di accesso al servizio con il venditore sopra identificato, fermo restando il ruolo di Paddle come rivenditore negli acquisti.",
+      "text6": "Zero è offerto da Celia Lourdes da Silva Avelino, venditore responsabile del servizio. Creando un account o continuando a utilizzare Zero, accetti questi termini e stipuli il contratto di accesso al servizio con il venditore sopra identificato, fermo restando il ruolo di Paddle come rivenditore negli acquisti.",
       "text7": "Zero è un assistente personale per registrare e organizzare tempo, attività, abitudini, finanze, pasti ed esercizio. Funzionalità e limiti dipendono dal piano scelto e dalle autorizzazioni concesse.",
       "text8": "2. Account e responsabilità",
       "text9": "Devi avere la capacità giuridica per stipulare contratti, fornire informazioni corrette e proteggere le tue credenziali. Se agisci per conto di un’organizzazione, devi essere autorizzato a rappresentarla. Non condividere dati di terzi senza autorizzazione o altra base giuridica valida.",
@@ -717,7 +717,7 @@ export default {
       "text4": "Consulta le condizioni di Paddle e i canali per richiedere un rimborso.",
       "title": "Politica di rimborso",
       "text5": "Politica applicabile",
-      "text6": "Gli acquisti di Zero, offerto da Miguel Augusto Silva Avelino, sono elaborati da Paddle, nostro rivenditore e Merchant of Record. Adottiamo la ",
+      "text6": "Gli acquisti di Zero, offerto da Celia Lourdes da Silva Avelino, sono elaborati da Paddle, nostro rivenditore e Merchant of Record. Adottiamo la ",
       "text7": "Politica di rimborso di Paddle",
       "text8": ", inclusi i termini, le regole e i diritti applicabili all’acquisto. Consulta tale politica per il periodo di recesso e le condizioni della tua transazione. Restano salvi i tuoi diritti inderogabili previsti dalla normativa locale.",
       "text9": "Come richiederlo",
@@ -735,7 +735,7 @@ export default {
     "legalPage": {
       "home": "Zero — home",
       "info": "Zero · Informazioni legali",
-      "updated": "Aggiornato il 19 ottobre 2026 · Responsabile: Miguel Augusto Silva Avelino"
+      "updated": "Aggiornato il 19 ottobre 2026 · Responsabile: Celia Lourdes da Silva Avelino"
     }
   }
 };
