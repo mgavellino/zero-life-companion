@@ -105,7 +105,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const threadId = initial.threadId;
   const { plan, loading: subLoading } = useSubscription();
   const voiceAllowed = hasVoiceChat(plan);
-  const [mode, setMode] = useState<"voice" | "text">("voice");
+  const [mode, setMode] = useState<"voice" | "text">("text");
   const [orb, setOrb] = useState<VoicePrefs>({ voice: DEFAULT_VOICE, orbColor: "signal", orbStyle: "glow" });
   useEffect(() => { const sync = () => setOrb(readVoicePrefs()); sync(); window.addEventListener("zero-voice-prefs", sync); return () => window.removeEventListener("zero-voice-prefs", sync); }, []);
   useEffect(() => {
@@ -115,7 +115,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const [interim, setInterim] = useState("");
   const [voice, setVoice] = useState<VoiceState>("idle");
   const [handsFree, setHandsFree] = useState(false);
-  const [speakText, setSpeakText] = useState(true);
+  const [speakText, setSpeakText] = useState(false);
   const handsFreeRef = useRef(false);
   handsFreeRef.current = handsFree;
   const modeRef = useRef(mode);
@@ -366,6 +366,21 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     listen();
   }
 
+  function openText() {
+    handsFreeRef.current = false;
+    manualStopRef.current = true;
+    setHandsFree(false);
+    recRef.current?.stop();
+    recRef.current = null;
+    vadRef.current?.close();
+    vadRef.current = null;
+    stopSpeaking();
+    setInterim("");
+    setVoice(busy ? "thinking" : "idle");
+    flushSync(() => setMode("text"));
+    inputRef.current?.focus();
+  }
+
   useWebMCP({
     name: "read_conversation",
     description: "Read the latest messages shown in the Zero chat on this page.",
@@ -428,14 +443,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
             <AudioLines className="size-3.5" /> {t("chat2.voice")}
           </Button>
           <Button variant="ghost" size="sm"
-            onClick={() => {
-              manualStopRef.current = true;
-              recRef.current?.stop();
-              setHandsFree(false);
-              // Render text mode and focus inside the same tap so phones (iPhone too) open the keyboard.
-              flushSync(() => setMode("text"));
-              inputRef.current?.focus();
-            }}
+            onClick={openText}
             className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
           >
             <Keyboard className="size-3.5" /> {t("chat2.text")}
@@ -507,7 +515,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               <PromptInputTextarea autoFocus ref={inputRef} value={voice === "listening" ? interim : text} onChange={(e) => setText(e.target.value)} placeholder={voice === "listening" ? t("listening") : t("chatPlaceholder")} />
               <PromptInputFooter className="justify-between">
                 <div className="flex items-center gap-1">
-                  {voiceAllowed && <Button type="button" size="icon-sm" variant={voice === "listening" ? "default" : "ghost"} aria-label={t("voice")} onClick={() => { if (voice === "listening") { manualStopRef.current = true; recRef.current?.stop(); } else { unlockAudio(); listen(); } }}>
+                  {voiceAllowed && <Button type="button" size="icon-sm" variant="ghost" aria-label={t("voice")} title={t("voice")} onClick={() => { unlockAudio(); modeRef.current = "voice"; flushSync(() => setMode("voice")); toggleVoice(); }}>
                     {voice === "listening" ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                   </Button>}
                   <Button
