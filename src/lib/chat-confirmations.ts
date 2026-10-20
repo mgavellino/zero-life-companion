@@ -2,7 +2,8 @@
 export type ActionResult = { toolName: string; output: unknown };
 type Lang = "pt" | "en" | "es" | "fr" | "de" | "it";
 
-const T: Record<Lang, Record<string, string>> = {
+type Key = "expense" | "income" | "task" | "taskNoDate" | "meal" | "activity" | "bill" | "day" | "budget" | "memory" | "notify" | "fail" | "alert";
+const T: Record<Lang, Record<Key, string>> = {
   pt: { expense: "Despesa registrada", income: "Receita registrada", task: "Tarefa agendada", taskNoDate: "Tarefa salva", meal: "Refeição registrada", activity: "Atividade registrada", bill: "Conta mensal salva", day: "vence dia", budget: "Orçamento definido", memory: "Anotado, vou lembrar disso.", notify: "Aviso enviado.", fail: "Não consegui salvar isso agora. Tente novamente.", alert: "Vou te avisar na hora." },
   en: { expense: "Expense saved", income: "Income saved", task: "Task scheduled", taskNoDate: "Task saved", meal: "Meal logged", activity: "Activity logged", bill: "Monthly bill saved", day: "due on day", budget: "Budget set", memory: "Noted, I'll remember that.", notify: "Notification sent.", fail: "I couldn't save that right now. Please try again.", alert: "I'll remind you on time." },
   es: { expense: "Gasto registrado", income: "Ingreso registrado", task: "Tarea programada", taskNoDate: "Tarea guardada", meal: "Comida registrada", activity: "Actividad registrada", bill: "Cuenta mensual guardada", day: "vence el día", budget: "Presupuesto definido", memory: "Anotado, lo recordaré.", notify: "Aviso enviado.", fail: "No pude guardarlo ahora. Inténtalo de nuevo.", alert: "Te avisaré a tiempo." },
@@ -12,11 +13,12 @@ const T: Record<Lang, Record<string, string>> = {
 };
 const LOCALE: Record<Lang, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE", it: "it-IT" };
 
-const rec = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
+type Field = "ok" | "message" | "transaction" | "amount" | "kind" | "description" | "category" | "task" | "due_at" | "name" | "calories" | "protein" | "carbs" | "fat" | "activity" | "minutes" | "calories_low" | "calories_high" | "title" | "due_day" | "monthly_limit";
+const rec = (v: unknown): Partial<Record<Field, unknown>> => (v && typeof v === "object" ? (v as Partial<Record<Field, unknown>>) : {});
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
-export function confirmActions(results: ActionResult[], opts: { lang?: string; currency?: string; tz?: string }): string {
+export function confirmActions(results: ActionResult[], opts: { lang?: string | undefined; currency?: string | undefined; tz?: string | undefined }): string {
   const lang = (opts.lang && opts.lang in T ? opts.lang : "pt") as Lang;
   const t = T[lang];
   const locale = LOCALE[lang];
