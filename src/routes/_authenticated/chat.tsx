@@ -301,6 +301,13 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   }, [send, t]);
   listenRef.current = listen;
 
+  // Never leave the user stuck on "thinking": give up on a reply that hasn't started after 40s.
+  useEffect(() => {
+    if (status !== "submitted") return;
+    const id = setTimeout(() => { stop(); setVoice("idle"); toast.error(t("chat2.replyError")); }, 40_000);
+    return () => clearTimeout(id);
+  }, [status, stop, t]);
+
   // Hands-free loop: whenever the assistant is idle in voice mode, open the mic again.
   // This also recovers after errors, blocked sends or audio that never reported its end.
   useEffect(() => {
