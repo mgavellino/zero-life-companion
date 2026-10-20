@@ -1,3 +1,4 @@
+import { DeviceSetupStep } from "./DeviceSetupStep";
 import { useTranslation } from "react-i18next";
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { RefreshCw } from "lucide-react";
@@ -124,8 +125,8 @@ export function Onboarding({ onDone }: { onDone?: () => void }) {
     age: previous?.age?.toString() ?? "",
     sex: previous?.sex ?? "",
   }));
-  const [notice, setNotice] = useState(false);
-  const titles = [t("onboarding.title1"), t("onboarding.titlePriorities"), t("onboarding.titleRoutine"), t("onboarding.titleMoney"), t("onboarding.title3"), t("onboarding.title4")];
+  const [notice, setNotice] = useState(false), [deviceReady, setDeviceReady] = useState(false);
+  const titles = [t("onboarding.title1"), t("onboarding.titlePriorities"), t("onboarding.titleRoutine"), t("onboarding.titleMoney"), t("onboarding.title3"), t("onboarding.title4"), t("deviceSetup.title")];
   const last = titles.length - 1;
   const toggle = (list: string[], v: string, max = 99) => list.includes(v) ? list.filter(x => x !== v) : list.length >= max ? list : [...list, v];
   const num = (v: string) => v.trim() === "" ? null : Number(v.replace(",", "."));
@@ -174,8 +175,9 @@ export function Onboarding({ onDone }: { onDone?: () => void }) {
         <Field label={`${t("onboarding.dietGoal")} · ${t("shell.optional")}`}><select className={sel} value={dietGoal} onChange={e => setDietGoal(e.target.value)}><option value="">—</option>{DIET_GOALS.map(v => <option key={v} value={v}>{t(`onboarding.dg_${v}`)}</option>)}</select></Field>
         <Field label={`${t("onboarding.activity")} · ${t("shell.optional")}`}><select className={sel} value={activity} onChange={e => setActivity(e.target.value)}><option value="">—</option>{ACTIVITY_LEVELS.map(v => <option key={v} value={v}>{t(`onboarding.al_${v}`)}</option>)}</select></Field></div>
         <p className="text-sm font-medium">{t("onboarding.restrictions")}</p><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{RESTRICTIONS.map(v => <Chip key={v} on={restrictions.includes(v)} onClick={() => setRestrictions(toggle(restrictions, v))}>{t(`onboarding.rs_${v}`)}</Chip>)}</div></>}<p className="text-xs text-muted-foreground">{t("onboarding.medical")}</p></>}
+      {step === 6 && <DeviceSetupStep onReadyChange={setDeviceReady} />}
       {step === 5 && <><ShieldCheck className="size-10 text-primary" /><p className="text-sm">{t("onboarding.privacy")}</p><p className="text-sm text-muted-foreground">{t("onboarding.services")}</p><p className="text-sm text-muted-foreground">{t("onboarding.controls")}</p><label className="flex items-start gap-3 text-sm"><Checkbox checked={notice} onCheckedChange={v => setNotice(v === true)} /><span>{t("onboarding.read")}</span></label></>}
     </div>
-    <footer className="mt-8 flex justify-between gap-3 border-t pt-6"><Button variant="ghost" disabled={step === 0 || busy} onClick={() => setStep(step - 1)}><ArrowLeft className="size-4" />{t("shell.back")}</Button><Button disabled={busy || (step === 0 && !goals.length) || (step === last && !notice)} onClick={() => step === last ? finish() : setStep(step + 1)}>{busy ? t("shell.saving") : step === last ? t("onboarding.start") : t("shell.continue")}<ArrowRight className="size-4" /></Button></footer>
+    <footer className="mt-8 flex justify-between gap-3 border-t pt-6"><Button variant="ghost" disabled={step === 0 || busy} onClick={() => setStep(step - 1)}><ArrowLeft className="size-4" />{t("shell.back")}</Button><Button disabled={busy || (step === 0 && !goals.length) || (step === 5 && !notice) || (step === last && !deviceReady)} onClick={() => step === last ? finish() : setStep(step + 1)}>{busy ? t("shell.saving") : step === last ? t("onboarding.start") : t("shell.continue")}<ArrowRight className="size-4" /></Button></footer>
   </div>;
 }
