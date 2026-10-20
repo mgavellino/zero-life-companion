@@ -7,7 +7,7 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Bell, Trash2, ListChecks, X, Download } from "lucide-react";
+import { Brain, CheckCircle2, Wallet, ListTodo, Salad, Target, Mic, MicOff, Volume2, VolumeX, Bell, Trash2, ListChecks, X, Download, RotateCcw, Square, LoaderCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
@@ -111,6 +111,9 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   speakTextRef.current = speakText;
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recRef = useRef<SR | null>(null);
+  const [recovery, setRecovery] = useState<"cancelled" | "failed" | "limited" | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const cancelSaved = useRef(false);
 
   const transport = useMemo(
     () =>
@@ -125,20 +128,27 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     [threadId],
   );
 
-  const { messages, sendMessage, status, stop, setMessages } = useChat({
+  const { messages, sendMessage, status, stop, setMessages, regenerate } = useChat({
     id: threadId,
     messages: initial.messages,
     transport,
     onError: (e) => {
       const m = e.message || "";
       setVoice("idle");
+      setRecovery(m.includes("429") ? "limited" : "failed");
       if (m.includes("LIMIT")) toast.error(t("chat2.limit"), { action: { label: t("chat2.plans"), onClick: () => (window.location.href = "/planos") } });
       else toast.error(m.includes("429") ? t("chat2.rateError") : t("chat2.replyError"));
     },
-    onFinish: async ({ message, messages: completedMessages }) => {
+    onFinish: async ({ message, messages: completedMessages, isAbort, isError }) => {
       qc.setQueryData(chatQuery.queryKey, { threadId, messages: completedMessages });
       void qc.invalidateQueries({ queryKey: chatQuery.queryKey, refetchType: "none" });
       qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "chat" });
+      if (isAbort && !cancelSaved.current && message.parts.length) {
+        cancelSaved.current = true;
+        const { data: auth } = await supabase.auth.getUser();
+        if (auth.user) await supabase.from("messages").insert({ thread_id: threadId, user_id: auth.user.id, role: "assistant", parts: [...message.parts, { type: "text", text: `\n\n_${t("chatProgress.stopped")}_` }] as never });
+      }
+      if (isAbort || isError) { setVoice("idle"); return; }
       const shouldSpeak = speakTextRef.current;
       if (shouldSpeak) {
         setVoice("speaking");
@@ -193,11 +203,26 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     finally { setDeleting(false); }
   }
   const busy = status === "submitted" || status === "streaming";
+  useEffect(() => {
+    if (!busy) return;
+    const started = Date.now();
+    setElapsed(0);
+    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, [busy]);
+  function cancelReply() {
+    setRecovery("cancelled");
+    setVoice("idle");
+    stop();
+    stopSpeaking();
+  }
   const send = useCallback(
     (v: string) => {
       if (!v.trim()) return;
       if (busy) { setVoice("idle"); return; }
       stopSpeaking();
+      setRecovery(null);
+      cancelSaved.current = false;
       setVoice("thinking");
       sendMessage({ text: v });
       setText("");
@@ -281,7 +306,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
 
   useEffect(() => {
     if (status !== "submitted") return;
-    const id = setTimeout(() => { stop(); setVoice("idle"); toast.error(t("chat2.replyError")); }, 40_000);
+    const id = setTimeout(() => { stop(); setVoice("idle"); setRecovery("failed"); }, 40_000);
     return () => clearTimeout(id);
   }, [status, stop, t]);
 
@@ -310,8 +335,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const replies = !busy ? quickReplies(last) : [];
   const suggestions = t("suggestions", { returnObjects: true }) as string[];
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b px-4 py-2">
         <div className="flex min-w-0 flex-wrap items-center gap-1">
           {selecting ? (
             <>
@@ -373,6 +398,10 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
             <ConversationScrollButton />
           </Conversation>
           <div className="mx-auto w-full min-w-0 max-w-2xl shrink-0 p-3 sm:p-4">
+            {(busy || recovery) && <div className="mb-2 flex min-w-0 items-center justify-between gap-2" role="status" aria-live="polite">
+              <p className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">{busy && <LoaderCircle className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />}<span>{busy ? t(elapsed >= 15 ? "chatProgress.slow" : status === "streaming" ? "chatProgress.writing" : "chatProgress.working") : t(`chatProgress.${recovery}`)}{busy && ` · ${elapsed}s`}</span></p>
+              {busy ? <Button size="sm" variant="ghost" onClick={cancelReply}><Square className="size-3" />{t("chatProgress.cancel")}</Button> : <Button size="sm" variant="outline" onClick={() => { setRecovery(null); cancelSaved.current = false; void regenerate({ body: { retry: true } }); }}><RotateCcw className="size-3" />{t("chatProgress.retry")}</Button>}
+            </div>}
             <div className="mb-2 flex flex-wrap gap-2">
               {(replies.length ? replies : messages.length === 0 ? suggestions : []).map((s) => (
                 <Button variant="outline" size="sm" key={s} onClick={() => send(s)} className="h-auto max-w-full whitespace-normal rounded-full px-3 py-2 text-xs">
@@ -401,7 +430,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
                     {speakText ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
                   </Button>
                 </div>
-                <PromptInputSubmit status={status} onStop={stop} disabled={!busy && (!text.trim() || voice === "listening" || voice === "thinking")} />
+                <PromptInputSubmit aria-label={busy ? t("chatProgress.cancel") : t("send")} status={status} onStop={cancelReply} disabled={!busy && (!text.trim() || voice === "listening" || voice === "thinking")} />
               </PromptInputFooter>
             </PromptInput>
           </div>

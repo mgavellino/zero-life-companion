@@ -50,7 +50,7 @@ export async function handleChat(request: Request) {
     if ((count ?? 0) >= cap) return new Response("LIMIT", { status: 402 });
   }
 
-  const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string };
+  const body = (await request.json()) as { messages: UIMessage[]; threadId: string; lang?: string; retry?: boolean };
   const { messages: clientMessages, threadId } = body;
   const { data: thread, error: threadError } = await sb.from("threads").select("id,title").eq("user_id", userId).eq("id", threadId).maybeSingle();
   if (threadError) return new Response("Não consegui abrir sua conversa.", { status: 503 });
@@ -58,7 +58,7 @@ export async function handleChat(request: Request) {
 
   // Persist the latest user message
   const last = clientMessages[clientMessages.length - 1];
-  if (last?.role === "user") {
+  if (last?.role === "user" && !body.retry) {
     const { error } = await sb.from("messages").insert({ thread_id: threadId, user_id: userId, role: "user", parts: last.parts as never });
     if (error) {
       console.error("save user msg", error);
@@ -258,9 +258,10 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
 
   const result = streamText({
     model: provider(modelFor(plan)),
-    instructions,
+    instructions: instructions + (body.retry ? "\nThis is a recovery request: answer the latest user request using saved records. Do not perform any new writes or duplicate actions. Clearly state if a requested action cannot be confirmed as saved." : ""),
     messages: await convertToModelMessages(messages),
-    tools,
+    tools: body.retry ? undefined : tools,
+    abortSignal: request.signal,
     stopWhen: stepCountIs(5),
     prepareStep: ({ stepNumber }) => chatStepPolicy(stepNumber),
     providerOptions: { groq: { reasoningEffort: "low" } },
@@ -277,8 +278,9 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
         finally { reader.releaseLock(); }
       },
       sendReasoning: false,
-      onError: () => "Não consegui responder agora. Tente novamente em instantes.",
-      onFinish: async ({ responseMessage }) => {
+      onError: (error) => String(error).includes("Rate limit") || String(error).includes("429") ? "429" : "Não consegui responder agora. Tente novamente em instantes.",
+      onFinish: async ({ responseMessage, isAborted }) => {
+        if (isAborted || !responseMessage.parts.length) return;
         const { error } = await sb.from("messages").insert({
           thread_id: threadId,
           user_id: userId,
