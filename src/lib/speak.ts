@@ -6,6 +6,8 @@ const LOCALES: Record<string, string> = { pt: "pt-BR", en: "en-US", es: "es-ES",
 let player: HTMLAudioElement | null = null;
 let unlocked = false;
 let token = 0;
+// Resolves an in-flight premium playback when speech is stopped, so callers never wait forever.
+let cancelPending: (() => void) | null = null;
 const SILENT = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
 
 function getPlayer() {
@@ -32,6 +34,7 @@ export function unlockAudio() {
 
 export function stopSpeaking() {
   token++;
+  cancelPending?.(); cancelPending = null;
   if (player) { player.pause(); player.removeAttribute("src"); player.load(); }
   if (typeof window !== "undefined") window.speechSynthesis?.cancel();
 }
@@ -95,9 +98,14 @@ export async function speak(text: string, lang: string): Promise<"premium" | "ba
       const a = getPlayer();
       a.src = url;
       const played = await new Promise<boolean>((resolve) => {
-        a.onended = () => resolve(true);
-        a.onerror = () => resolve(false);
-        a.play().catch(() => resolve(false));
+        let guard: ReturnType<typeof setTimeout> | undefined;
+        const done = (ok: boolean) => { clearTimeout(guard); cancelPending = null; resolve(ok); };
+        cancelPending = () => done(true);
+        guard = setTimeout(() => done(true), 90_000);
+        a.onloadedmetadata = () => { if (Number.isFinite(a.duration)) { clearTimeout(guard); guard = setTimeout(() => done(true), a.duration * 1000 + 2500); } };
+        a.onended = () => done(true);
+        a.onerror = () => done(false);
+        a.play().catch(() => done(false));
       });
       URL.revokeObjectURL(url);
       if (played || my !== token) return "premium";
