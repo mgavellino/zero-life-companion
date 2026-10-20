@@ -1,3 +1,4 @@
+import { flushSync } from "react-dom";
 import { VadRecorder, prefersRecorder } from "@/lib/voice-recorder";
 import { transcribe } from "@/lib/transcribe";
 import { DEFAULT_VOICE, orbColorValue, readVoicePrefs, type VoicePrefs } from "@/lib/voice-prefs";
@@ -431,9 +432,9 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
               manualStopRef.current = true;
               recRef.current?.stop();
               setHandsFree(false);
-              setMode("text");
-              // Focus inside the tap so phones open the keyboard right away.
-              requestAnimationFrame(() => inputRef.current?.focus());
+              // Render text mode and focus inside the same tap so phones (iPhone too) open the keyboard.
+              flushSync(() => setMode("text"));
+              inputRef.current?.focus();
             }}
             className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5", mode === "text" && "bg-primary text-primary-foreground")}
           >
