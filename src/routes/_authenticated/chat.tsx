@@ -156,8 +156,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
         await speak(plainText(message), i18n.language);
       }
       setVoice("idle");
-      if (modeRef.current === "voice" && handsFreeRef.current) setTimeout(() => listenRef.current(), 350);
-      else inputRef.current?.focus();
+      if (modeRef.current !== "voice") inputRef.current?.focus();
     },
   });
 
@@ -207,7 +206,8 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
   const busy = status === "submitted" || status === "streaming";
   const send = useCallback(
     (v: string) => {
-      if (!v.trim() || busy) return;
+      if (!v.trim()) return;
+      if (busy) { setVoice("idle"); return; }
       stopSpeaking();
       setVoice("thinking");
       sendMessage({ text: v });
@@ -281,7 +281,7 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
           return;
         }
         // Browsers end recognition on their own after silence; reopen to stay continuous.
-        if (restarts++ < 30 && (handsFreeRef.current || committed.trim())) {
+        if ((handsFreeRef.current && restarts++ < 200) || committed.trim()) {
           if (committed.trim()) { finish(); return; }
           setTimeout(() => { if (!manualStopRef.current && !sent) start(); }, 150);
           return;
@@ -297,6 +297,14 @@ function ChatConversation({ initial }: { initial: { threadId: string; messages: 
     start();
   }, [send, t]);
   listenRef.current = listen;
+
+  // Hands-free loop: whenever the assistant is idle in voice mode, open the mic again.
+  // This also recovers after errors, blocked sends or audio that never reported its end.
+  useEffect(() => {
+    if (mode !== "voice" || !handsFree || voice !== "idle" || busy || recRef.current) return;
+    const id = setTimeout(() => { if (!recRef.current && handsFreeRef.current && modeRef.current === "voice") listenRef.current(); }, 450);
+    return () => clearTimeout(id);
+  }, [mode, handsFree, voice, busy]);
 
   function toggleVoice() {
     if (voice === "listening") {
