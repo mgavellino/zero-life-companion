@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 export function Page({ title, kicker, children, actions }: { title: string; kicker?: string; children: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mx-auto w-full min-w-0 max-w-5xl px-4 py-6 lg:px-8">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="mx-auto w-full min-w-0 max-w-5xl px-3.5 py-4 sm:px-4 sm:py-6 lg:px-8">
+      <div className="zero-title mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-8 sm:gap-4">
         <div className="min-w-0">
           {kicker && <p className="font-display text-xs uppercase tracking-widest text-muted-foreground">{kicker}</p>}
           <h1 className="break-words text-2xl font-bold sm:text-3xl lg:text-4xl">{title}</h1>
@@ -17,7 +17,7 @@ export function Page({ title, kicker, children, actions }: { title: string; kick
 }
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("min-w-0 rounded-lg border bg-card p-4 sm:p-5", className)}>{children}</div>;
+  return <div className={cn("zero-card min-w-0 rounded-xl border bg-card p-4 shadow-sm sm:p-5", className)}>{children}</div>;
 }
 
 export function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
