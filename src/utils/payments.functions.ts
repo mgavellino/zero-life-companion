@@ -16,11 +16,15 @@ async function paddlePriceId(env: PaddleEnv, externalId: string) {
 
 type Row = SubRow & { paddle_subscription_id: string; paddle_customer_id: string };
 async function loadSubs(context: { supabase: any; userId: string }, env: PaddleEnv) {
-  const { data } = await context.supabase
+  const { data, error } = await context.supabase
     .from("subscriptions")
     .select("paddle_subscription_id,paddle_customer_id,status,product_id,price_id,current_period_end,past_due_since,created_at,cancel_at_period_end")
     .eq("user_id", context.userId)
     .eq("environment", env);
+  if (error) {
+    console.error("loadSubs: subscription lookup failed", error.message);
+    throw new Error("SUBSCRIPTION_LOOKUP_FAILED");
+  }
   return (data ?? []) as Row[];
 }
 
@@ -34,7 +38,15 @@ export const resolveCheckoutPrice = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const subs = await loadSubs(context, data.environment);
     if (subs.some((s) => subscriptionGrantsAccess(s))) return { mode: "change" as const, paddlePriceId: null, trial: false };
-    const { count } = await context.supabase.from("plan_grants").select("id", { count: "exact", head: true }).eq("user_id", context.userId).eq("is_trial", true);
+    const { count, error } = await context.supabase
+      .from("plan_grants")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", context.userId)
+      .eq("is_trial", true);
+    if (error) {
+      console.error("resolveCheckoutPrice: trial eligibility lookup failed", error.message);
+      throw new Error("TRIAL_ELIGIBILITY_LOOKUP_FAILED");
+    }
     const trial = trialEligible(subs.length, count ?? 0);
     return { mode: "checkout" as const, paddlePriceId: await paddlePriceId(data.environment, trial ? data.priceId : `${data.priceId}_direct`), trial };
   });
