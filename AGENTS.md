@@ -31,12 +31,12 @@
 - Voice: ElevenLabs TTS at `/api/tts` (plan checked server-side) with speechSynthesis fallback; a single text chat includes optional one-utterance microphone dictation for review before sending, with recorder input and Web Speech fallback; no separate voice screen.
 - Chat: rule-parsed commands (`src/lib/quick-intent.ts`: money, reminders; meals: owner `custom_foods`, TACO, Open Food Facts; exercise: `custom_exercises`, MET) save with no model call; otherwise generation stops after saved actions with deterministic confirmations (`src/lib/chat-confirmations.ts`); only recent turns reach the model; recovery requests cannot run tools or duplicate the user message.
 - Chat uses a height-constrained shell with progress and cancellation beside its composer; explicit cancellation propagates to generation and partial replies are saved by the browser because edge disconnect callbacks are unreliable.
-- Voice playback explicitly uses full application volume and the playback audio session where supported; paused recording disables mic tracks and suspends analysis, then restores recording on resume to avoid quiet iOS call routing.
+- Voice playback forces full volume and the playback audio session; paused recording disables mic tracks (avoids quiet iOS call routing).
 - All user-facing strings use i18n keys in `src/locales/*` (6 languages) merged by `src/lib/i18n.ts`; unit prefs live in `src/lib/units.ts`, money display uses `money()` in `src/lib/data.ts`.
-- Billing: Paddle (`src/lib/paddle*.ts`), webhook writes `subscriptions`; prices/limits in `src/lib/plans.ts` must match the catalog. Effective plan = highest of live subscription and active `plan_grants`, resolved server-side by `getUserPlan`.
+- Billing: Paddle; one webhook writer upserts every `subscription.*` event (out-of-order guarded, DB errors → 500 retry). Access rules (grace, best-of-many subs, one trial) live in tested `src/lib/entitlement.ts`, used by `getUserPlan` and the client hook. Plan changes update the existing subscription; `*_direct` prices are the no-trial variants. Prices in `src/lib/plans.ts` must match the catalog.
 - Admin uses `user_roles` + `has_role()`, never profile columns. Notifications are `notifications` rows (realtime → toast).
 - Deployment stays host-portable (no Cloudflare-only server code; Node 22 `.nvmrc`): owner also deploys to Vercel.
-- External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.
+- External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS, no service role); sign-in honours a validated `next`.
 
 - Subdirectories may have their own `AGENTS.md`; read it before changing files there.
 - Admin privileged actions (list all users, block/delete, broadcast, coupons) run in `src/lib/admin.functions.ts`, which verifies `has_role` with the caller client before loading the service client; promotions are a public-read, admin-write table.
