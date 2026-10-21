@@ -46,7 +46,7 @@ const DAY = /\b(depois de amanha|amanha|hoje|tomorrow|today|manana|hoy)\b|\bdia\
 
 export function localParts(now: Date, tz: string) {
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now).map((x) => [x.type, x.value]));
-  return { y: +p.year!, mo: +p.month!, d: +p.day!, h: +p.hour!, mi: +p.minute! };
+  return { y: +p["year"]!, mo: +p["month"]!, d: +p["day"]!, h: +p["hour"]!, mi: +p["minute"]! };
 }
 
 function parseTask(t: string, now: Date, tz: string): QuickIntent | null {
