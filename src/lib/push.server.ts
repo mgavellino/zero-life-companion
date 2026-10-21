@@ -15,21 +15,20 @@ export async function getPushKeys() {
   const publicKey = Buffer.from(raw).toString("base64url");
   const saved = await supabaseAdmin.from("push_configuration").upsert({ id: "vapid", public_key: publicKey, private_key_ciphertext: encryptSecret(jwk.d, ENCRYPTION_KEY) }, { onConflict: "id", ignoreDuplicates: true });
   if (saved.error) throw new Error("Não foi possível preparar os avisos.");
-  // Read the winning insert when two devices initialize concurrently.
   return getPushKeys();
 }
 
-export async function sendDevicePush(subscriptionCiphertext: string, origin: string) {
+export async function sendDevicePush(subscriptionCiphertext: string, origin: string, title = "Zero", body = "You have a new notification. Open Zero to view it.") {
   const subscription = JSON.parse(decryptSecret(subscriptionCiphertext, ENCRYPTION_KEY));
   if (!isPushEndpoint(subscription.endpoint)) throw new Error("Destino inválido.");
   const keys = await getPushKeys();
-  const payload = await buildPushPayload({ data: JSON.stringify({ title: "Zero", body: "Você tem um novo aviso. Abra o Zero para conferir.", path: "/chat" }), options: { ttl: 3600 } }, subscription, { ...keys, subject: origin.startsWith("https://") && !origin.includes("localhost") ? origin : "mailto:miguels.avelin@gmail.com" });
+  const payload = await buildPushPayload({ data: JSON.stringify({ title, body, path: "/conta" }), options: { ttl: 3600 } }, subscription, { ...keys, subject: origin.startsWith("https://") && !origin.includes("localhost") ? origin : "mailto:miguels.avelin@gmail.com" });
   return fetch(subscription.endpoint, { ...payload, redirect: "manual" });
 }
 
 export async function dispatchPendingPush(origin: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: notices, error } = await supabaseAdmin.from("notifications").select("id,user_id,created_at").is("read_at", null).gte("created_at", new Date(Date.now() - 24 * 3600_000).toISOString()).order("created_at", { ascending: true }).limit(100);
+  const { data: notices, error } = await supabaseAdmin.from("notifications").select("id,user_id,title,body,created_at").is("read_at", null).gte("created_at", new Date(Date.now() - 24 * 3600_000).toISOString()).order("created_at", { ascending: true }).limit(100);
   if (error) throw new Error("Falha no envio.");
   let sent = 0;
   for (const n of notices ?? []) {
@@ -38,11 +37,10 @@ export async function dispatchPendingPush(origin: string) {
       await supabaseAdmin.from("push_deliveries").upsert({ notification_id: n.id, device_id: device.id }, { onConflict: "notification_id,device_id", ignoreDuplicates: true });
       const { data: delivery } = await supabaseAdmin.from("push_deliveries").select("id,attempts").eq("notification_id", n.id).eq("device_id", device.id).is("delivered_at", null).lte("next_attempt_at", new Date().toISOString()).maybeSingle();
       if (!delivery || delivery.attempts >= 5) continue;
-      // Claim before sending so concurrent scheduled requests do not double-send.
       const { data: claimed } = await supabaseAdmin.from("push_deliveries").update({ attempts: delivery.attempts + 1, next_attempt_at: new Date(Date.now() + 3600_000).toISOString() }).eq("id", delivery.id).eq("attempts", delivery.attempts).select("id").maybeSingle();
       if (!claimed) continue;
       try {
-        const response = await sendDevicePush(device.subscription_ciphertext, origin);
+        const response = await sendDevicePush(device.subscription_ciphertext, origin, n.title ?? "Zero", n.body ?? "");
         if (response.ok) { await supabaseAdmin.from("push_deliveries").update({ delivered_at: new Date().toISOString() }).eq("id", delivery.id); sent++; }
         else if (response.status === 404 || response.status === 410) await supabaseAdmin.from("push_devices").delete().eq("id", device.id);
         else if (response.status < 500 && response.status !== 429) await supabaseAdmin.from("push_deliveries").update({ attempts: 5 }).eq("id", delivery.id);

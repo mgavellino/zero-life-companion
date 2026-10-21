@@ -18,7 +18,7 @@ type Row = SubRow & { paddle_subscription_id: string; paddle_customer_id: string
 async function loadSubs(context: { supabase: any; userId: string }, env: PaddleEnv) {
   const { data } = await context.supabase
     .from("subscriptions")
-    .select("paddle_subscription_id,paddle_customer_id,status,product_id,price_id,current_period_end,past_due_since,created_at")
+    .select("paddle_subscription_id,paddle_customer_id,status,product_id,price_id,current_period_end,past_due_since,created_at,cancel_at_period_end")
     .eq("user_id", context.userId)
     .eq("environment", env);
   return (data ?? []) as Row[];
@@ -51,7 +51,6 @@ export const changePlan = createServerFn({ method: "POST" })
     if (!sub || !subscriptionGrantsAccess(sub) || sub.status === "canceled") throw new Error("NO_ACTIVE_SUBSCRIPTION");
     if (sub.status === "past_due") throw new Error("PAST_DUE");
     if (sub.price_id?.replace(/_direct$/, "") === data.priceId) return { ok: true };
-    // Keep the direct (no-trial) variant: a plan change never restarts the free trial.
     const pid = await paddlePriceId(data.environment, `${data.priceId}_direct`);
     try {
       await getPaddleClient(data.environment).subscriptions.update(sub.paddle_subscription_id, {
@@ -63,6 +62,27 @@ export const changePlan = createServerFn({ method: "POST" })
       throw new Error("CHANGE_FAILED");
     }
     return { ok: true };
+  });
+
+/** Schedules cancellation at the end of the current billing period. */
+export const cancelSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { environment: PaddleEnv }) => ({ environment: envOf(data.environment) }))
+  .handler(async ({ data, context }) => {
+    const sub = bestSubscription(await loadSubs(context, data.environment));
+    if (!sub || !sub.paddle_subscription_id || !subscriptionGrantsAccess(sub) || sub.status === "canceled") {
+      throw new Error("NO_ACTIVE_SUBSCRIPTION");
+    }
+    if (sub.cancel_at_period_end) return { ok: true, alreadyScheduled: true };
+    try {
+      await getPaddleClient(data.environment).subscriptions.cancel(sub.paddle_subscription_id, {
+        effectiveFrom: "next_billing_period",
+      });
+    } catch (e) {
+      console.error("cancelSubscription", e);
+      throw new Error("CANCEL_FAILED");
+    }
+    return { ok: true, alreadyScheduled: false };
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })

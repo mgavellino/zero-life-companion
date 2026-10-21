@@ -7,8 +7,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { Page, Card } from "@/components/Page";
 import { PricingTable } from "@/components/PricingTable";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useSubscription } from "@/hooks/use-subscription";
-import { createPortalSession } from "@/utils/payments.functions";
+import { cancelSubscription, createPortalSession } from "@/utils/payments.functions";
 import { getPaddleEnvironment } from "@/lib/paddle";
 import { PrivacyControls } from "@/components/PrivacyControls";
 import { PushSettings } from "@/components/PushSettings";
@@ -35,7 +40,24 @@ function Conta() {
   const { t } = useTranslation();
   const { plan, sub, trial, subPlanActive, graceEnd } = useSubscription();
   const portal = useServerFn(createPortalSession);
+  const cancel = useServerFn(cancelSubscription);
   const [busy, setBusy] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const canCancel = !!sub && sub.status !== "canceled" && subPlanActive && !sub.cancel_at_period_end;
+
+  async function handleCancel() {
+    setBusy(true);
+    try {
+      const result = await cancel({ data: { environment: getPaddleEnvironment() } });
+      toast.success(result.alreadyScheduled ? t("billing.cancelScheduled") : t("billing.cancelSuccess"));
+      setCancelOpen(false);
+    } catch {
+      toast.error(t("billing.cancelFailed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <Page title={t("account.title")} kicker={t("account.kicker")}>
       <Card className="mb-10 flex flex-wrap items-center justify-between gap-4">
@@ -49,26 +71,50 @@ function Conta() {
               {t(sub.cancel_at_period_end || sub.status === "canceled" ? "account.accessUntil" : "account.nextBilling", { value: new Date(sub.current_period_end).toLocaleDateString() })}
             </p>
           )}
+          {sub?.cancel_at_period_end && (
+            <p className="mt-1 text-sm text-muted-foreground">{t("billing.cancelScheduled")}</p>
+          )}
           {sub?.status === "past_due" && <p className="mt-1 text-sm text-destructive">{graceEnd && graceEnd > new Date() ? t("billing.grace", { value: graceEnd.toLocaleDateString() }) : t("account.pastDue")}</p>}
         </div>
         {sub && (
-          <Button
-            variant="outline"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              try {
-                const url = await portal({ data: { environment: getPaddleEnvironment() } });
-                window.open(url, "_blank");
-              } catch (e) {
-                toast.error(t("account.error"));
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            {t("billing.manage")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {canCancel && (
+              <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" disabled={busy}>{t("billing.cancelSubscription")}</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("billing.cancelConfirm")}</AlertDialogTitle>
+                    <AlertDialogDescription>{t("billing.cancelDescription")}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={busy}>{t("common.cancel", { defaultValue: t("cancel", { defaultValue: "Cancel" }) })}</AlertDialogCancel>
+                    <AlertDialogAction disabled={busy} onClick={(event) => { event.preventDefault(); void handleCancel(); }}>
+                      {t("billing.cancelConfirm")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  const url = await portal({ data: { environment: getPaddleEnvironment() } });
+                  window.open(url, "_blank");
+                } catch {
+                  toast.error(t("account.error"));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              {t("billing.manage")}
+            </Button>
+          </div>
         )}
       </Card>
       <PricingTable />
