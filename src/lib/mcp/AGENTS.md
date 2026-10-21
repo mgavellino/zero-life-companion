@@ -1,0 +1,1 @@
+- MCP tools are wrapped by `guarded()` in `guard.ts`, which denies a tool when the owner has a `mcp_tool_blocks` row for that OAuth client; default is allowed so new connections work immediately.
