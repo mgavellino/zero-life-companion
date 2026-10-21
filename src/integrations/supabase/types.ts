@@ -125,6 +125,66 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_exercises: {
+        Row: {
+          created_at: string
+          id: string
+          kcal_per_hour: number
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kcal_per_hour: number
+          name: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kcal_per_hour?: number
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      custom_foods: {
+        Row: {
+          carbs_100g: number
+          created_at: string
+          fat_100g: number
+          id: string
+          kcal_100g: number
+          name: string
+          protein_100g: number
+          unit_grams: number | null
+          user_id: string
+        }
+        Insert: {
+          carbs_100g?: number
+          created_at?: string
+          fat_100g?: number
+          id?: string
+          kcal_100g: number
+          name: string
+          protein_100g?: number
+          unit_grams?: number | null
+          user_id?: string
+        }
+        Update: {
+          carbs_100g?: number
+          created_at?: string
+          fat_100g?: number
+          id?: string
+          kcal_100g?: number
+          name?: string
+          protein_100g?: number
+          unit_grams?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       energy_activities: {
         Row: {
           activity: string
