@@ -35,7 +35,7 @@ function parseMoney(t: string): QuickIntent | null {
   const rest = t.replace(m[0], " ").replace(kind === "expense" ? EXPENSE : INCOME, " ").replace(/\b(hoje|agora|reais|today)\b/g, " ");
   const d = rest.match(/\b(?:no|na|nos|nas|em|de|do|da|com|pro|pra|para|on|at|for|en|por)\s+(.+)$/);
   const description = cap((d?.[1] ?? rest).replace(/^(o|a|os|as|um|uma|the)\s+/, "").replace(/\s+/g, " ").trim()).slice(0, 120);
-  return { type: "transaction", kind, amount: Math.round(amount * 100) / 100, description: restore(description) || (kind === "income" ? "Receita" : "Despesa") };
+  return { type: "transaction", kind, amount: Math.round(amount * 100) / 100, description: cap(restore(description.toLowerCase())) || (kind === "income" ? "Receita" : "Despesa") };
 }
 
 // ---------- reminders / tasks ----------

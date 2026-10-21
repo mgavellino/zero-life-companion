@@ -8,7 +8,8 @@ import type { Database } from "@/integrations/supabase/types";
 import { serverPaddleEnv } from "@/lib/paddle.server";
 import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
-import { estimateAndLogActivity } from "@/lib/activity.server";
+import { estimateAndLogActivity, logActivityLocal } from "@/lib/activity.server";
+import { parseQuickIntent } from "@/lib/quick-intent";
 import { dailyTimeSummary, type TimeSession } from "@/lib/time-tracking";
 import { automaticCategory, billSchema } from "@/lib/bills";
 import { readChatHistory } from "@/lib/chat-history";
@@ -255,6 +256,38 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       },
     }),
   };
+
+  // Everyday commands are understood by rules and saved instantly, with no AI call.
+  const lastText = last?.role === "user" ? last.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ") : "";
+  const intent = body.retry ? null : parseQuickIntent(lastText, new Date(), tz);
+  if (intent) {
+    const opts = { toolCallId: "quick", messages: [] } as never;
+    let action: { toolName: string; output: unknown };
+    if (intent.type === "transaction") action = { toolName: "add_transaction", output: await tools.add_transaction.execute!({ kind: intent.kind, amount: intent.amount, category: "auto", description: intent.description, occurred_on: null }, opts) };
+    else if (intent.type === "task") action = { toolName: "add_task", output: await tools.add_task.execute!({ title: intent.title, due_at: intent.due_local, minutes_from_now: intent.minutes_from_now, minutes: null, priority: "media" }, opts) };
+    else if (intent.type === "meal") { const { type: _t, ...meal } = intent; action = { toolName: "add_meal", output: await tools.add_meal.execute!(meal, opts) }; }
+    else {
+      let output: unknown;
+      try { output = { ok: true, ...await logActivityLocal(sb, userId, intent, today) }; }
+      catch (error) { output = { ok: false, message: error instanceof Error ? error.message : "Não foi possível registrar a atividade." }; }
+      action = { toolName: "log_activity", output };
+    }
+    const text = confirmActions([action], { lang: body.lang, currency: preferenceData?.currency ?? "BRL", tz });
+    const quick = createUIMessageStream({
+      originalMessages: messages,
+      execute: ({ writer }) => {
+        writer.write({ type: "start" });
+        writer.write({ type: "text-start", id: "confirm" }); writer.write({ type: "text-delta", id: "confirm", delta: text }); writer.write({ type: "text-end", id: "confirm" });
+        writer.write({ type: "finish", finishReason: "stop" });
+      },
+      onEnd: async ({ responseMessage }) => {
+        if (!responseMessage.parts.length) return;
+        const { error } = await sb.from("messages").insert({ thread_id: threadId, user_id: userId, role: "assistant", parts: responseMessage.parts as never });
+        if (error) console.error("save assistant msg", error);
+      },
+    });
+    return createUIMessageStreamResponse({ stream: quick, consumeSseStream: async ({ stream: copy }) => { const r = copy.getReader(); try { while (!(await r.read()).done) { /* drain */ } } finally { r.releaseLock(); } } });
+  }
 
   const apiKey = process.env["GROQ_API_KEY"];
   if (!apiKey) return new Response("O assistente está indisponível no momento.", { status: 503 });
