@@ -11,6 +11,16 @@ const T: Record<Lang, Record<Key, string>> = {
   de: { expense: "Ausgabe gespeichert", income: "Einnahme gespeichert", task: "Aufgabe geplant", taskNoDate: "Aufgabe gespeichert", meal: "Mahlzeit erfasst", activity: "Aktivität erfasst", bill: "Monatsrechnung gespeichert", day: "fällig am", budget: "Budget festgelegt", memory: "Notiert, ich merke es mir.", notify: "Benachrichtigung gesendet.", fail: "Konnte das gerade nicht speichern. Bitte erneut versuchen.", alert: "Ich erinnere dich rechtzeitig." },
   it: { expense: "Spesa registrata", income: "Entrata registrata", task: "Attività programmata", taskNoDate: "Attività salvata", meal: "Pasto registrato", activity: "Attività fisica registrata", bill: "Bolletta mensile salvata", day: "scade il giorno", budget: "Budget impostato", memory: "Annotato, me lo ricorderò.", notify: "Notifica inviata.", fail: "Non sono riuscito a salvarlo. Riprova.", alert: "Ti avviserò in tempo." },
 };
+
+type DKey = "value" | "desc" | "cat" | "when" | "kcal" | "prot" | "carb" | "fat" | "dur" | "burn" | "range" | "limit" | "seeMoney" | "seeTime" | "seeDiet" | "seeBills" | "fix" | "noDate";
+const D: Record<Lang, Record<DKey, string>> = {
+  pt: { value: "Valor", desc: "Descrição", cat: "Categoria", when: "Quando", kcal: "Calorias", prot: "Proteína", carb: "Carboidrato", fat: "Gordura", dur: "Duração", burn: "Gasto estimado", range: "faixa", limit: "Limite por mês", seeMoney: "Você vê isso em Dinheiro, junto com o saldo do mês.", seeTime: "Ela aparece em Tempo, na sua lista de tarefas.", seeDiet: "Já entrou no total de hoje em Dieta.", seeBills: "Fica em Dinheiro → Contas do mês, e eu aviso antes de vencer.", fix: "Se algo estiver errado, é só me dizer que eu corrijo.", noDate: "Sem horário definido — me diga quando, se quiser um aviso." },
+  en: { value: "Amount", desc: "Description", cat: "Category", when: "When", kcal: "Calories", prot: "Protein", carb: "Carbs", fat: "Fat", dur: "Duration", burn: "Estimated burn", range: "range", limit: "Monthly limit", seeMoney: "You'll see it in Money, with this month's balance.", seeTime: "It shows up in Time, in your task list.", seeDiet: "It's already in today's total in Diet.", seeBills: "It's in Money → Monthly bills, and I'll remind you before it's due.", fix: "If anything is wrong, just tell me and I'll fix it.", noDate: "No time set — tell me when if you want a reminder." },
+  es: { value: "Valor", desc: "Descripción", cat: "Categoría", when: "Cuándo", kcal: "Calorías", prot: "Proteína", carb: "Carbohidratos", fat: "Grasa", dur: "Duración", burn: "Gasto estimado", range: "rango", limit: "Límite mensual", seeMoney: "Lo verás en Dinero, con el saldo del mes.", seeTime: "Aparece en Tiempo, en tu lista de tareas.", seeDiet: "Ya está en el total de hoy en Dieta.", seeBills: "Está en Dinero → Cuentas del mes, y te aviso antes del vencimiento.", fix: "Si algo está mal, dímelo y lo corrijo.", noDate: "Sin hora — dime cuándo si quieres un aviso." },
+  fr: { value: "Montant", desc: "Description", cat: "Catégorie", when: "Quand", kcal: "Calories", prot: "Protéines", carb: "Glucides", fat: "Lipides", dur: "Durée", burn: "Dépense estimée", range: "fourchette", limit: "Limite mensuelle", seeMoney: "Visible dans Argent, avec le solde du mois.", seeTime: "Elle apparaît dans Temps, dans vos tâches.", seeDiet: "Déjà ajouté au total du jour dans Diète.", seeBills: "Dans Argent → Factures du mois ; je vous préviens avant l'échéance.", fix: "Si quelque chose ne va pas, dites-le-moi et je corrige.", noDate: "Pas d'heure — dites-moi quand si vous voulez un rappel." },
+  de: { value: "Betrag", desc: "Beschreibung", cat: "Kategorie", when: "Wann", kcal: "Kalorien", prot: "Eiweiß", carb: "Kohlenhydrate", fat: "Fett", dur: "Dauer", burn: "Geschätzter Verbrauch", range: "Spanne", limit: "Monatslimit", seeMoney: "Du findest es unter Geld, mit dem Monatssaldo.", seeTime: "Sie erscheint unter Zeit in deiner Aufgabenliste.", seeDiet: "Schon in der heutigen Summe unter Ernährung.", seeBills: "Unter Geld → Monatsrechnungen; ich erinnere dich vor Fälligkeit.", fix: "Wenn etwas falsch ist, sag es mir und ich korrigiere es.", noDate: "Keine Uhrzeit — sag mir wann, wenn du eine Erinnerung willst." },
+  it: { value: "Importo", desc: "Descrizione", cat: "Categoria", when: "Quando", kcal: "Calorie", prot: "Proteine", carb: "Carboidrati", fat: "Grassi", dur: "Durata", burn: "Consumo stimato", range: "intervallo", limit: "Limite mensile", seeMoney: "Lo trovi in Denaro, con il saldo del mese.", seeTime: "Compare in Tempo, nella lista attività.", seeDiet: "È già nel totale di oggi in Dieta.", seeBills: "È in Denaro → Bollette del mese; ti avviso prima della scadenza.", fix: "Se qualcosa non va, dimmelo e lo correggo.", noDate: "Nessun orario — dimmi quando se vuoi un promemoria." },
+};
 const LOCALE: Record<Lang, string> = { pt: "pt-BR", en: "en-US", es: "es-ES", fr: "fr-FR", de: "de-DE", it: "it-IT" };
 
 type Field = "ok" | "message" | "transaction" | "amount" | "kind" | "description" | "category" | "task" | "due_at" | "name" | "calories" | "protein" | "carbs" | "fat" | "activity" | "minutes" | "calories_low" | "calories_high" | "title" | "due_day" | "monthly_limit";
@@ -24,44 +34,52 @@ export function confirmActions(results: ActionResult[], opts: { lang?: string | 
   const locale = LOCALE[lang];
   const money = (n: number) => { try { return new Intl.NumberFormat(locale, { style: "currency", currency: opts.currency || "BRL" }).format(n); } catch { return n.toFixed(2); } };
   const when = (iso: string) => { try { return new Intl.DateTimeFormat(locale, { timeZone: opts.tz || "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(iso)); } catch { return iso; } };
-  const lines: string[] = [];
+  const d = D[lang];
+  const blocks: string[] = [];
+  const hints = new Set<string>();
+  const item = (label: string, v: string | null | false) => (v ? `• ${label}: ${v}` : "");
+  const push = (head: string, rows: string[], hint?: string) => { blocks.push([`✅ **${head}**`, ...rows.filter(Boolean)].join("\n")); if (hint) hints.add(hint); };
+  let saved = 0;
   for (const { toolName, output } of results) {
     const o = rec(output);
-    if (o.ok !== true) { lines.push(`⚠️ ${str(o.message) || t.fail}`); continue; }
+    if (o.ok !== true) { blocks.push(`⚠️ ${str(o.message) || t.fail}`); continue; }
+    saved++;
     switch (toolName) {
       case "add_transaction": {
         const tx = rec(o.transaction); const amount = num(tx.amount);
-        lines.push(`✅ ${tx.kind === "income" ? t.income : t.expense}: **${amount === null ? "" : money(amount)}**${str(tx.description) ? ` · ${str(tx.description)}` : ""}${str(tx.category) ? ` (${str(tx.category)})` : ""}`);
+        push(tx.kind === "income" ? t.income : t.expense, [item(d.value, amount === null ? null : `**${money(amount)}**`), item(d.desc, str(tx.description)), item(d.cat, str(tx.category))], d.seeMoney);
         break;
       }
       case "add_task": {
         const due = str(o.due_at);
-        lines.push(due ? `✅ ${t.task}: **${str(o.task)}** — ${when(due)}. ${t.alert}` : `✅ ${t.taskNoDate}: **${str(o.task)}**`);
+        push(due ? t.task : t.taskNoDate, [`• ${str(o.task)}`, due ? item(d.when, `**${when(due)}**`) : `• ${d.noDate}`, due ? `• ${t.alert}` : ""], d.seeTime);
         break;
       }
       case "add_meal": {
         const kcal = num(o.calories);
-        lines.push(`✅ ${t.meal}: **${str(o.name)}**${kcal === null ? "" : ` — ${Math.round(kcal)} kcal · P ${Math.round(num(o.protein) ?? 0)}g · C ${Math.round(num(o.carbs) ?? 0)}g · G ${Math.round(num(o.fat) ?? 0)}g`}`);
+        push(t.meal, [`• ${str(o.name)}`, item(d.kcal, kcal === null ? null : `**${Math.round(kcal)} kcal**`), kcal === null ? "" : `• ${d.prot} ${Math.round(num(o.protein) ?? 0)} g · ${d.carb} ${Math.round(num(o.carbs) ?? 0)} g · ${d.fat} ${Math.round(num(o.fat) ?? 0)} g`], d.seeDiet);
         break;
       }
       case "log_activity": {
-        const kcal = num(o.calories);
-        lines.push(`✅ ${t.activity}: **${str(o.activity)}**${num(o.minutes) ? ` · ${num(o.minutes)} min` : ""}${kcal === null ? "" : ` · ~${Math.round(kcal)} kcal${num(o.calories_low) !== null && num(o.calories_high) !== null ? ` (${Math.round(num(o.calories_low)!)}–${Math.round(num(o.calories_high)!)})` : ""}`}`);
+        const kcal = num(o.calories), lo = num(o.calories_low), hi = num(o.calories_high);
+        push(t.activity, [`• ${str(o.activity)}`, item(d.dur, num(o.minutes) ? `${num(o.minutes)} min` : null), item(d.burn, kcal === null ? null : `**~${Math.round(kcal)} kcal**${lo !== null && hi !== null ? ` (${d.range} ${Math.round(lo)}–${Math.round(hi)})` : ""}`)], d.seeDiet);
         break;
       }
       case "add_monthly_bill": {
         const amount = num(o.amount);
-        lines.push(`✅ ${t.bill}: **${str(o.title)}**${amount === null ? "" : ` · ${money(amount)}`}${num(o.due_day) ? ` · ${t.day} ${num(o.due_day)}` : ""}`);
+        push(t.bill, [`• ${str(o.title)}`, item(d.value, amount === null ? null : `**${money(amount)}**`), num(o.due_day) ? `• ${t.day} ${num(o.due_day)}` : ""], d.seeBills);
         break;
       }
       case "set_budget": {
         const limit = num(o.monthly_limit);
-        lines.push(`✅ ${t.budget}: **${str(o.category)}**${limit === null ? "" : ` · ${money(limit)}`}`);
+        push(t.budget, [item(d.cat, str(o.category)), item(d.limit, limit === null ? null : `**${money(limit)}**`)], d.seeMoney);
         break;
       }
-      case "remember": lines.push(`✅ ${t.memory}`); break;
-      case "notify": lines.push(`✅ ${t.notify}`); break;
+      case "remember": blocks.push(`✅ ${t.memory}`); break;
+      case "notify": blocks.push(`✅ ${t.notify}`); break;
     }
   }
-  return lines.join("\n");
+  const tail = [...hints];
+  if (saved) tail.push(d.fix);
+  return [blocks.join("\n\n"), tail.join(" ")].filter(Boolean).join("\n\n");
 }
