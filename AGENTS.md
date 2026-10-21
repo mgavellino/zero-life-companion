@@ -19,7 +19,7 @@
 - Monthly bills are owner-scoped definitions plus date-scoped payments; an owner-invoker function records payment and expense once; an hourly job deduplicates reminders by bill, due date and stage.
 - One browser-safe classifier assigns financial categories everywhere; explicit user categories win.
 - Time tracking stores owner-only categorised durations (stacked per local day, max 24h); percentages are shares of categorised time, no stopwatch.
-- Personal metrics render only after saved inputs exist; no zero-filled states implying activity.
+- Personal metrics render only after saved inputs exist (no zero-filled states).
 - Onboarding is enforced in the authenticated shell via owner-only preferences, optional measurements and explicit health consent.
 - Activity calorie estimates use one authenticated server-only Groq estimator shared by chat and diet.
 - Data access uses the caller's RLS client; child policies verify parent ownership; identity transitions clear query caches.
@@ -35,7 +35,7 @@
 - All user-facing strings use i18n keys in `src/locales/*` (6 languages) merged by `src/lib/i18n.ts`; unit prefs live in `src/lib/units.ts`, money display uses `money()` in `src/lib/data.ts`.
 - Billing: Paddle (`src/lib/paddle*.ts`), webhook writes `subscriptions`; prices/limits in `src/lib/plans.ts` must match the catalog. Effective plan = highest of live subscription and active `plan_grants`, resolved server-side by `getUserPlan`.
 - Admin uses `user_roles` + `has_role()`, never profile columns. Notifications are `notifications` rows (realtime → toast).
-- Deployment stays host-portable (no Cloudflare-only server code; Node 22 in `.nvmrc`) because the owner also deploys to Vercel with the Lovable Cloud backend.
+- Deployment stays host-portable (no Cloudflare-only server code; Node 22 `.nvmrc`): owner also deploys to Vercel.
 - External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.
 
 - MCP tools are wrapped by `guarded()` in `src/lib/mcp/guard.ts`, which denies a tool when the owner has a `mcp_tool_blocks` row for that OAuth client; default is allowed so new connections work immediately.
