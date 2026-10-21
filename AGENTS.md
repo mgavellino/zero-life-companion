@@ -21,7 +21,7 @@
 - Time tracking stores owner-only categorised durations (stacked per local day, max 24h); percentages are shares of categorised time, no stopwatch.
 - Personal metrics render only after saved inputs exist (no zero-filled states).
 - Onboarding is enforced in the authenticated shell via owner-only preferences, optional measurements and explicit health consent.
-- Activity calorie estimates use one authenticated server-only Groq estimator shared by chat and diet.
+- Unlisted activity calories use one server-only Groq estimator.
 - Data access uses the caller's RLS client; child policies verify parent ownership; identity transitions clear query caches.
 - Chat renders only customer-facing prose and action confirmations; never raw tool I/O, reasoning or provider errors. Financial receipts render only validated saved fields after persistence.
 - Habits are stable definitions plus date-scoped completion rows, never generated daily tasks.
