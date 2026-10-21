@@ -103,7 +103,7 @@ const FOODS: [RegExp, Food][] = [
   [/peixe|tilapia/, { k: 128, p: 26, c: 0, f: 2.7 }],
   [/salmao/, { k: 208, p: 20, c: 0, f: 13 }],
   [/ovos?\b/, { k: 143, p: 13, c: 1.1, f: 9.5, unit: 50 }],
-  [/pao frances|pao(zinho)?\b(?! de queijo| integral)/, { k: 300, p: 8, c: 58.6, f: 3.1, unit: 50 }],
+  [/pao frances|pao(zinho)?\b(?! de | integral)/, { k: 300, p: 8, c: 58.6, f: 3.1, unit: 50 }],
   [/pao integral/, { k: 253, p: 9.4, c: 49.9, f: 3.7, unit: 25 }],
   [/macarrao|massa|espaguete/, { k: 158, p: 5.8, c: 30.9, f: 0.9 }],
   [/batata doce/, { k: 77, p: 0.6, c: 18.4, f: 0.1 }],
@@ -186,20 +186,22 @@ const FOODS: [RegExp, Food][] = [
 const MEAL = /^(?:hoje\s+)?(?:eu\s+)?(?:comi|almocei|jantei|lanchei|tomei|bebi|ate|i ate|i had|comi?)\b|^(?:no |de )?(cafe da manha|almoco|jantar|lanche)\s*[:,-]?/;
 const QTY = /(\d+(?:[.,]\d+)?|um|uma|dois|duas|tres|quatro|cinco|meia|meio)\s*(kg|g|gr|gramas?|ml|l|litros?|xicaras?|colher(?:es)?|fatias?|unidades?|copos?|pratos?|conchas?)?\s*(?:de\s+)?/;
 
-function parseMeal(t: string, hour: number): QuickIntent | null {
+export type MealDraft = { meal_type: "cafe" | "almoco" | "lanche" | "jantar"; items: { text: string; grams: number; food: Food | null }[] };
+type Macro = { k: number; p: number; c: number; f: number };
+
+/** Splits a meal sentence into items with grams; `food` is null when the item is not in the local table. */
+export function parseMealDraft(text: string, hour: number): MealDraft | null {
+  const t = norm(text).replace(/[.!]+$/, "");
   const head = t.match(MEAL);
-  if (!head) return null;
+  if (!head || QUESTION.test(t)) return null;
   const word = t.match(/\b(cafe da manha|almoco|almocei|jantar|jantei|lanche|lanchei)\b/)?.[1] ?? "";
   const meal_type = /almo/.test(word) ? "almoco" : /jant/.test(word) ? "jantar" : /lanch/.test(word) ? "lanche" : /cafe da manha/.test(word) ? "cafe" : hour < 10 ? "cafe" : hour < 15 ? "almoco" : hour < 18 ? "lanche" : "jantar";
   const body = t.slice(head[0].length).replace(/\b(no|de|do)\s+(cafe da manha|almoco|jantar|lanche)\b/, " ");
-  const items = body.split(/,|\be\b|\bcom\b|\+|\band\b|\bwith\b/).map((s) => s.trim()).filter(Boolean);
-  if (!items.length) return null;
-  const tot = { k: 0, p: 0, c: 0, f: 0 };
-  const names: string[] = [];
-  for (const item of items) {
-    const food = FOODS.find(([re]) => re.test(item));
-    if (!food) return null; // unknown food: let the AI estimate
-    const [re, v] = food;
+  const raw = body.split(/,|\be\b|\bcom\b|\+|\band\b|\bwith\b/).map((s) => s.trim()).filter(Boolean);
+  if (!raw.length || raw.length > 12) return null;
+  const items: MealDraft["items"] = [];
+  for (const item of raw) {
+    const v = FOODS.find(([re]) => re.test(item))?.[1] ?? null;
     const q = item.match(QTY);
     const n = q?.[1] ? num(q[1]) : 1;
     const u = q?.[2] ?? "";
@@ -210,15 +212,33 @@ function parseMeal(t: string, hour: number): QuickIntent | null {
     else if (/^colher/.test(u)) grams = n * 15;
     else if (/^concha/.test(u)) grams = n * 140;
     else if (/^prato/.test(u)) grams = n * 300;
-    else if (/^fatia/.test(u)) grams = n * (v.unit ?? 30);
-    else grams = n * (v.unit ?? (q?.[1] ? 100 : 150)); // "arroz" alone = a typical 150 g serving
+    else if (/^fatia/.test(u)) grams = n * (v?.unit ?? 30);
+    else grams = n * (v?.unit ?? (q?.[1] ? 100 : 150)); // a typical serving when no quantity is given
     if (!(grams > 0) || grams > 5000) return null;
-    const r = grams / 100;
-    tot.k += v.k * r; tot.p += v.p * r; tot.c += v.c * r; tot.f += v.f * r;
-    names.push(item);
+    const name = item.replace(QTY, "").trim() || item;
+    items.push({ text: q?.[1] ? item : name, grams, food: v });
   }
+  return { meal_type, items };
+}
+
+/** Totals a draft once every item has per-100 g values (local table or a food database lookup). */
+export function mealFromDraft(draft: MealDraft, values: (Macro | null)[], original: string): QuickIntent | null {
+  const tot = { k: 0, p: 0, c: 0, f: 0 };
+  for (let i = 0; i < draft.items.length; i++) {
+    const v = values[i]; const it = draft.items[i]!;
+    if (!v) return null;
+    const r = it.grams / 100;
+    tot.k += v.k * r; tot.p += v.p * r; tot.c += v.c * r; tot.f += v.f * r;
+  }
+  const words = new Map(original.toLowerCase().split(/\s+/).map((w) => [norm(w.replace(/[.,!]+$/, "")), w.replace(/[.,!]+$/, "")]));
+  const name = draft.items.map((i) => i.text.split(" ").map((w) => words.get(w) ?? w).join(" ")).join(", ");
   const r1 = (x: number) => Math.round(x * 10) / 10;
-  return { type: "meal", name: cap(restore(names.join(", "))).slice(0, 120), meal_type, calories: Math.round(tot.k), protein: r1(tot.p), carbs: r1(tot.c), fat: r1(tot.f) };
+  return { type: "meal", name: cap(name).slice(0, 120), meal_type: draft.meal_type, calories: Math.round(tot.k), protein: r1(tot.p), carbs: r1(tot.c), fat: r1(tot.f) };
+}
+
+function parseMeal(text: string, hour: number): QuickIntent | null {
+  const d = parseMealDraft(text, hour);
+  return d ? mealFromDraft(d, d.items.map((i) => i.food), text) : null;
 }
 
 // ---------- exercise ----------
@@ -244,6 +264,25 @@ const ACTIVITIES: [RegExp, string, number][] = [
   [/\b(skate|patins)\b/, "Skate/patins", 5],
   [/\b(faxina|limpei a casa)\b/, "Faxina", 3.5],
   [/\b(trote|jog(?:ging)?)\b/, "Trote", 7],
+  [/\b(surf|surfei)\b/, "Surfe", 3],
+  [/\b(escalada|escalei)\b/, "Escalada", 8],
+  [/\b(capoeira)\b/, "Capoeira", 6.5],
+  [/\b(zumba|aerobica|step)\b/, "Aeróbica", 7],
+  [/\b(abdominais?|flexoes|polichinelos?|calistenia|burpees?)\b/, "Calistenia", 8],
+  [/\b(caminhada rapida|marcha)\b/, "Caminhada rápida", 4.3],
+  [/\b(caiaque|canoagem|stand up|sup)\b/, "Remo/caiaque", 5],
+  [/\b(golfe|golf)\b/, "Golfe", 4.8],
+  [/\b(ping pong|tenis de mesa)\b/, "Tênis de mesa", 4],
+  [/\b(badminton)\b/, "Badminton", 5.5],
+  [/\b(hidroginastica|hidro)\b/, "Hidroginástica", 5.3],
+  [/\b(jardinagem|capinei)\b/, "Jardinagem", 3.8],
+  [/\b(carreguei|mudanca)\b/, "Carregar peso", 5],
+  [/\b(passeei com o cachorro|cachorro)\b/, "Passeio com cachorro", 3],
+  [/\b(esqui|snowboard)\b/, "Esqui", 7],
+  [/\b(cavalgada|cavalguei|hipismo)\b/, "Cavalgada", 5.5],
+  [/\b(patinacao)\b/, "Patinação", 7],
+  [/\b(tai chi|meditacao ativa)\b/, "Tai chi", 3],
+  [/\b(sexo|transei)\b/, "Atividade sexual", 1.8],
 ];
 const DURATION = /(\d+(?:[.,]\d+)?|uma|um|meia|duas|dois|an|one)\s*(h|hr|hrs|hora|horas|hours?|min|mins|minuto|minutos|minutes?)\b/;
 
@@ -271,5 +310,5 @@ export function parseQuickIntent(text: string, now = new Date(), tz = "America/S
   const t = norm(text).replace(/[.!]+$/, "");
   original = new Map(text.toLowerCase().split(/\s+/).map((w) => w.replace(/[.,!]+$/, "")).map((w) => [norm(w), w]));
   if (!t || t.length > 300 || QUESTION.test(t)) return null;
-  return parseTask(t, now, tz) ?? parseMoney(t) ?? parseActivity(t) ?? parseMeal(t, localParts(now, tz).h);
+  return parseTask(t, now, tz) ?? parseMoney(t) ?? parseActivity(t) ?? parseMeal(text, localParts(now, tz).h);
 }
