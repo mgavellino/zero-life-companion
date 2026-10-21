@@ -40,3 +40,4 @@
 
 - MCP tools are wrapped by `guarded()` in `src/lib/mcp/guard.ts`, which denies a tool when the owner has a `mcp_tool_blocks` row for that OAuth client; default is allowed so new connections work immediately.
 - Admin privileged actions (list all users, block/delete, broadcast, coupons) run in `src/lib/admin.functions.ts`, which verifies `has_role` with the caller client before loading the service client; promotions are a public-read, admin-write table.
+- Barcode lookups use Open Food Facts via an authenticated server function; CSV imports parse in the browser (`src/lib/csv-import.ts`) and insert owner rows — neither uses AI.
