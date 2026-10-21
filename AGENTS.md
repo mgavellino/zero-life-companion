@@ -36,7 +36,7 @@
 - Billing: Paddle; one webhook writer upserts every `subscription.*` event (out-of-order guarded, DB errors → 500 retry). Access rules (grace, best-of-many subs, one trial) live in tested `src/lib/entitlement.ts`, used by `getUserPlan` and the client hook. Plan changes update the existing subscription; `*_direct` prices are the no-trial variants. Prices in `src/lib/plans.ts` must match the catalog.
 - Admin uses `user_roles` + `has_role()`, never profile columns. Notifications are `notifications` rows (realtime → toast).
 - Deployment stays host-portable (no Cloudflare-only server code; Node 22 `.nvmrc`): owner also deploys to Vercel.
-- External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.
+- External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS, no service role); sign-in honours a validated `next`.
 
 - Subdirectories may have their own `AGENTS.md`; read it before changing files there.
 - Admin privileged actions (list all users, block/delete, broadcast, coupons) run in `src/lib/admin.functions.ts`, which verifies `has_role` with the caller client before loading the service client; promotions are a public-read, admin-write table.
