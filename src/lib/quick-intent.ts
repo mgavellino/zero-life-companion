@@ -15,6 +15,9 @@ const NUM_WORDS: Record<string, number> = { um: 1, uma: 1, dois: 2, duas: 2, tre
 const num = (s: string) => { const n = Number(s.replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); return Number.isFinite(n) ? n : NUM_WORDS[s] ?? NaN; };
 const pad = (n: number) => String(n).padStart(2, "0");
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+let original = new Map<string, string>();
+/** Puts the user's accents back on words that were normalised for matching. */
+const restore = (s: string) => s.split(" ").map((w) => original.get(w) ?? w).join(" ");
 
 // ---------- money ----------
 const EXPENSE = /\b(gastei|paguei|comprei|torrei|spent|paid|bought|gaste|pague|compre)\b/;
@@ -32,7 +35,7 @@ function parseMoney(t: string): QuickIntent | null {
   const rest = t.replace(m[0], " ").replace(kind === "expense" ? EXPENSE : INCOME, " ").replace(/\b(hoje|agora|reais|today)\b/g, " ");
   const d = rest.match(/\b(?:no|na|nos|nas|em|de|do|da|com|pro|pra|para|on|at|for|en|por)\s+(.+)$/);
   const description = cap((d?.[1] ?? rest).replace(/^(o|a|os|as|um|uma|the)\s+/, "").replace(/\s+/g, " ").trim()).slice(0, 120);
-  return { type: "transaction", kind, amount: Math.round(amount * 100) / 100, description: description || (kind === "income" ? "Receita" : "Despesa") };
+  return { type: "transaction", kind, amount: Math.round(amount * 100) / 100, description: restore(description) || (kind === "income" ? "Receita" : "Despesa") };
 }
 
 // ---------- reminders / tasks ----------
@@ -55,7 +58,7 @@ function parseTask(t: string, now: Date, tz: string): QuickIntent | null {
     const n = num(rel[1]);
     const minutes = Math.round(/^h/.test(rel[2]) ? n * 60 : n);
     body = body.replace(rel[0], " ");
-    const title = cap(body.replace(/\s+/g, " ").trim());
+    const title = cap(restore(body.replace(/\s+/g, " ").trim()));
     if (!title || !(minutes >= 1)) return null;
     return { type: "task", title, due_local: null, minutes_from_now: minutes };
   }
@@ -82,7 +85,7 @@ function parseTask(t: string, now: Date, tz: string): QuickIntent | null {
   } else if (explicitDay) {
     due = `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}T09:00`;
   }
-  const title = cap(body.replace(/\b(de|que|para|pra|to)\s*$/, "").replace(/^\s*(de|que|para|pra|to)\b/, "").replace(/\s+/g, " ").trim()).slice(0, 200);
+  const title = cap(restore(body.replace(/\b(de|que|para|pra|to)\s*$/, "").replace(/^\s*(de|que|para|pra|to)\b/, "").replace(/\s+/g, " ").trim())).slice(0, 200);
   if (!title) return null;
   return { type: "task", title, due_local: due, minutes_from_now: null };
 }
@@ -162,10 +165,10 @@ function parseMeal(t: string, hour: number): QuickIntent | null {
     if (!(grams > 0) || grams > 5000) return null;
     const r = grams / 100;
     tot.k += v.k * r; tot.p += v.p * r; tot.c += v.c * r; tot.f += v.f * r;
-    names.push(item.match(re)?.[0] ? item : item);
+    names.push(item);
   }
   const r1 = (x: number) => Math.round(x * 10) / 10;
-  return { type: "meal", name: cap(names.join(", ")).slice(0, 120), meal_type, calories: Math.round(tot.k), protein: r1(tot.p), carbs: r1(tot.c), fat: r1(tot.f) };
+  return { type: "meal", name: cap(restore(names.join(", "))).slice(0, 120), meal_type, calories: Math.round(tot.k), protein: r1(tot.p), carbs: r1(tot.c), fat: r1(tot.f) };
 }
 
 // ---------- exercise ----------
@@ -205,6 +208,7 @@ export function activityCalories(met: number, minutes: number, weightKg: number 
 
 export function parseQuickIntent(text: string, now = new Date(), tz = "America/Sao_Paulo"): QuickIntent | null {
   const t = norm(text).replace(/[.!]+$/, "");
+  original = new Map(text.toLowerCase().split(/\s+/).map((w) => w.replace(/[.,!]+$/, "")).map((w) => [norm(w), w]));
   if (!t || t.length > 300 || QUESTION.test(t)) return null;
   return parseTask(t, now, tz) ?? parseMoney(t) ?? parseActivity(t) ?? parseMeal(t, localParts(now, tz).h);
 }
