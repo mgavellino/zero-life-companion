@@ -249,3 +249,24 @@
   .zero-page-enter, .zero-page-enter *, .zero-tab-icon { animation: none !important; }
   .zero-tab, .zero-tab-pill { transition: none !important; }
 }
+
+/* Directional tab transitions, title rise, drawer stagger, card feedback. */
+@keyframes zero-slide-l { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes zero-slide-r { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+@keyframes zero-fade-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+.zero-page-enter[data-dir="left"] { animation-name: zero-slide-l; }
+.zero-page-enter[data-dir="right"] { animation-name: zero-slide-r; }
+.zero-page-enter .zero-title { animation: zero-rise 380ms cubic-bezier(.2,.8,.2,1) both; }
+.zero-drawer > * { animation: zero-fade-in 300ms cubic-bezier(.2,.8,.2,1) both; }
+.zero-drawer > *:nth-child(2) { animation-delay: 30ms; } .zero-drawer > *:nth-child(3) { animation-delay: 60ms; }
+.zero-drawer > *:nth-child(4) { animation-delay: 90ms; } .zero-drawer > *:nth-child(5) { animation-delay: 120ms; }
+.zero-drawer > *:nth-child(n+6) { animation-delay: 150ms; }
+.zero-card { transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease; }
+@media (hover: hover) { .zero-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px color-mix(in oklab, var(--foreground) 35%, transparent); } }
+.zero-tab-active::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 4px 4px; background: var(--primary); animation: zero-rise 260ms ease both; }
+html { -webkit-tap-highlight-color: transparent; }
+@media (max-width: 639px) { input, select, textarea { font-size: 16px !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .zero-drawer > *, .zero-title { animation: none !important; }
+  .zero-card { transition: none !important; }
+}

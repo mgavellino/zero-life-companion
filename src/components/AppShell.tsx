@@ -35,6 +35,14 @@ export function AppShell() {
     },
   });
   const pathname = useRouterState({ select: (st) => st.location.pathname });
+  const order = ["/chat", "/tempo", "/dinheiro", "/dieta"];
+  const prevPath = useRef(pathname);
+  const [dir, setDir] = useState<"left" | "right" | "up">("up");
+  useEffect(() => {
+    const a = order.indexOf(prevPath.current), b = order.indexOf(pathname);
+    setDir(a >= 0 && b >= 0 && a !== b ? (b > a ? "left" : "right") : "up");
+    prevPath.current = pathname;
+  }, [pathname]);
   const items = [
     { to: "/chat", icon: MessageSquare, label: t("nav.chat") },
     { to: "/dashboard", icon: LayoutGrid, label: t("nav.dashboard") },
@@ -65,7 +73,7 @@ export function AppShell() {
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="left" className="w-[min(88vw,360px)] overflow-y-auto">
           <SheetTitle>Zero</SheetTitle><SheetDescription>{t("shell.tagline")}</SheetDescription>
-          <nav className="mt-6 grid gap-2">{items.map(i => <Link key={i.to} to={i.to} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground" activeProps={{className:"bg-accent text-accent-foreground"}}><i.icon className="size-5 shrink-0" />{i.label}</Link>)}{isAdmin && <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 px-3"><Shield className="size-5" />Admin</Link>}</nav>
+          <nav className="zero-drawer mt-6 grid gap-2">{items.map(i => <Link key={i.to} to={i.to} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground" activeProps={{className:"bg-accent text-accent-foreground"}}><i.icon className="size-5 shrink-0" />{i.label}</Link>)}{isAdmin && <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 px-3"><Shield className="size-5" />Admin</Link>}</nav>
           <div className="mt-4"><InstallZero /></div>
           <div className="mt-6 flex items-center justify-between border-t pt-4"><Prefs /><Button variant="ghost" onClick={signOut}><LogOut className="size-4" />{t("signOut")}</Button></div>
         </SheetContent>
@@ -117,7 +125,7 @@ export function AppShell() {
           </div>
         </aside>
         <main className={cn("min-h-0 min-w-0 flex-1", pathname === "/chat" ? "overflow-hidden" : "overflow-y-auto")}>
-          <div key={pathname} className={cn("zero-page-enter", pathname === "/chat" ? "h-full min-h-0" : "min-h-full")}>
+          <div key={pathname} data-dir={dir} className={cn("zero-page-enter", pathname === "/chat" ? "h-full min-h-0" : "min-h-full")}>
             <Outlet />
           </div>
         </main>
