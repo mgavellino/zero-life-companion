@@ -38,5 +38,6 @@
 - Deployment stays host-portable (no Cloudflare-only server code; Node 22 `.nvmrc`): owner also deploys to Vercel.
 - External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.
 
-- MCP tools are wrapped by `guarded()` in `src/lib/mcp/guard.ts`, which denies a tool when the owner has a `mcp_tool_blocks` row for that OAuth client; default is allowed so new connections work immediately.
+- Subdirectories may have their own `AGENTS.md`; read it before changing files there.
 - Admin privileged actions (list all users, block/delete, broadcast, coupons) run in `src/lib/admin.functions.ts`, which verifies `has_role` with the caller client before loading the service client; promotions are a public-read, admin-write table.
+- Barcode (Open Food Facts server fn) and CSV imports (`src/lib/csv-import.ts`) never use AI.
