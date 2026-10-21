@@ -103,7 +103,7 @@ const FOODS: [RegExp, Food][] = [
   [/peixe|tilapia/, { k: 128, p: 26, c: 0, f: 2.7 }],
   [/salmao/, { k: 208, p: 20, c: 0, f: 13 }],
   [/ovos?\b/, { k: 143, p: 13, c: 1.1, f: 9.5, unit: 50 }],
-  [/pao frances|pao(zinho)?\b/, { k: 300, p: 8, c: 58.6, f: 3.1, unit: 50 }],
+  [/pao frances|pao(zinho)?\b(?! de queijo| integral)/, { k: 300, p: 8, c: 58.6, f: 3.1, unit: 50 }],
   [/pao integral/, { k: 253, p: 9.4, c: 49.9, f: 3.7, unit: 25 }],
   [/macarrao|massa|espaguete/, { k: 158, p: 5.8, c: 30.9, f: 0.9 }],
   [/batata doce/, { k: 77, p: 0.6, c: 18.4, f: 0.1 }],

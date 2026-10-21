@@ -84,4 +84,4 @@
 - [x] Ajustar volume da voz e alternância microfone/alto-falante; dois testes de reprodução passaram.
 - [ ] Confirmar volume audível no iPhone real — depende de teste no aparelho, indisponível no ambiente automatizado.
 
-- [ ] Máximo sem IA: gastos, lembretes, refeições (tabela TACO ampliada) e exercícios (tabela MET) salvos por regras; IA só para conversa livre
+- [x] Máximo sem IA: gastos, lembretes, refeições (tabela TACO ampliada) e exercícios (tabela MET) salvos por regras; IA só para conversa livre
