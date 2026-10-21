@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 import i18n, { LANGS } from "@/lib/i18n";
 
 export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('zero-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`;
@@ -58,9 +59,15 @@ export function LangSwitch() {
         {LANGS.map((l) => (
           <DropdownMenuItem
             key={l.code}
-            onClick={() => {
+            onClick={async () => {
               inst.changeLanguage(l.code);
               localStorage.setItem("zero-lang", l.code);
+              // Persist the preference so server-generated billing notices use the same language.
+              const { data } = await supabase.auth.getUser();
+              if (data.user) {
+                const { error } = await supabase.auth.updateUser({ data: { language: l.code } });
+                if (error) console.error("Could not sync language preference");
+              }
             }}
           >
             {l.label}
