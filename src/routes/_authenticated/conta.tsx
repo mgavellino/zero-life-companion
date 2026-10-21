@@ -33,7 +33,7 @@ const LABEL = { essencial: "Essencial", pro: "Pro", max: "Max" } as const;
 
 function Conta() {
   const { t } = useTranslation();
-  const { plan, sub, trial } = useSubscription();
+  const { plan, sub, trial, subPlanActive, graceEnd } = useSubscription();
   const portal = useServerFn(createPortalSession);
   const [busy, setBusy] = useState(false);
   return (
@@ -44,12 +44,12 @@ function Conta() {
           <p className="mt-1 font-display text-2xl font-semibold">
             {plan === "free" ? t("pricing.freeName") : LABEL[plan]} {trial && <span className="ml-2 rounded-full bg-signal px-2 py-0.5 text-xs text-signal-foreground">{t("account.trial")}</span>}
           </p>
-          {sub?.current_period_end && plan !== "free" && (
+          {sub?.current_period_end && subPlanActive && sub.status !== "past_due" && (
             <p className="text-sm text-muted-foreground">
               {t(sub.cancel_at_period_end || sub.status === "canceled" ? "account.accessUntil" : "account.nextBilling", { value: new Date(sub.current_period_end).toLocaleDateString() })}
             </p>
           )}
-          {sub?.status === "past_due" && <p className="mt-1 text-sm text-destructive">{t("account.pastDue")}</p>}
+          {sub?.status === "past_due" && <p className="mt-1 text-sm text-destructive">{graceEnd && graceEnd > new Date() ? t("billing.grace", { value: graceEnd.toLocaleDateString() }) : t("account.pastDue")}</p>}
         </div>
         {sub && (
           <Button
@@ -61,17 +61,17 @@ function Conta() {
                 const url = await portal({ data: { environment: getPaddleEnvironment() } });
                 window.open(url, "_blank");
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : t("account.error"));
+                toast.error(t("account.error"));
               } finally {
                 setBusy(false);
               }
             }}
           >
-            Gerenciar assinatura
+            {t("billing.manage")}
           </Button>
         )}
       </Card>
-      <PricingTable currentPlan={plan} />
+      <PricingTable />
       <PushSettings />
       <div className="my-4"><InstallZero /></div>
       <PrivacyControls />
