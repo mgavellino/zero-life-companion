@@ -20,3 +20,9 @@ describe("parseQuickIntent", () => {
   it("chit-chat goes to AI", () => expect(p("oi, tudo bem")).toBeNull());
   it("activity kcal uses weight", () => expect(activityCalories(9.8, 30, 80).calories).toBe(352));
 });
+
+describe("custom tables", () => {
+  const custom = { foods: [{ name: "acarajé", kcal_100g: 280, protein_100g: 8, carbs_100g: 25, fat_100g: 16, unit_grams: 120 }], exercises: [{ name: "frescobol", kcal_per_hour: 400 }] };
+  it("uses my food per unit", () => expect(parseQuickIntent("comi 1 acarajé", now, "America/Sao_Paulo", custom)).toMatchObject({ type: "meal", calories: 336 }));
+  it("uses my exercise kcal per hour", () => expect(parseQuickIntent("joguei frescobol 30 minutos", now, "America/Sao_Paulo", custom)).toMatchObject({ type: "activity", activity: "frescobol", kcalPerHour: 400, minutes: 30 }));
+});

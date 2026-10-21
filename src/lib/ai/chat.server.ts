@@ -180,7 +180,7 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       inputSchema: z.object({ text: z.string().min(3).max(500), occurred_on: z.string().date().nullable() }),
       execute: async ({ text, occurred_on }) => {
         // Known activities use the MET table; only unusual ones need the AI estimate.
-        const known = parseActivity(text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
+        const known = parseActivity(text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(), custom.exercises);
         try { return { ok: true, ...(known?.type === "activity" ? await logActivityLocal(sb, userId, known, occurred_on ?? today) : await estimateAndLogActivity(sb, userId, text, occurred_on ?? today)) }; }
         catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Não foi possível registrar a atividade." }; }
       },
@@ -261,8 +261,13 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
 
   // Everyday commands are understood by rules and saved instantly, with no AI call.
   const lastText = last?.role === "user" ? last.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ") : "";
-  let intent = body.retry ? null : parseQuickIntent(lastText, new Date(), tz);
-  if (!intent && !body.retry && lastText) { const { resolveMealIntent } = await import("@/lib/food-lookup.server"); const { localParts } = await import("@/lib/quick-intent"); intent = await resolveMealIntent(lastText, localParts(new Date(), tz).h); }
+  const [{ data: myFoods }, { data: myExercises }] = await Promise.all([
+    sb.from("custom_foods").select("name,kcal_100g,protein_100g,carbs_100g,fat_100g,unit_grams").eq("user_id", userId).limit(500),
+    sb.from("custom_exercises").select("name,kcal_per_hour").eq("user_id", userId).limit(500),
+  ]);
+  const custom = { foods: myFoods ?? [], exercises: myExercises ?? [] };
+  let intent = body.retry ? null : parseQuickIntent(lastText, new Date(), tz, custom);
+  if (!intent && !body.retry && lastText) { const { resolveMealIntent } = await import("@/lib/food-lookup.server"); const { localParts } = await import("@/lib/quick-intent"); intent = await resolveMealIntent(lastText, localParts(new Date(), tz).h, custom.foods); }
   if (intent) {
     const opts = { toolCallId: "quick", messages: [] } as never;
     let action: { toolName: string; output: unknown };

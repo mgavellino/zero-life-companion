@@ -1,4 +1,4 @@
-import { mealFromDraft, parseMealDraft, type QuickIntent } from "./quick-intent";
+import { mealFromDraft, parseMealDraft, type CustomFood, type QuickIntent } from "./quick-intent";
 
 type Macro = { k: number; p: number; c: number; f: number };
 const cache = new Map<string, Macro | null>();
@@ -23,8 +23,8 @@ export async function lookupFood(name: string): Promise<Macro | null> {
 }
 
 /** Meals whose foods are not in the local table are completed from the food database before any AI is used. */
-export async function resolveMealIntent(text: string, hour: number): Promise<QuickIntent | null> {
-  const draft = parseMealDraft(text, hour);
+export async function resolveMealIntent(text: string, hour: number, custom: CustomFood[] = [], requireHead = true): Promise<QuickIntent | null> {
+  const draft = parseMealDraft(text, hour, custom, requireHead);
   if (!draft) return null;
   const values = await Promise.all(draft.items.map((i) => i.food ?? lookupFood(i.text.replace(/^\d+(?:[.,]\d+)?\s*\w*\s*(?:de\s+)?/, ""))));
   return mealFromDraft(draft, values, text);

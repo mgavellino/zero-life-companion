@@ -29,13 +29,14 @@ export async function estimateAndLogActivity(sb: SupabaseClient<Database>, userI
   return data;
 }
 /** Rule-based (no AI) activity logging using MET values; weight is optional. */
-export async function logActivityLocal(sb: SupabaseClient<Database>, userId: string, input: { activity: string; minutes: number; met: number }, date: string) {
+export async function logActivityLocal(sb: SupabaseClient<Database>, userId: string, input: { activity: string; minutes: number; met: number; kcalPerHour?: number }, date: string) {
   const { activityCalories } = await import("./quick-intent");
   const { data: preferences } = await sb.from("user_preferences").select("weight_kg,health_consent_at").eq("user_id", userId).maybeSingle();
   if (!preferences?.health_consent_at) throw new Error("Autorize o uso dos dados de saúde em Privacidade para registrar atividades.");
-  const kcal = activityCalories(input.met, input.minutes, preferences.weight_kg === null ? null : Number(preferences.weight_kg));
-  const personalized = preferences.weight_kg !== null;
-  const row = { activity: input.activity, minutes: input.minutes, ...kcal, estimate_note: personalized ? "Estimativa pelo seu peso e intensidade média." : "Estimativa genérica para adultos de 50 a 90 kg.", user_id: userId, occurred_on: date, personalized };
+  const own = input.kcalPerHour ? Math.round(input.kcalPerHour * input.minutes / 60) : null;
+  const kcal = own !== null ? { calories: own, calories_low: own, calories_high: own } : activityCalories(input.met, input.minutes, preferences.weight_kg === null ? null : Number(preferences.weight_kg));
+  const personalized = own !== null || preferences.weight_kg !== null;
+  const row = { activity: input.activity, minutes: input.minutes, ...kcal, estimate_note: own !== null ? "Calculado pelo gasto que você cadastrou." : personalized ? "Estimativa pelo seu peso e intensidade média." : "Estimativa genérica para adultos de 50 a 90 kg.", user_id: userId, occurred_on: date, personalized };
   const { data, error } = await sb.from("energy_activities").insert(row).select("id,activity,minutes,calories,calories_low,calories_high,personalized,estimate_note").single();
   if (error) throw new Error("Não foi possível salvar sua atividade.");
   return data;
