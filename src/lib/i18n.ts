@@ -13,6 +13,7 @@ import deviceSetup from "@/locales/device-setup";
 import coupon from "@/locales/coupon";
 import chatProgress from "@/locales/chat-progress";
 import customEntries from "@/locales/custom-entries";
+import barcode from "@/locales/barcode";
 
 export const LANGS = [
   { code: "pt", label: "Português" },
@@ -38,7 +39,7 @@ function deepMerge(target: DictTree, source: DictTree): DictTree {
   return target;
 }
 
-const modules = [core, money, time, system, plans, legal, audit, agents, adminExtra, deviceSetup, coupon, chatProgress, customEntries] as const;
+const modules = [core, money, time, system, plans, legal, audit, agents, adminExtra, deviceSetup, coupon, chatProgress, customEntries, barcode] as const;
 
 function buildResources() {
   const resources: Record<string, { translation: DictTree }> = {};

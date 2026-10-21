@@ -6,6 +6,10 @@ import { Card } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRows, useTableMutations } from "@/lib/data";
+import { useQueryClient } from "@tanstack/react-query";
+import { Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { parseExercisesCsv, parseFoodsCsv } from "@/lib/csv-import";
 
 type Food = { id: string; name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number; unit_grams: number | null };
 type Exercise = { id: string; name: string; kcal_per_hour: number };
@@ -21,6 +25,29 @@ export function CustomEntries() {
   const em = useTableMutations("custom_exercises");
   const [f, setF] = useState({ name: "", kcal: "", p: "", c: "", g: "", unit: "" });
   const [e, setE] = useState({ name: "", kcal: "" });
+
+  const qc = useQueryClient();
+  async function importCsv(file: File | undefined, kind: "foods" | "exercises") {
+    if (!file) return;
+    const text = await file.text();
+    const { rows, skipped } = kind === "foods" ? parseFoodsCsv(text) : parseExercisesCsv(text);
+    const table = kind === "foods" ? "custom_foods" : "custom_exercises";
+    if (rows.length) {
+      const { data: u } = await supabase.auth.getUser();
+      const { error } = await supabase.from(table).insert(rows.map((r) => ({ ...r, user_id: u.user?.id })) as never);
+      if (error) { toast.error(t("customEntries.invalid")); return; }
+      qc.invalidateQueries({ queryKey: [table] });
+      toast.success(t("barcode.imported", { count: rows.length }));
+    }
+    if (skipped) toast.warning(t("barcode.skipped", { count: skipped }));
+  }
+  const csvButton = (kind: "foods" | "exercises") => (
+    <label className="mt-2 flex cursor-pointer flex-col gap-1 rounded-lg border border-dashed p-3 text-sm">
+      <span className="flex items-center gap-2 font-medium"><Upload className="size-4" />{t("barcode.importCsv")}</span>
+      <span className="text-xs text-muted-foreground">{t(kind === "foods" ? "barcode.csvFoods" : "barcode.csvExercises")}</span>
+      <input type="file" accept=".csv,text/csv,text/plain" className="sr-only" onChange={(ev) => { void importCsv(ev.target.files?.[0], kind); ev.target.value = ""; }} />
+    </label>
+  );
 
   function addFood(ev: React.FormEvent) {
     ev.preventDefault();
@@ -51,6 +78,7 @@ export function CustomEntries() {
             <Input className="col-span-2" inputMode="decimal" aria-label={t("customEntries.unit")} placeholder={t("customEntries.unit")} value={f.unit} onChange={(x) => setF({ ...f, unit: x.target.value })} />
             <Button className="col-span-2" type="submit" disabled={fm.insert.isPending}>{t("customEntries.add")}</Button>
           </form>
+          {csvButton("foods")}
           <ul className="mt-3 space-y-1">
             {(foods.data ?? []).length === 0 && <li className="text-sm text-muted-foreground">{t("customEntries.empty")}</li>}
             {(foods.data ?? []).map((x) => (
@@ -69,6 +97,7 @@ export function CustomEntries() {
             <Input className="col-span-2" inputMode="decimal" aria-label={t("customEntries.kcalHour")} placeholder={t("customEntries.kcalHour")} value={e.kcal} onChange={(x) => setE({ ...e, kcal: x.target.value })} />
             <Button className="col-span-2" type="submit" disabled={em.insert.isPending}>{t("customEntries.add")}</Button>
           </form>
+          {csvButton("exercises")}
           <ul className="mt-3 space-y-1">
             {(exercises.data ?? []).length === 0 && <li className="text-sm text-muted-foreground">{t("customEntries.empty")}</li>}
             {(exercises.data ?? []).map((x) => (
