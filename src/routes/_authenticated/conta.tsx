@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { Page, Card } from "@/components/Page";
@@ -38,19 +39,24 @@ const LABEL = { essencial: "Essencial", pro: "Pro", max: "Max" } as const;
 
 function Conta() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { plan, sub, trial, subPlanActive, graceEnd } = useSubscription();
   const portal = useServerFn(createPortalSession);
   const cancel = useServerFn(cancelSubscription);
   const [busy, setBusy] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
-  const canCancel = !!sub && sub.status !== "canceled" && subPlanActive && !sub.cancel_at_period_end;
+  const [cancelRequested, setCancelRequested] = useState(false);
+  const canCancel = !!sub && sub.status !== "canceled" && subPlanActive && !sub.cancel_at_period_end && !cancelRequested;
 
   async function handleCancel() {
     setBusy(true);
     try {
       const result = await cancel({ data: { environment: getPaddleEnvironment() } });
+      setCancelRequested(true);
       toast.success(result.alreadyScheduled ? t("billing.cancelScheduled") : t("billing.cancelSuccess"));
       setCancelOpen(false);
+      // The webhook remains the database's single writer; refresh after the provider confirms.
+      void queryClient.invalidateQueries({ queryKey: ["subscription"] });
     } catch {
       toast.error(t("billing.cancelFailed"));
     } finally {
@@ -71,7 +77,7 @@ function Conta() {
               {t(sub.cancel_at_period_end || sub.status === "canceled" ? "account.accessUntil" : "account.nextBilling", { value: new Date(sub.current_period_end).toLocaleDateString() })}
             </p>
           )}
-          {sub?.cancel_at_period_end && (
+          {(sub?.cancel_at_period_end || cancelRequested) && (
             <p className="mt-1 text-sm text-muted-foreground">{t("billing.cancelScheduled")}</p>
           )}
           {sub?.status === "past_due" && <p className="mt-1 text-sm text-destructive">{graceEnd && graceEnd > new Date() ? t("billing.grace", { value: graceEnd.toLocaleDateString() }) : t("account.pastDue")}</p>}
@@ -101,11 +107,21 @@ function Conta() {
               variant="outline"
               disabled={busy}
               onClick={async () => {
+                // Open synchronously in the click handler to avoid popup blockers after the server round-trip.
+                const popup = window.open("about:blank", "_blank");
+                if (!popup) {
+                  toast.error(t("account.error"));
+                  return;
+                }
+                popup.opener = null;
                 setBusy(true);
                 try {
                   const url = await portal({ data: { environment: getPaddleEnvironment() } });
-                  window.open(url, "_blank");
+                  const destination = new URL(url);
+                  if (destination.protocol !== "https:") throw new Error("INVALID_PORTAL_URL");
+                  popup.location.replace(destination.toString());
                 } catch {
+                  popup.close();
                   toast.error(t("account.error"));
                 } finally {
                   setBusy(false);

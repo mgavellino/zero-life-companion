@@ -9,6 +9,13 @@ function sb() {
 }
 
 const PLAN_NAMES: Record<string, string> = { essencial_plan: "Essencial", pro_plan: "Pro", max_plan: "Max" };
+
+/** Preserve webhook retry semantics for database failures. */
+function must<T extends { error: { message: string } | null }>(result: T, operation: string): T {
+  if (result.error) throw new Error(`${operation}: ${result.error.message}`);
+  return result;
+}
+
 type BillingNotice = "activated" | "trial" | "changed" | "paymentFailed" | "canceled" | "paymentRecovered";
 
 const NOTICE_TEXT: Record<string, Record<BillingNotice, (plan?: string, date?: string) => { title: string; body: string }>> = {
@@ -85,7 +92,7 @@ type Existing = { user_id: string; status: string; product_id: string; past_due_
 /** Single writer for every subscription.* event: upserts the full row, ignores out-of-order events. */
 async function syncSubscription(data: any, env: PaddleEnv, occurredAt: string, eventType: string) {
   const { id, customerId, items, status, currentBillingPeriod, scheduledChange, customData, canceledAt } = data;
-  const existing = (await sb().from("subscriptions").select("user_id,status,product_id,past_due_since,last_event_at").eq("paddle_subscription_id", id).maybeSingle()).data as Existing;
+  const existing = must(await sb().from("subscriptions").select("user_id,status,product_id,past_due_since,last_event_at").eq("paddle_subscription_id", id).maybeSingle(), "load subscription").data as Existing;
   if (existing?.last_event_at && new Date(existing.last_event_at) > new Date(occurredAt)) return console.log("Skipping stale event", eventType, id);
   const userId = existing?.user_id ?? customData?.userId;
   if (!userId) throw new Error(`No userId for subscription ${id}`);
@@ -95,14 +102,13 @@ async function syncSubscription(data: any, env: PaddleEnv, occurredAt: string, e
   if (!priceId || !productId) throw new Error(`Missing importMeta.externalId for ${id}`);
   const end = status === "canceled" ? (currentBillingPeriod?.endsAt ?? canceledAt ?? null) : (currentBillingPeriod?.endsAt ?? null);
   const pastDueSince = status === "past_due" ? (existing?.past_due_since ?? occurredAt) : null;
-  const { error } = await sb().from("subscriptions").upsert({
+  must(await sb().from("subscriptions").upsert({
     user_id: userId, paddle_subscription_id: id, paddle_customer_id: customerId,
     product_id: productId, price_id: priceId, status,
     current_period_start: currentBillingPeriod?.startsAt ?? null,
     current_period_end: end, cancel_at_period_end: scheduledChange?.action === "cancel",
     past_due_since: pastDueSince, last_event_at: occurredAt, environment: env, updated_at: new Date().toISOString(),
-  } as never, { onConflict: "paddle_subscription_id" });
-  if (error) throw new Error(`upsert subscription: ${error.message}`);
+  } as never, { onConflict: "paddle_subscription_id" }), "upsert subscription");
 
   const name = PLAN_NAMES[productId] ?? "";
   if (!existing) await notifyBilling(userId, status === "trialing" ? "trial" : "activated", name);
@@ -118,7 +124,7 @@ async function syncSubscription(data: any, env: PaddleEnv, occurredAt: string, e
 async function onPaymentFailed(data: any) {
   const subId = data?.subscriptionId;
   if (!subId) return;
-  const { data: row } = await sb().from("subscriptions").select("user_id").eq("paddle_subscription_id", subId).maybeSingle();
+  const { data: row } = must(await sb().from("subscriptions").select("user_id").eq("paddle_subscription_id", subId).maybeSingle(), "load failed-payment subscription");
   if (row) await notifyBilling((row as { user_id: string }).user_id, "paymentFailed");
 }
 
