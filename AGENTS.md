@@ -33,7 +33,7 @@
 - Chat uses a height-constrained shell with progress and cancellation beside its composer; explicit cancellation propagates to generation and partial replies are saved by the browser because edge disconnect callbacks are unreliable.
 - Voice playback explicitly uses full application volume and the playback audio session where supported; paused recording disables mic tracks and suspends analysis, then restores recording on resume to avoid quiet iOS call routing.
 - All user-facing strings use i18n keys in `src/locales/*` (6 languages) merged by `src/lib/i18n.ts`; unit prefs live in `src/lib/units.ts`, money display uses `money()` in `src/lib/data.ts`.
-- Billing: Paddle (`src/lib/paddle*.ts`), webhook writes `subscriptions`; prices/limits in `src/lib/plans.ts` must match the catalog. Effective plan = highest of live subscription and active `plan_grants`, resolved server-side by `getUserPlan`.
+- Billing: Paddle; one webhook writer upserts every `subscription.*` event (out-of-order guarded, DB errors → 500 retry). Access rules (grace, best-of-many subs, one trial) live in tested `src/lib/entitlement.ts`, used by `getUserPlan` and the client hook. Plan changes update the existing subscription; `*_direct` prices are the no-trial variants. Prices in `src/lib/plans.ts` must match the catalog.
 - Admin uses `user_roles` + `has_role()`, never profile columns. Notifications are `notifications` rows (realtime → toast).
 - Deployment stays host-portable (no Cloudflare-only server code; Node 22 `.nvmrc`): owner also deploys to Vercel.
 - External agents connect via the MCP server in `src/lib/mcp/` (OAuth-verified, caller-scoped RLS client, no service role); sign-in honours a validated `next` so the consent route resumes after login.
