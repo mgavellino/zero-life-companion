@@ -15,8 +15,18 @@ export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('zero-th
 
 export function usePrefsBootstrap() {
   useEffect(() => {
-    const l = localStorage.getItem("zero-lang") ?? navigator.language.slice(0, 2);
-    if (LANGS.some((x) => x.code === l) && l !== i18n.language) setTimeout(() => i18n.changeLanguage(l), 50);
+    const stored = localStorage.getItem("zero-lang");
+    const detected = navigator.language.slice(0, 2);
+    const lang = stored ?? (LANGS.some((x) => x.code === detected) ? detected : "pt");
+    if (LANGS.some((x) => x.code === lang) && lang !== i18n.language) void i18n.changeLanguage(lang);
+    // Keep server-generated billing notifications in sync with the preference already stored by the app.
+    void (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user && data.user.user_metadata?.language !== lang) {
+        const { error } = await supabase.auth.updateUser({ data: { language: lang } });
+        if (error) console.error("Could not sync language preference");
+      }
+    })();
   }, []);
   useEffect(() => {
     const onChange = (l: string) => (document.documentElement.lang = l);
@@ -62,7 +72,6 @@ export function LangSwitch() {
             onClick={async () => {
               inst.changeLanguage(l.code);
               localStorage.setItem("zero-lang", l.code);
-              // Persist the preference so server-generated billing notices use the same language.
               const { data } = await supabase.auth.getUser();
               if (data.user) {
                 const { error } = await supabase.auth.updateUser({ data: { language: l.code } });
