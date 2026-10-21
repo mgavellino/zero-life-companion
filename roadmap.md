@@ -85,3 +85,5 @@
 - [ ] Confirmar volume audível no iPhone real — depende de teste no aparelho, indisponível no ambiente automatizado.
 
 - [x] Máximo sem IA: gastos, lembretes, refeições (tabela TACO ampliada) e exercícios (tabela MET) salvos por regras; IA só para conversa livre
+- [ ] Leitor de código de barras (Open Food Facts) na Dieta
+- [ ] Importar CSV de alimentos e exercícios personalizados
