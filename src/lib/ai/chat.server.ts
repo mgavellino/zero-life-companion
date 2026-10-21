@@ -9,7 +9,7 @@ import { serverPaddleEnv } from "@/lib/paddle.server";
 import { LIMITS, modelFor } from "@/lib/plans";
 import { getUserPlan } from "@/lib/plan.server";
 import { estimateAndLogActivity, logActivityLocal } from "@/lib/activity.server";
-import { parseQuickIntent } from "@/lib/quick-intent";
+import { parseActivity, parseQuickIntent } from "@/lib/quick-intent";
 import { dailyTimeSummary, type TimeSession } from "@/lib/time-tracking";
 import { automaticCategory, billSchema } from "@/lib/bills";
 import { readChatHistory } from "@/lib/chat-history";
@@ -179,7 +179,9 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
       description: "Estimate and save a completed physical activity from the user's exact natural-language description. Weight and height are optional.",
       inputSchema: z.object({ text: z.string().min(3).max(500), occurred_on: z.string().date().nullable() }),
       execute: async ({ text, occurred_on }) => {
-        try { return { ok: true, ...await estimateAndLogActivity(sb, userId, text, occurred_on ?? today) }; }
+        // Known activities use the MET table; only unusual ones need the AI estimate.
+        const known = parseActivity(text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
+        try { return { ok: true, ...(known?.type === "activity" ? await logActivityLocal(sb, userId, known, occurred_on ?? today) : await estimateAndLogActivity(sb, userId, text, occurred_on ?? today)) }; }
         catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Não foi possível registrar a atividade." }; }
       },
     }),
