@@ -7,7 +7,13 @@ export type QuickIntent =
   | { type: "transaction"; kind: "income" | "expense"; amount: number; description: string }
   | { type: "task"; title: string; due_local: string | null; minutes_from_now: number | null }
   | { type: "meal"; name: string; meal_type: "cafe" | "almoco" | "lanche" | "jantar"; calories: number; protein: number; carbs: number; fat: number }
-  | { type: "activity"; activity: string; minutes: number; met: number };
+  | { type: "activity"; activity: string; minutes: number; met: number; kcalPerHour?: number };
+
+/** User-registered foods (per 100 g) and exercises (kcal per hour), matched before the built-in tables. */
+export type CustomFood = { name: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number; unit_grams: number | null };
+export type CustomExercise = { name: string; kcal_per_hour: number };
+export type CustomTables = { foods?: CustomFood[]; exercises?: CustomExercise[] };
+const hasName = (t: string, name: string) => { const n = norm(name); return n.length > 0 && (` ${t} `).includes(` ${n} `); };
 
 const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 const QUESTION = /\?|^(quanto|qual|quais|como|onde|porque|por que|devo|posso|sera|what|how|which|should|cuanto|cual)\b/;
@@ -190,18 +196,19 @@ export type MealDraft = { meal_type: "cafe" | "almoco" | "lanche" | "jantar"; it
 type Macro = { k: number; p: number; c: number; f: number };
 
 /** Splits a meal sentence into items with grams; `food` is null when the item is not in the local table. */
-export function parseMealDraft(text: string, hour: number): MealDraft | null {
+export function parseMealDraft(text: string, hour: number, custom: CustomFood[] = [], requireHead = true): MealDraft | null {
   const t = norm(text).replace(/[.!]+$/, "");
   const head = t.match(MEAL);
-  if (!head || QUESTION.test(t)) return null;
+  if ((!head && requireHead) || QUESTION.test(t)) return null;
   const word = t.match(/\b(cafe da manha|almoco|almocei|jantar|jantei|lanche|lanchei)\b/)?.[1] ?? "";
   const meal_type = /almo/.test(word) ? "almoco" : /jant/.test(word) ? "jantar" : /lanch/.test(word) ? "lanche" : /cafe da manha/.test(word) ? "cafe" : hour < 10 ? "cafe" : hour < 15 ? "almoco" : hour < 18 ? "lanche" : "jantar";
-  const body = t.slice(head[0].length).replace(/\b(no|de|do)\s+(cafe da manha|almoco|jantar|lanche)\b/, " ");
+  const body = t.slice(head?.[0].length ?? 0).replace(/\b(no|de|do)\s+(cafe da manha|almoco|jantar|lanche)\b/, " ");
   const raw = body.split(/,|\be\b|\bcom\b|\+|\band\b|\bwith\b/).map((s) => s.trim()).filter(Boolean);
   if (!raw.length || raw.length > 12) return null;
   const items: MealDraft["items"] = [];
   for (const item of raw) {
-    const v = FOODS.find(([re]) => re.test(item))?.[1] ?? null;
+    const mine = [...custom].sort((a, b) => b.name.length - a.name.length).find((c) => hasName(item, c.name));
+    const v: Food | null = mine ? { k: Number(mine.kcal_100g), p: Number(mine.protein_100g), c: Number(mine.carbs_100g), f: Number(mine.fat_100g), ...(mine.unit_grams ? { unit: Number(mine.unit_grams) } : {}) } : FOODS.find(([re]) => re.test(item))?.[1] ?? null;
     const q = item.match(QTY);
     const n = q?.[1] ? num(q[1]) : 1;
     const u = q?.[2] ?? "";
@@ -236,8 +243,8 @@ export function mealFromDraft(draft: MealDraft, values: (Macro | null)[], origin
   return { type: "meal", name: cap(name).slice(0, 120), meal_type: draft.meal_type, calories: Math.round(tot.k), protein: r1(tot.p), carbs: r1(tot.c), fat: r1(tot.f) };
 }
 
-function parseMeal(text: string, hour: number): QuickIntent | null {
-  const d = parseMealDraft(text, hour);
+function parseMeal(text: string, hour: number, custom: CustomFood[] = []): QuickIntent | null {
+  const d = parseMealDraft(text, hour, custom);
   return d ? mealFromDraft(d, d.items.map((i) => i.food), text) : null;
 }
 
@@ -286,9 +293,10 @@ const ACTIVITIES: [RegExp, string, number][] = [
 ];
 const DURATION = /(\d+(?:[.,]\d+)?|uma|um|meia|duas|dois|an|one)\s*(h|hr|hrs|hora|horas|hours?|min|mins|minuto|minutos|minutes?)\b/;
 
-export function parseActivity(t: string): QuickIntent | null {
+export function parseActivity(t: string, custom: CustomExercise[] = []): QuickIntent | null {
   if (/\b(vou|amanha|quero|pretendo|will|going to|plan)\b/.test(t)) return null;
-  const a = ACTIVITIES.find(([re]) => re.test(t));
+  const mine = [...custom].sort((a, b) => b.name.length - a.name.length).find((c) => hasName(t, c.name));
+  const a: [RegExp, string, number] | undefined = mine ? [/./, mine.name, 0] : ACTIVITIES.find(([re]) => re.test(t));
   const d = t.match(DURATION);
   if (!a || !d?.[1] || !d[2]) return null;
   let minutes = num(d[1]);
@@ -296,7 +304,7 @@ export function parseActivity(t: string): QuickIntent | null {
   const extra = t.slice((d.index ?? 0) + d[0].length).match(/^\s*e\s+(\d+|meia)\s*(min|minutos)?/);
   if (extra?.[1]) minutes += extra[1] === "meia" ? 30 : num(extra[1]);
   if (!(minutes >= 1) || minutes > 1440) return null;
-  return { type: "activity", activity: a[1], minutes: Math.round(minutes), met: a[2] };
+  return { type: "activity", activity: a[1], minutes: Math.round(minutes), met: a[2], ...(mine ? { kcalPerHour: Number(mine.kcal_per_hour) } : {}) };
 }
 
 /** Net extra kcal (MET−1) with a 50–90 kg range when weight is unknown. */
@@ -306,9 +314,9 @@ export function activityCalories(met: number, minutes: number, weightKg: number 
   return { calories: per(70), calories_low: per(50), calories_high: per(90) };
 }
 
-export function parseQuickIntent(text: string, now = new Date(), tz = "America/Sao_Paulo"): QuickIntent | null {
+export function parseQuickIntent(text: string, now = new Date(), tz = "America/Sao_Paulo", custom: CustomTables = {}): QuickIntent | null {
   const t = norm(text).replace(/[.!]+$/, "");
   original = new Map(text.toLowerCase().split(/\s+/).map((w) => w.replace(/[.,!]+$/, "")).map((w) => [norm(w), w]));
   if (!t || t.length > 300 || QUESTION.test(t)) return null;
-  return parseTask(t, now, tz) ?? parseMoney(t) ?? parseActivity(t) ?? parseMeal(text, localParts(now, tz).h);
+  return parseTask(t, now, tz) ?? parseMoney(t) ?? parseActivity(t, custom.exercises) ?? parseMeal(text, localParts(now, tz).h, custom.foods);
 }

@@ -15,14 +15,24 @@ export const logMealAuto = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: preferences } = await context.supabase.from("user_preferences").select("health_consent_at").eq("user_id", context.userId).maybeSingle();
     if (!preferences?.health_consent_at) throw new Error("Autorize o uso dos dados de saúde em Privacidade para registrar refeições.");
-    const key = process.env["GROQ_API_KEY"];
-    if (!key) throw new Error("GROQ_API_KEY ausente");
     const cap = LIMITS[await getUserPlan(context.supabase as never, context.userId)].mealsPerDay;
     if (cap !== null) {
       const start = new Date(); start.setUTCHours(0, 0, 0, 0);
       const { count } = await context.supabase.from("meals").select("id", { count: "exact", head: true }).gte("created_at", start.toISOString());
       if ((count ?? 0) >= cap) throw new Error(`LIMIT: seu plano permite ${cap} refeições por dia. Faça upgrade para registrar mais.`);
     }
+    // Tables first (your foods, built-in TACO list, Open Food Facts); AI only when nothing matches.
+    const { data: myFoods } = await context.supabase.from("custom_foods").select("name,kcal_100g,protein_100g,carbs_100g,fat_100g,unit_grams").eq("user_id", context.userId).limit(500);
+    const { resolveMealIntent } = await import("@/lib/food-lookup.server");
+    const known = await resolveMealIntent(data.text, 12, myFoods ?? [], false);
+    if (known?.type === "meal") {
+      const row = { user_id: context.userId, name: known.name, meal_type: data.meal_type, calories: known.calories, protein: known.protein, carbs: known.carbs, fat: known.fat };
+      const { error } = await context.supabase.from("meals").insert(row);
+      if (error) throw new Error(error.message);
+      return row;
+    }
+    const key = process.env["GROQ_API_KEY"];
+    if (!key) throw new Error("GROQ_API_KEY ausente");
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "content-type": "application/json" },
