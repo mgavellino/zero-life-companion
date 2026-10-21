@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRows, useTableMutations, today } from "@/lib/data";
 import { EnergyBalance } from "@/components/EnergyBalance";
+import { CustomEntries } from "@/components/CustomEntries";
 
 export const Route = createFileRoute("/_authenticated/dieta")({
   staticData: { sitemap: false },
@@ -67,6 +68,7 @@ function DietPage() {
           <Button type="submit" disabled={busy}>{busy ? t("calculating") : t("add")}</Button>
         </form>
       </Card>
+      <CustomEntries />
       <div className="space-y-2">
         {data.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
         {data.map((x) => (
