@@ -261,7 +261,8 @@ ${recordedTime.total > 0 ? JSON.stringify(recordedTime) : "No recorded time. Nev
 
   // Everyday commands are understood by rules and saved instantly, with no AI call.
   const lastText = last?.role === "user" ? last.parts.map((p) => (p.type === "text" ? p.text : "")).join(" ") : "";
-  const intent = body.retry ? null : parseQuickIntent(lastText, new Date(), tz);
+  let intent = body.retry ? null : parseQuickIntent(lastText, new Date(), tz);
+  if (!intent && !body.retry && lastText) { const { resolveMealIntent } = await import("@/lib/food-lookup.server"); const { localParts } = await import("@/lib/quick-intent"); intent = await resolveMealIntent(lastText, localParts(new Date(), tz).h); }
   if (intent) {
     const opts = { toolCallId: "quick", messages: [] } as never;
     let action: { toolName: string; output: unknown };
