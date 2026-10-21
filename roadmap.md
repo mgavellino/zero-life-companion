@@ -1,4 +1,5 @@
 # Zero — roadmap
+- [ ] Gemini: fallback automático direto quando a Groq atingir o limite, preservando registros sem IA; verificar com testes e chave segura.
 - [x] Repair database-backed continuous chat history: retain user messages and assistant replies after navigation and reload; follow-up recall verified
 - [x] Show saved expense confirmations with amount, category and date in chat and money entry; actual capture/chat persistence verified
 - [x] Teach installation through Chrome and Safari with an accessible install action
