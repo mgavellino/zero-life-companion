@@ -29,7 +29,7 @@
 - AI runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` with the owner's Groq key; never the Lovable AI Gateway (owner requirement).
 - Chat is one continuous conversation per user (single `threads` row) at `/chat`; history is owner-scoped and paginated, model context comes from saved messages, and the stream is drained through its save callback.
 - Voice: ElevenLabs TTS at `/api/tts` (plan checked server-side) with speechSynthesis fallback; a single text chat includes optional one-utterance microphone dictation for review before sending, with recorder input and Web Speech fallback; no separate voice screen.
-- Chat generation stops right after a step with saved actions and the server writes deterministic confirmations (`src/lib/chat-confirmations.ts`) instead of a second model call; only recent turns go to the model (free Groq token budget); recovery requests cannot execute tools or duplicate the user message.
+- Chat: rule-parsed commands (`src/lib/quick-intent.ts`: money, reminders, TACO meals, MET exercise) save with no model call; otherwise generation stops after saved actions with deterministic confirmations (`src/lib/chat-confirmations.ts`); only recent turns reach the model (Groq budget); recovery requests cannot run tools or duplicate the user message.
 - Chat uses a height-constrained shell with progress and cancellation beside its composer; explicit cancellation propagates to generation and partial replies are saved by the browser because edge disconnect callbacks are unreliable.
 - Voice playback explicitly uses full application volume and the playback audio session where supported; paused recording disables mic tracks and suspends analysis, then restores recording on resume to avoid quiet iOS call routing.
 - All user-facing strings use i18n keys in `src/locales/*` (6 languages) merged by `src/lib/i18n.ts`; unit prefs live in `src/lib/units.ts`, money display uses `money()` in `src/lib/data.ts`.
@@ -40,4 +40,3 @@
 
 - MCP tools are wrapped by `guarded()` in `src/lib/mcp/guard.ts`, which denies a tool when the owner has a `mcp_tool_blocks` row for that OAuth client; default is allowed so new connections work immediately.
 - Admin privileged actions (list all users, block/delete, broadcast, coupons) run in `src/lib/admin.functions.ts`, which verifies `has_role` with the caller client before loading the service client; promotions are a public-read, admin-write table.
-- Everyday chat commands (money, reminders, meals via TACO table, exercise via MET table) are parsed by rules in `src/lib/quick-intent.ts` and saved without any model call; the AI only handles messages the rules cannot understand.
