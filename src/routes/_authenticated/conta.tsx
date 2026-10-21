@@ -107,11 +107,21 @@ function Conta() {
               variant="outline"
               disabled={busy}
               onClick={async () => {
+                // Open synchronously in the click handler to avoid popup blockers after the server round-trip.
+                const popup = window.open("about:blank", "_blank");
+                if (!popup) {
+                  toast.error(t("account.error"));
+                  return;
+                }
+                popup.opener = null;
                 setBusy(true);
                 try {
                   const url = await portal({ data: { environment: getPaddleEnvironment() } });
-                  window.open(url, "_blank");
+                  const destination = new URL(url);
+                  if (destination.protocol !== "https:") throw new Error("INVALID_PORTAL_URL");
+                  popup.location.replace(destination.toString());
                 } catch {
+                  popup.close();
                   toast.error(t("account.error"));
                 } finally {
                   setBusy(false);
