@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
@@ -75,27 +74,15 @@ function AuthPage() {
     }
   }
 
-  async function social(provider: "google" | "apple") {
-    const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: returnUrl() });
-    if (r.error) toast.error(String((r.error as Error).message ?? r.error));
-  }
-
   return (
     <div className="min-h-screen grid-bg">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link to="/"><Logo /></Link>
         <Prefs />
       </header>
-      <div className="mx-auto mt-10 max-w-sm rounded-2xl border bg-card p-8 shadow-sm">
+      <div className="mx-auto mt-10 w-[calc(100%-2rem)] max-w-sm rounded-3xl border bg-card p-8 shadow-lg">
         <h1 className="text-3xl font-bold">{mode === "up" ? t("signUp") : mode === "forgot" ? t("forgot") : t("signIn")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t("slogan")}</p>
-        {mode !== "forgot" && (
-          <div className="mt-6 grid gap-2">
-            <Button variant="outline" onClick={() => social("google")}>{t("google")}</Button>
-            <Button variant="outline" onClick={() => social("apple")}>{t("apple")}</Button>
-            <div className="my-2 text-center text-xs uppercase text-muted-foreground">{t("or")}</div>
-          </div>
-        )}
+        <p className="mt-1 mb-6 text-sm text-muted-foreground">{t("slogan")}</p>
         <form onSubmit={submit} className="grid gap-3">
           <Input type="email" required placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
           {mode !== "forgot" && (
