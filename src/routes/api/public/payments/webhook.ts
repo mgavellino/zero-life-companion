@@ -72,7 +72,7 @@ const NOTICE_TEXT: Record<string, Record<BillingNotice, (plan?: string, date?: s
 async function languageFor(userId: string): Promise<string> {
   try {
     const { data } = await sb().auth.admin.getUserById(userId);
-    const lang = data.user?.user_metadata?.language;
+    const lang = data.user?.user_metadata?.["language"];
     if (typeof lang === "string" && NOTICE_TEXT[lang]) return lang;
   } catch (e) {
     console.error("billing language lookup failed");
@@ -82,7 +82,7 @@ async function languageFor(userId: string): Promise<string> {
 
 async function notifyBilling(userId: string, kind: BillingNotice, plan = "", date?: string) {
   const lang = await languageFor(userId);
-  const message = (NOTICE_TEXT[lang] ?? NOTICE_TEXT.pt)[kind](plan, date);
+  const message = (NOTICE_TEXT[lang] ?? NOTICE_TEXT["pt"])![kind](plan, date);
   const r = await sb().from("notifications").insert({ user_id: userId, title: message.title, body: message.body, kind: "billing", link: "/conta" } as never);
   if (r.error) console.error("billing notification", r.error.message);
 }

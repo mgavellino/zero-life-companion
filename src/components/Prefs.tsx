@@ -22,7 +22,7 @@ export function usePrefsBootstrap() {
     // Keep server-generated billing notifications in sync with the preference already stored by the app.
     void (async () => {
       const { data } = await supabase.auth.getUser();
-      if (data.user && data.user.user_metadata?.language !== lang) {
+      if (data.user && data.user.user_metadata?.["language"] !== lang) {
         const { error } = await supabase.auth.updateUser({ data: { language: lang } });
         if (error) console.error("Could not sync language preference");
       }
