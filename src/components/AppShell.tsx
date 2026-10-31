@@ -3,7 +3,7 @@ import { Bot } from "lucide-react";
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MessageSquare, LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield, Menu, Settings } from "lucide-react";
+import { LayoutGrid, Clock, Wallet, Salad, LogOut, Sparkles, BarChart3, Shield, Menu, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "./ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
