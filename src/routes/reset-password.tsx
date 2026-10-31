@@ -38,7 +38,7 @@ function Reset() {
             toast.error(error.message);
             return;
           }
-          navigate({ to: "/chat" });
+          navigate({ to: "/dashboard" });
         }}
       >
         <Logo />

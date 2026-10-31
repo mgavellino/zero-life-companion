@@ -27,7 +27,7 @@
 - Habits are stable definitions plus date-scoped completion rows, never generated daily tasks.
 - Energy and financial projections are tested pure functions in `src/lib/planning.ts` fed by owner-scoped tables.
 - AI runs in `src/routes/api/chat.ts` → `src/lib/ai/chat.server.ts` with the owner's Groq key; never the Lovable AI Gateway (owner requirement).
-- Chat is one continuous conversation per user (single `threads` row) at `/chat`; history is owner-scoped and paginated, model context comes from saved messages, and the stream is drained through its save callback.
+- No chat screen: a shared CommandBar on every tab sends one-off text/voice commands to `/api/chat` (saved to the single per-user thread) and shows the reply as a toast; voice is MediaRecorder → `/api/stt` (Whisper), never browser speech recognition.
 - Voice: ElevenLabs TTS at `/api/tts` (plan checked server-side) with speechSynthesis fallback; a single text chat includes optional one-utterance microphone dictation for review before sending, with recorder input and Web Speech fallback; no separate voice screen.
 - Chat: rule-parsed commands (`src/lib/quick-intent.ts`: money, reminders; meals: owner `custom_foods`, TACO, Open Food Facts; exercise: `custom_exercises`, MET) save with no model call; otherwise generation stops after saved actions with deterministic confirmations (`src/lib/chat-confirmations.ts`); only recent turns reach the model; recovery requests cannot run tools or duplicate the user message.
 - Chat uses a height-constrained shell with progress and cancellation beside its composer; explicit cancellation propagates to generation and partial replies are saved by the browser because edge disconnect callbacks are unreliable.

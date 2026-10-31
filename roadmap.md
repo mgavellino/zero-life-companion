@@ -88,3 +88,4 @@
 - [x] Máximo sem IA: gastos, lembretes, refeições (tabela TACO ampliada) e exercícios (tabela MET) salvos por regras; IA só para conversa livre
 - [x] Leitor de código de barras (Open Food Facts) na Dieta
 - [x] Importar CSV de alimentos e exercícios personalizados
+- [x] Remove chat tab; text + Whisper mic command bar on every tab; no horizontal scroll

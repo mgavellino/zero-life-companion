@@ -270,3 +270,5 @@ html { -webkit-tap-highlight-color: transparent; }
   .zero-drawer > *, .zero-title { animation: none !important; }
   .zero-card { transition: none !important; }
 }
+
+html, body { overflow-x: hidden; max-width: 100%; }
