@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
