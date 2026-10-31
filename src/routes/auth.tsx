@@ -39,7 +39,7 @@ function AuthPage() {
   const rawNext = Route.useSearch().next;
   const next = rawNext ? oauthReturnPath(rawNext) : "";
   const returnUrl = () => window.location.origin + (next ? `/auth?next=${encodeURIComponent(next)}` : "/auth");
-  const goOn = () => { if (next && next !== "/") window.location.replace(next); else navigate({ to: "/chat", replace: true }); };
+  const goOn = () => { if (next && next !== "/") window.location.replace(next); else navigate({ to: "/dashboard", replace: true }); };
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {

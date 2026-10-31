@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   }),
   beforeLoad: async ({ context }) => {
     const { data } = await supabase.rpc("has_role", { _user_id: (context as { user: { id: string } }).user.id, _role: "admin" });
-    if (!data) throw redirect({ to: "/chat" });
+    if (!data) throw redirect({ to: "/dashboard" });
   },
   component: Admin,
 });

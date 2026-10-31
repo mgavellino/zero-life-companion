@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { OnboardingGate } from "./Onboarding";
 import { ShellClock } from "./ShellClock";
 import { InstallZero } from "./InstallZero";
+import { CommandBar } from "./CommandBar";
 import { cn } from "@/lib/utils";
 
 export function AppShell() {
@@ -35,7 +36,7 @@ export function AppShell() {
     },
   });
   const pathname = useRouterState({ select: (st) => st.location.pathname });
-  const order = ["/chat", "/tempo", "/dinheiro", "/dieta"];
+  const order = ["/dashboard", "/tempo", "/dinheiro", "/dieta"];
   const prevPath = useRef(pathname);
   const [dir, setDir] = useState<"left" | "right" | "up">("up");
   useEffect(() => {
@@ -44,7 +45,6 @@ export function AppShell() {
     prevPath.current = pathname;
   }, [pathname]);
   const items = [
-    { to: "/chat", icon: MessageSquare, label: t("nav.chat") },
     { to: "/dashboard", icon: LayoutGrid, label: t("nav.dashboard") },
     { to: "/tempo", icon: Clock, label: t("nav.time") },
     { to: "/dinheiro", icon: Wallet, label: t("nav.money") },
@@ -64,10 +64,10 @@ export function AppShell() {
 
   return (
     <OnboardingGate>
-    <div className="app-shell flex h-dvh min-w-0 flex-col">
+    <div className="app-shell flex h-dvh w-full min-w-0 flex-col overflow-x-hidden">
       <PaymentTestModeBanner />
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b bg-sidebar px-3 py-2 lg:hidden">
-        <div className="flex min-w-0 items-center gap-1"><Button variant="ghost" size="icon" aria-label={t("shell.openMenu")} onClick={() => setMenuOpen(true)}><Menu className="size-5" /></Button><Link to="/chat"><Logo /></Link></div>
+        <div className="flex min-w-0 items-center gap-1"><Button variant="ghost" size="icon" aria-label={t("shell.openMenu")} onClick={() => setMenuOpen(true)}><Menu className="size-5" /></Button><Link to="/dashboard"><Logo /></Link></div>
         <div className="flex shrink-0 items-center"><ShellClock /><NotificationBell /></div>
       </div>
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -80,7 +80,7 @@ export function AppShell() {
       </Sheet>
       <div className="flex min-h-0 min-w-0 flex-1">
         <aside className="hidden w-60 shrink-0 flex-col items-stretch border-r bg-sidebar p-4 lg:flex">
-          <Link to="/chat" className="md:mb-8"><Logo /></Link>
+          <Link to="/dashboard" className="md:mb-8"><Logo /></Link>
           <ShellClock />
           <nav className="flex flex-col gap-1">
             {items.map((i) => (
@@ -124,14 +124,15 @@ export function AppShell() {
             </div>
           </div>
         </aside>
-        <main className={cn("min-h-0 min-w-0 flex-1", pathname === "/chat" ? "overflow-hidden" : "overflow-y-auto")}>
-          <div key={pathname} data-dir={dir} className={cn("zero-page-enter", pathname === "/chat" ? "h-full min-h-0" : "min-h-full")}>
+        <main className={cn("min-h-0 min-w-0 flex-1", "overflow-x-hidden overflow-y-auto")}>
+          <div key={pathname} data-dir={dir} className={cn("zero-page-enter", "min-h-full min-w-0")}>
             <Outlet />
           </div>
         </main>
       </div>
+      <CommandBar />
       <nav aria-label={t("shell.mainNav")} className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
-        {items.filter(i => ["/chat", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="zero-tab group relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"zero-tab-active text-primary"}}><span className="zero-tab-pill absolute inset-x-3 top-1.5 bottom-1.5 rounded-2xl bg-accent/50" aria-hidden /><i.icon className="zero-tab-icon relative size-5" /><span className="relative max-w-full truncate">{i.label}</span></Link>)}
+        {items.filter(i => ["/dashboard", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="zero-tab group relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"zero-tab-active text-primary"}}><span className="zero-tab-pill absolute inset-x-3 top-1.5 bottom-1.5 rounded-2xl bg-accent/50" aria-hidden /><i.icon className="zero-tab-icon relative size-5" /><span className="relative max-w-full truncate">{i.label}</span></Link>)}
         <Button variant="ghost" className="zero-tab h-14 flex-col gap-1 rounded-none text-[11px] text-muted-foreground" aria-label={t("shell.moreOptions")} onClick={() => setMenuOpen(true)}><Menu className="size-5" />{t("shell.more")}</Button>
       </nav>
     </div>
