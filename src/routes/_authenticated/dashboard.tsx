@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Clock, Wallet, Salad, Brain, Trash2 } from "lucide-react";
 import { Page, Card } from "@/components/Page";
-import { QuickCapture } from "@/components/QuickCapture";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -31,7 +30,6 @@ function Dashboard() {
 
   return (
     <Page kicker={t("slogan")} title={t("overview")}>
-      <QuickCapture className="mb-6" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((x) => (
           <Link key={x.to} to={x.to} className="rounded-2xl border bg-card p-5 hover:border-ring">
