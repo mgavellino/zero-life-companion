@@ -3,7 +3,7 @@ import { PromoBanner } from "@/components/PromoBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Download, Monitor, Apple, Smartphone, Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check } from "lucide-react";
-import { Logo, ZeroRing } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
