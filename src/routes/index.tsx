@@ -97,16 +97,17 @@ const FAQ: [string, string][] = [
           </div>
 
           <div className="relative mx-auto w-full max-w-md">
-            <div className="voice-orb is-speaking mx-auto grid size-40 place-items-center rounded-full">
-              <ZeroRing className="size-16" />
-            </div>
-            <div className="mt-8 space-y-3">
+            <div className="space-y-3 rounded-3xl border bg-card/70 p-4 shadow-sm">
               {DEMO.map((m, i) => (
-                <div key={i} className={m.who === "you" ? "ml-10 rounded-2xl rounded-br-sm bg-ink px-4 py-3 text-sm text-background dark:bg-secondary dark:text-foreground" : "mr-6 rounded-2xl rounded-bl-sm border bg-card px-4 py-3 text-sm"}>
-                  {m.who === "you" && <Mic className="mb-1 size-3 opacity-60" />}
-                  {m.text}
+                <div key={i} className={m.who === "you" ? "ml-10 rounded-2xl rounded-br-sm bg-ink px-4 py-3 text-sm text-background dark:bg-secondary dark:text-foreground" : "mr-6 flex gap-2 rounded-2xl rounded-bl-sm border bg-background px-4 py-3 text-sm"}>
+                  {m.who === "zero" && <Check className="mt-0.5 size-4 shrink-0 text-signal" />}
+                  <span>{m.text}</span>
                 </div>
               ))}
+              <div className="flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm text-muted-foreground">
+                <span className="min-w-0 flex-1 truncate">{t("landing.demo1")}</span>
+                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-signal text-signal-foreground"><Mic className="size-4" /></span>
+              </div>
             </div>
           </div>
         </div>
