@@ -116,7 +116,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Unbounded:wght@400;500;600;700&display=swap",
       },
     ],
-    scripts: [{ children: THEME_SCRIPT }],
+    scripts: [{ children: MODULE_RECOVERY_SCRIPT }, { children: THEME_SCRIPT }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -142,6 +142,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   usePrefsBootstrap();
+  // Boot succeeded: allow a future stale-chunk failure to trigger a fresh reload.
+  useEffect(() => { clearModuleReloadFlag(window.sessionStorage); }, []);
   // After an update, old page files can disappear; reload once instead of showing a blank screen.
   useEffect(() => {
     const recover = (event: Event) => {
