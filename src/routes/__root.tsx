@@ -18,7 +18,28 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { claimModuleReload, isModuleLoadError } from "@/lib/module-recovery";
+import { claimModuleReload, clearModuleReloadFlag, isModuleLoadError } from "@/lib/module-recovery";
+
+// Runs before React mounts: if a stale page tries to import a chunk that no longer
+// exists, reload once instead of staying on a blank screen. Must stay dependency-free.
+const MODULE_RECOVERY_SCRIPT = `(function(){
+  var KEY = "zero-chunk-reload";
+  function isModuleError(msg){
+    return /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk .+ failed/i.test(String(msg || ""));
+  }
+  function tryReload(){
+    try {
+      var last = Number(sessionStorage.getItem(KEY) || 0);
+      if (last > 0 && Date.now() - last < 30000) return;
+      sessionStorage.setItem(KEY, String(Date.now()));
+    } catch (e) { return; }
+    window.location.reload();
+  }
+  function recover(msg){ if (isModuleError(msg)) tryReload(); }
+  window.addEventListener("error", function(e){ recover(e && (e.message || (e.error && e.error.message))); }, true);
+  window.addEventListener("unhandledrejection", function(e){ recover(e && e.reason && (e.reason.message || e.reason)); });
+  window.addEventListener("vite:preloadError", function(e){ if (e && e.preventDefault) e.preventDefault(); tryReload(); });
+})();`;
 
 function NotFoundComponent() {
   return (
@@ -95,7 +116,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Unbounded:wght@400;500;600;700&display=swap",
       },
     ],
-    scripts: [{ children: THEME_SCRIPT }],
+    scripts: [{ children: MODULE_RECOVERY_SCRIPT }, { children: THEME_SCRIPT }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -121,6 +142,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   usePrefsBootstrap();
+  // Boot succeeded: allow a future stale-chunk failure to trigger a fresh reload.
+  useEffect(() => { clearModuleReloadFlag(window.sessionStorage); }, []);
   // After an update, old page files can disappear; reload once instead of showing a blank screen.
   useEffect(() => {
     const recover = (event: Event) => {
