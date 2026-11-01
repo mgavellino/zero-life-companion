@@ -11,3 +11,7 @@ export function claimModuleReload(storage: Pick<Storage, "getItem" | "setItem">,
     return true;
   } catch { return false; }
 }
+// The app booted fine, so a future failure is allowed to reload again.
+export function clearModuleReloadFlag(storage: Pick<Storage, "removeItem">): void {
+  try { storage.removeItem(KEY); } catch { /* ignore */ }
+}
