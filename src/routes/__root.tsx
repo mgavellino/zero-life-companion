@@ -27,8 +27,7 @@ const MODULE_RECOVERY_SCRIPT = `(function(){
   function isModuleError(msg){
     return /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk .+ failed/i.test(String(msg || ""));
   }
-  function recover(msg){
-    if (!isModuleError(msg)) return;
+  function tryReload(){
     try {
       var last = Number(sessionStorage.getItem(KEY) || 0);
       if (last > 0 && Date.now() - last < 30000) return;
@@ -36,9 +35,10 @@ const MODULE_RECOVERY_SCRIPT = `(function(){
     } catch (e) { return; }
     window.location.reload();
   }
+  function recover(msg){ if (isModuleError(msg)) tryReload(); }
   window.addEventListener("error", function(e){ recover(e && (e.message || (e.error && e.error.message))); }, true);
   window.addEventListener("unhandledrejection", function(e){ recover(e && e.reason && (e.reason.message || e.reason)); });
-  window.addEventListener("vite:preloadError", function(e){ if (e && e.preventDefault) e.preventDefault(); recover("vite:preloadError"); });
+  window.addEventListener("vite:preloadError", function(e){ if (e && e.preventDefault) e.preventDefault(); tryReload(); });
 })();`;
 
 function NotFoundComponent() {
