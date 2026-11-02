@@ -318,5 +318,17 @@ export function parseQuickIntent(text: string, now = new Date(), tz = "America/S
   const t = norm(text).replace(/[.!]+$/, "");
   original = new Map(text.toLowerCase().split(/\s+/).map((w) => w.replace(/[.,!]+$/, "")).map((w) => [norm(w), w]));
   if (!t || t.length > 300 || QUESTION.test(t)) return null;
-  return parseTask(t, now, tz) ?? parseMoney(t) ?? parseActivity(t, custom.exercises) ?? parseMeal(text, localParts(now, tz).h, custom.foods);
+  return parseTask(t, now, tz) ?? parseSplit(t) ?? parseMoney(t) ?? parseActivity(t, custom.exercises) ?? parseMeal(text, localParts(now, tz).h, custom.foods);
+}
+
+/** "rachei 120 com 3 amigos" (4 people) / "dividi 90 entre 3" → records only the user's share. */
+function parseSplit(t: string): QuickIntent | null {
+  const m = t.match(/\b(?:rachei|dividi|racho|divido|split|dividi la cuenta de|partage)\s+(?:r\$\s*)?(\d+(?:[.,]\d{1,2})?)\s*(?:reais)?\s*(?:d[eoa]\s+(.+?)\s+)?(com|entre|with|between|con)\s+(\d+|dois|duas|tres|quatro|cinco|seis)\b/);
+  if (!m) return null;
+  const total = num(m[1]!);
+  const n = num(m[4]!);
+  const people = /com|with|con/.test(m[3]!) ? n + 1 : n;
+  if (!(total > 0) || !(people >= 2) || people > 50) return null;
+  const what = m[2] ? cap(restore(m[2])) : "Conta dividida";
+  return { type: "transaction", kind: "expense", amount: Math.round((total / people) * 100) / 100, description: `${what} (${total} ÷ ${people})` };
 }
