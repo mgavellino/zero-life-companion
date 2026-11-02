@@ -84,6 +84,7 @@
     "streamdown": "^2.7.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",
+    "tesseract.js": "^7.0.0",
     "tw-animate-css": "^1.3.4",
     "use-stick-to-bottom": "^1.1.6",
     "use-webmcp-tool": "^0.3.0",

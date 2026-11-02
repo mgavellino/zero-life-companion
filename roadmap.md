@@ -89,3 +89,16 @@
 - [x] Leitor de código de barras (Open Food Facts) na Dieta
 - [x] Importar CSV de alimentos e exercícios personalizados
 - [x] Remove chat tab; text + Whisper mic command bar on every tab; no horizontal scroll
+
+## Novas funcionalidades (01/11)
+- [ ] 1 Foto do recibo → gasto (leitura no aparelho, sem IA)
+- [ ] 2 Importar extrato bancário (OFX/CSV) com categorias
+- [ ] 3 Resumo do dia às 21h por notificação
+- [ ] 4 Sequências e conquistas
+- [ ] 5 Cofrinhos com previsão de data
+- [ ] 6 Dividir conta ("rachei 120 com 3")
+- [ ] 7 Lista de compras pela dieta
+- [ ] 9 Atalhos na tela inicial (Android/iPhone)
+- [ ] 10 Relatório mensal em PDF
+- [ ] Painel flutuante de notificações ao abrir o app
+- [ ] Refatorar landing com as novidades
