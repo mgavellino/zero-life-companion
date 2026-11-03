@@ -36,8 +36,8 @@ export async function generateDailySummaries(now = new Date()) {
     try { spentText = new Intl.NumberFormat(lang === "pt" ? "pt-BR" : lang, { style: "currency", currency: p.currency || "BRL" }).format(spent); } catch { spentText = spent.toFixed(2); }
     rows.push({
       user_id: p.user_id, kind: "reminder", link: "/dashboard", reminder_key: `summary:${p.date}`,
-      title: f.summaryTitle,
-      body: f.summaryBody.replace("{{spent}}", spentText).replace("{{kcal}}", String(Math.round(kcal))).replace("{{hours}}", hours.toFixed(1)),
+      title: f.summaryTitle ?? "",
+      body: (f.summaryBody ?? "").replace("{{spent}}", spentText).replace("{{kcal}}", String(Math.round(kcal))).replace("{{hours}}", hours.toFixed(1)),
     });
   }
   if (!rows.length) return 0;
