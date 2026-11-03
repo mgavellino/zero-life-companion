@@ -272,3 +272,9 @@ html { -webkit-tap-highlight-color: transparent; }
 }
 
 html, body { overflow-x: hidden; max-width: 100%; }
+
+@media print {
+  aside, nav, header, [role="dialog"], [data-command-bar] { display: none !important; }
+  html, body { overflow: visible !important; height: auto !important; }
+  main { overflow: visible !important; height: auto !important; }
+}
