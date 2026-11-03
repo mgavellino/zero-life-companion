@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Clock, Wallet, Salad, Brain, Trash2 } from "lucide-react";
 import { Page, Card } from "@/components/Page";
+import { Streaks } from "@/components/Streaks";
 import { useRows, useTableMutations, money, today } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -39,6 +40,7 @@ function Dashboard() {
           </Link>
         ))}
       </div>
+      <Streaks />
       <Card className="mt-6">
         <h3 className="mb-3 flex items-center gap-2 text-lg font-bold"><Brain className="size-5" /> {t("memory")}</h3>
         <p className="mb-4 text-sm text-muted-foreground">{t("sharedMemory")}</p>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { today, money, useRows, useTableMutations } from "@/lib/data";
 import { goalMonthlyRequired, monthlyProjection } from "@/lib/planning";
+import { monthsToGoal } from "@/lib/money-import";
 type Goal = { id: string; title: string; target_amount: number; saved_amount: number; target_date: string };
 export function FinancialGoals({ income, expense, language, hasRecords }: { income: number; expense: number; language: string; hasRecords: boolean }) {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ export function FinancialGoals({ income, expense, language, hasRecords }: { inco
         <div className="mb-3 flex items-center gap-2"><h3 className="flex-1 break-words font-bold">{g.title}</h3><Button variant="ghost" size="icon" aria-label={t("goals.delete", { title: g.title })} onClick={() => m.remove.mutate(g.id)}><Trash2 className="size-4"/></Button></div>
         <p className="mb-2 text-sm">{money(Number(g.saved_amount), language)} / {money(Number(g.target_amount), language)}</p><Progress value={Math.min(100, Number(g.saved_amount) / Number(g.target_amount) * 100)}/>
         <p className="my-3 text-sm text-muted-foreground">{complete ? t("goals.complete") : g.target_date < today() ? t("goals.overdue") : t("goals.monthlyRequired", { amount: money(required, language), date: g.target_date })}</p>
+        {hasRecords && !complete && (() => { const n = monthsToGoal(Number(g.target_amount), Number(g.saved_amount), projection.balance); return n ? <p className="mb-3 text-xs text-muted-foreground">{t("fx.goalEta", { count: n })}</p> : null; })()}
         {hasRecords && !complete && required > Math.max(0, projection.balance) && <p className="mb-3 text-xs text-destructive">{t("goals.insufficient")}</p>}
         <form className="flex gap-2" onSubmit={async e => { e.preventDefault(); const value = Number(deposits[g.id]); if (!(value > 0)) return; await m.update.mutateAsync({ id: g.id, saved_amount: Number(g.saved_amount) + value }); setDeposits({ ...deposits, [g.id]: "" }); }}><Input aria-label={t("goals.depositLabel", { title: g.title })} placeholder={t("goals.deposit")} type="number" min="0.01" step="0.01" required value={deposits[g.id] ?? ""} onChange={e => setDeposits({ ...deposits, [g.id]: e.target.value })}/><Button variant="outline" disabled={m.update.isPending}>{t("goals.save")}</Button></form>
       </div>;

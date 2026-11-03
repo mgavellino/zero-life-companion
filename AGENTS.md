@@ -41,3 +41,4 @@
 - Subdirectories may have their own `AGENTS.md`; read it before changing files there.
 - Admin privileged actions (list all users, block/delete, broadcast, coupons) run in `src/lib/admin.functions.ts`, which verifies `has_role` with the caller client before loading the service client; promotions are a public-read, admin-write table.
 - Barcode (Open Food Facts server fn) and CSV imports (`src/lib/csv-import.ts`) never use AI.
+- Receipt OCR runs on-device (tesseract.js, no AI); statement/receipt/streak/goal/shopping logic is tested pure code in `src/lib/money-import.ts`; the 21:00 daily summary runs in the per-minute notifications job, deduplicated by `summary:<date>`.

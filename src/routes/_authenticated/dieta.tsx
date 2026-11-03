@@ -14,6 +14,7 @@ import { useRows, useTableMutations, today } from "@/lib/data";
 import { EnergyBalance } from "@/components/EnergyBalance";
 import { CustomEntries } from "@/components/CustomEntries";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
+import { ShoppingList } from "@/components/ShoppingList";
 
 export const Route = createFileRoute("/_authenticated/dieta")({
   staticData: { sitemap: false },
@@ -83,6 +84,7 @@ function DietPage() {
           </div>
         ))}
       </div>
+      <ShoppingList />
     </Page>
   );
 }

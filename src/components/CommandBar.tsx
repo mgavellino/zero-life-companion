@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Mic, Send, Square } from "lucide-react";
 import { toast } from "sonner";
@@ -32,6 +32,9 @@ export function CommandBar() {
   const [rec, setRec] = useState(false);
   const mr = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
+  const input = useRef<HTMLInputElement>(null);
+  // Home-screen shortcuts open with ?quick=1: focus the bar so the user can type right away.
+  useEffect(() => { if (new URLSearchParams(location.search).has("quick")) input.current?.focus(); }, []);
 
   async function send(value: string) {
     const msg = value.trim();
@@ -107,9 +110,11 @@ export function CommandBar() {
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); void send(text); }}
+      data-command-bar
       className="grid shrink-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 border-t bg-background px-3 py-2"
     >
       <input
+        ref={input}
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={busy || rec}

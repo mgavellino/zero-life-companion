@@ -2,7 +2,7 @@ import i18n from "@/lib/i18n";
 import { PromoBanner } from "@/components/PromoBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Download, Monitor, Apple, Smartphone, Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check } from "lucide-react";
+import { Download, Monitor, Apple, Smartphone, Clock, Wallet, Salad, ArrowRight, Mic, Sparkles, Bell, Check, Camera, FileUp, CalendarClock, PieChart, PiggyBank, FileText } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Prefs } from "@/components/Prefs";
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,7 @@ const FAQ: [string, string][] = [
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Logo />
           <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
+            <a href="#recursos" className="hover:text-foreground">{t("landing.featKicker")}</a>
             <a href="#como-funciona" className="hover:text-foreground">{t("landing.how")}</a>
             <Link to="/planos" className="hover:text-foreground">{t("landing.plans")}</Link>
             <a href="#faq" className="hover:text-foreground">{t("landing.faq")}</a>
@@ -125,6 +126,21 @@ const FAQ: [string, string][] = [
               </div>
               <h3 className="mt-8 text-2xl font-semibold">{p.title}</h3>
               <p className="mt-2 text-muted-foreground">{p.d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="recursos" className="mx-auto max-w-6xl px-6 pt-24">
+        <p className="font-display text-xs uppercase tracking-[0.3em] text-muted-foreground">{t("landing.featKicker")}</p>
+        <h2 className="mt-4 max-w-2xl text-4xl font-semibold md:text-5xl">{t("landing.featTitle")}</h2>
+        <div className="mt-12 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {([[Mic, "f1"], [Camera, "f2"], [FileUp, "f3"], [CalendarClock, "f4"], [Salad, "f5"], [PieChart, "f6"], [PiggyBank, "f7"], [FileText, "f8"]] as const).map(([Icon, k]) => (
+            <div key={k} className="group min-w-0 rounded-2xl border bg-card p-4 transition-colors hover:border-ring sm:p-5">
+              <Icon className="size-5 text-signal transition-transform group-hover:-translate-y-0.5" />
+              <h3 className="mt-4 font-semibold">{t(`landing.${k}`)}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{t(`landing.${k}d`)}</p>
             </div>
           ))}
         </div>
