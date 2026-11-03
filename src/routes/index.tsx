@@ -135,9 +135,9 @@ const FAQ: [string, string][] = [
       <section id="recursos" className="mx-auto max-w-6xl px-6 pt-24">
         <p className="font-display text-xs uppercase tracking-[0.3em] text-muted-foreground">{t("landing.featKicker")}</p>
         <h2 className="mt-4 max-w-2xl text-4xl font-semibold md:text-5xl">{t("landing.featTitle")}</h2>
-        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {([[Mic, "f1"], [Camera, "f2"], [FileUp, "f3"], [CalendarClock, "f4"], [Salad, "f5"], [PieChart, "f6"], [PiggyBank, "f7"], [FileText, "f8"]] as const).map(([Icon, k]) => (
-            <div key={k} className="group rounded-2xl border bg-card p-5 transition-colors hover:border-ring">
+            <div key={k} className="group min-w-0 rounded-2xl border bg-card p-4 transition-colors hover:border-ring sm:p-5">
               <Icon className="size-5 text-signal transition-transform group-hover:-translate-y-0.5" />
               <h3 className="mt-4 font-semibold">{t(`landing.${k}`)}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{t(`landing.${k}d`)}</p>
