@@ -11,6 +11,7 @@ import { Logo } from "./Logo";
 import { Prefs } from "./Prefs";
 import { Button } from "./ui/button";
 import { NotificationBell } from "./NotificationBell";
+import { NotificationPanel } from "./NotificationPanel";
 import { PaymentTestModeBanner } from "./PaymentTestModeBanner";
 import { useSubscription } from "@/hooks/use-subscription";
 import { OnboardingGate } from "./Onboarding";
@@ -130,6 +131,7 @@ export function AppShell() {
           </div>
         </main>
       </div>
+      <NotificationPanel />
       <CommandBar />
       <nav aria-label={t("shell.mainNav")} className="grid shrink-0 grid-cols-5 border-t bg-sidebar pb-[env(safe-area-inset-bottom)] lg:hidden">
         {items.filter(i => ["/dashboard", "/tempo", "/dinheiro", "/dieta"].includes(i.to)).map(i => <Link key={i.to} to={i.to} className="zero-tab group relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground" activeProps={{className:"zero-tab-active text-primary"}}><span className="zero-tab-pill absolute inset-x-3 top-1.5 bottom-1.5 rounded-2xl bg-accent/50" aria-hidden /><i.icon className="zero-tab-icon relative size-5" /><span className="relative max-w-full truncate">{i.label}</span></Link>)}

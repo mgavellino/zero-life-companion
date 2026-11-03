@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { FinancialGoals } from "@/components/FinancialGoals";
 import { MonthlyBills } from "@/components/MonthlyBills";
+import { MoneyImports } from "@/components/MoneyImports";
 import { TransactionConfirmation, type ConfirmedTransaction } from "@/components/TransactionConfirmation";
 import { automaticCategory } from "@/lib/bills";
 import { Page, Card, Stat } from "@/components/Page";
@@ -68,6 +69,7 @@ function MoneyPage() {
       </div>}
       <FinancialGoals income={inc} expense={exp} language={L} hasRecords={cur.length > 0} />
       <MonthlyBills language={L} />
+      <MoneyImports language={L} />
       <Card className="mb-6">
         <form
           className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3"

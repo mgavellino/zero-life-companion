@@ -58,7 +58,7 @@ function Reports() {
   const d = q.data;
   const maxExp = Math.max(1, ...(d?.months ?? []).map((m) => Math.max(m.expense, m.income)));
   return (
-    <Page kicker="Max" title={t("reports.title")}>
+    <Page kicker="Max" title={t("reports.title")} actions={<Button variant="outline" className="print:hidden" onClick={() => window.print()}>{t("fx.pdf")}</Button>}>
       <Card className="mb-6">
         <div className="flex items-center gap-2 font-display font-semibold"><CalendarRange className="size-5" /> {t("reports.planWeek")}</div>
         <p className="mt-1 text-sm text-muted-foreground">{t("reports.weekDescription")}</p>
