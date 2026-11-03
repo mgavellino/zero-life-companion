@@ -7,7 +7,8 @@ export const Route = createFileRoute("/api/public/jobs/notifications")({ staticD
   if (failure) return failure;
   const { generateTaskReminders } = await import("@/lib/task-reminders.server");
   const { dispatchPendingPush } = await import("@/lib/push.server");
-  const created = await generateTaskReminders().catch(() => 0);
+  const { generateDailySummaries } = await import("@/lib/daily-summary.server");
+  const created = (await generateTaskReminders().catch(() => 0)) + (await generateDailySummaries().catch(() => 0));
   const sent = await dispatchPendingPush(new URL(request.url).origin);
   return Response.json({ ok: true, created, sent });
 } } } });
