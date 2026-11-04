@@ -77,12 +77,12 @@ const FAQ: [string, string][] = [
       {/* Hero */}
       <section className="relative">
         <div className="pointer-events-none absolute inset-0 zero-aura" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-24 pt-16 md:grid-cols-[1.15fr_1fr] md:pt-24">
-          <div>
+        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-5 pb-24 pt-16 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:pt-24">
+          <div className="min-w-0">
             <p className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground">
               <span className="size-1.5 rounded-full bg-signal" /> {t("slogan")}
             </p>
-            <h1 className="mt-6 text-5xl font-semibold leading-[1.02] md:text-7xl">
+            <h1 className="mt-6 break-words text-4xl font-semibold leading-[1.05] sm:text-5xl md:text-7xl">
               {t("landing.speak")} <span className="text-gradient-signal">{t("landing.solve")}</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
