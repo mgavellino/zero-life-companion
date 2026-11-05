@@ -125,7 +125,7 @@ export function Onboarding({ onDone }: { onDone?: () => void }) {
     age: previous?.age?.toString() ?? "",
     sex: previous?.sex ?? "",
   }));
-  const [notice, setNotice] = useState(false), [deviceReady, setDeviceReady] = useState(false);
+  const [notice, setNotice] = useState(false), [, setDeviceReady] = useState(false);
   const titles = [t("onboarding.title1"), t("onboarding.titlePriorities"), t("onboarding.titleRoutine"), t("onboarding.titleMoney"), t("onboarding.title3"), t("onboarding.title4"), t("deviceSetup.title")];
   const last = titles.length - 1;
   const toggle = (list: string[], v: string, max = 99) => list.includes(v) ? list.filter(x => x !== v) : list.length >= max ? list : [...list, v];
