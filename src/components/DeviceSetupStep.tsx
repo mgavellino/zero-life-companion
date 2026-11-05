@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Download } from "lucide-react";
+import { Button } from "./ui/button";
+import winExe from "@/assets/downloads/ZeroSetup.exe.asset.json";
+import macArm from "@/assets/downloads/Zero-mac-arm64.dmg.asset.json";
+import macIntel from "@/assets/downloads/Zero-mac-x64.dmg.asset.json";
 import { InstallZero } from "./InstallZero";
 import { PushSettings } from "./PushSettings";
 
@@ -34,6 +38,11 @@ export function DeviceSetupStep({ onReadyChange }: { onReadyChange: (ready: bool
     <section className="rounded-2xl border p-4">
       <h2 className="font-semibold">{t("deviceSetup.install")}</h2>
       {installed ? <p className="mt-2 flex items-center gap-2 text-sm"><CheckCircle2 className="size-4 text-primary" />{t("deviceSetup.installed")}</p> : <div className="mt-2"><InstallZero />{mobile && <p className="mt-2 text-xs text-muted-foreground">{t("deviceSetup.required")}</p>}</div>}
+      {!mobile && <div className="mt-3 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
+        <Button asChild variant="outline" size="sm"><a href={winExe.url} download="ZeroSetup.exe"><Download className="size-4" />{t("landing.dlExe")}</a></Button>
+        <Button asChild variant="outline" size="sm"><a href={macArm.url} download="Zero-mac-arm64.dmg"><Download className="size-4" />{t("landing.dlMacArm")}</a></Button>
+        <Button asChild variant="outline" size="sm"><a href={macIntel.url} download="Zero-mac-x64.dmg"><Download className="size-4" />{t("landing.dlMacIntel")}</a></Button>
+      </div>}
     </section>
     {installOk && pushSupported && <section className="rounded-2xl border p-4">
       <h2 className="font-semibold">{t("deviceSetup.push")}</h2>
